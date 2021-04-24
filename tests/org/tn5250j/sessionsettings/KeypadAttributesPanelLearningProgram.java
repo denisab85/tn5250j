@@ -30,22 +30,22 @@ import org.tn5250j.tools.LangTool;
 import javax.swing.*;
 import java.awt.*;
 
-public class KeypadAttributesPanelLearningTest {
+public class KeypadAttributesPanelLearningProgram {
 
-  public static void main(String[] args) {
-    LangTool.init();
+    public static void main(String[] args) {
+        LangTool.init();
 
-    SessionConfig config = new SessionConfig("test-configuration-resource", "test-session");
-    KeypadAttributesPanel keypadAttributesPanel = new KeypadAttributesPanel(config);
+        SessionConfig config = new SessionConfig("test-configuration-resource", "test-session");
+        KeypadAttributesPanel keypadAttributesPanel = new KeypadAttributesPanel(config);
 
-    showPanel(keypadAttributesPanel);
-  }
+        showPanel(keypadAttributesPanel);
+    }
 
-  private static void showPanel(JPanel panel) {
-    JFrame frame = new JFrame("FrameDemo");
-    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    frame.getContentPane().add(panel, BorderLayout.CENTER);
-    frame.pack();
-    frame.setVisible(true);
-  }
+    private static void showPanel(JPanel panel) {
+        JFrame frame = new JFrame("FrameDemo");
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.pack();
+        frame.setVisible(true);
+    }
 }
