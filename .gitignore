@@ -1,11 +1,8 @@
-/dist
-/bin
-/build
-/out
-build.*.properties
+/target
 *.iml
 .idea
 .classpath
 .project
+.settings/
 .pydevproject
 .DS_Store

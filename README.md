@@ -5,6 +5,24 @@ Documentation is available at: [tn5250j.github.io](https://tn5250j.github.io/)
 
 [![Build Status](https://travis-ci.org/tn5250j/tn5250j.svg?branch=travis)](https://travis-ci.org/tn5250j/tn5250j)
 
+## Build (Maven)
+
+Requirements:
+- Java 8+
+- Maven
+
+Build a runnable shaded JAR:
+
+```bash
+mvn clean package
+```
+
+Run it:
+
+```bash
+java -jar target/tn5250j-*.jar
+```
+
 ## History
 
 This project was created because there was no terminal emulator for Linux with features like continued edit fields, gui windows, cursor progression fields, etc.
