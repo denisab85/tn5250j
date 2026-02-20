@@ -59,11 +59,7 @@ public class SpoolNameTabPanel extends JPanel implements QueueFilterInterface,
 
         select = new JRadioButton("Spool Name");
         select.setSelected(false);
-        select.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                select_itemStateChanged(e);
-            }
-        });
+        select.addItemListener(e -> select_itemStateChanged(e));
 
         spoolName = new JTextField(15);
         ToggleDocument td = new ToggleDocument();

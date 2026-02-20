@@ -54,7 +54,7 @@ public class TN5250jSplashScreen extends Canvas {
     private Graphics offScreenBufferGraphics;
     private int steps;
     private int progress;
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
     /**
      * Creates a splash screen given the location of the image.

@@ -63,34 +63,34 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
         ActionListener {
 
     // Dup Character array for display output
-    private static final transient char[] dupChar = {'*'};
+    private static final char[] dupChar = {'*'};
 
     private BufferedImage bi;
     private final Object lock = new Object();
-    private Line2D separatorLine = new Line2D.Float();
-    private Rectangle2D tArea; // text area
-    private Rectangle2D aArea; // all screen area
-    private Rectangle2D cArea; // command line area
-    private Rectangle2D sArea; // status area
-    private Rectangle2D pArea; // position area (cursor etc..)
-    private Rectangle2D mArea; // message area
-    private Rectangle2D iArea; // insert indicator
-    private Rectangle2D kbArea; // keybuffer indicator
-    private Rectangle2D scriptArea; // script indicator
-    private Rectangle2D cursor = new Rectangle2D.Float();
+    private final Line2D separatorLine = new Line2D.Float();
+    private final Rectangle2D tArea; // text area
+    private final Rectangle2D aArea; // all screen area
+    private final Rectangle2D cArea; // command line area
+    private final Rectangle2D sArea; // status area
+    private final Rectangle2D pArea; // position area (cursor etc..)
+    private final Rectangle2D mArea; // message area
+    private final Rectangle2D iArea; // insert indicator
+    private final Rectangle2D kbArea; // keybuffer indicator
+    private final Rectangle2D scriptArea; // script indicator
+    private final Rectangle2D cursor = new Rectangle2D.Float();
     private final static String xSystem = "X - System";
     private final static String xError = "X - II";
     private int crossRow;
-    private Rectangle crossRect = new Rectangle();
+    private final Rectangle crossRect = new Rectangle();
     private int offTop = 0;   // offset from top
     private int offLeft = 0;  // offset from left
     private boolean antialiased = true;
     private Graphics2D gg2d;
-    private Screen5250 screen;
+    private final Screen5250 screen;
     private Data updateRect;
     protected int columnWidth;
     protected int rowHeight;
-    private SessionPanel gui;
+    private final SessionPanel gui;
 
     private LineMetrics lm;
     /*default*/ Font font;
@@ -123,7 +123,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
     private ColumnSeparator colSepLine;
     private final StringBuffer hsMore = new StringBuffer("More...");
     private final StringBuffer hsBottom = new StringBuffer("Bottom");
-    private Rectangle workR = new Rectangle();
+    private final Rectangle workR = new Rectangle();
 
     private boolean colSep = false;
     private boolean underLine = false;
@@ -131,7 +131,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
     private Color fg;
     private Color bg;
 
-    private SessionConfig config;
+    private final SessionConfig config;
 
     protected Rectangle clipper;
 
@@ -360,14 +360,14 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
         }
 
         if (config.isPropertyExists("hsMore")) {
-            if (getStringProperty("hsMore").length() > 0) {
+            if (!getStringProperty("hsMore").isEmpty()) {
                 hsMore.setLength(0);
                 hsMore.append(getStringProperty("hsMore"));
             }
         }
 
         if (config.isPropertyExists("hsBottom")) {
-            if (getStringProperty("hsBottom").length() > 0) {
+            if (!getStringProperty("hsBottom").isEmpty()) {
                 hsBottom.setLength(0);
                 hsBottom.append(getStringProperty("hsBottom"));
             }
@@ -1270,11 +1270,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
         final int xf = x;
         final int yf = y;
         try {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    gui.repaint(xf, yf, widthf, heightf);
-                }
-            });
+            SwingUtilities.invokeLater(() -> gui.repaint(xf, yf, widthf, heightf));
 
         } catch (Exception exc) {
             log.warn("setStatus(ON) " + exc.getMessage());
@@ -1407,7 +1403,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
 
     public final void drawChar(Graphics2D g, int pos, int row, int col) {
         Rectangle csArea = new Rectangle();
-        char sChar[] = new char[1];
+        char[] sChar = new char[1];
         int attr = updateRect.attr[pos];
         sChar[0] = updateRect.text[pos];
         setDrawAttr(pos);
@@ -1975,11 +1971,11 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
 
     protected class Data {
 
-        public char[] text;
-        public char[] attr;
+        public final char[] text;
+        public final char[] attr;
         public char[] isAttr;
-        public char[] color;
-        public char[] extended;
+        public final char[] color;
+        public final char[] extended;
         public final char[] graphic;
         public final char[] field;
 

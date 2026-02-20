@@ -36,14 +36,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DataStreamDumper {
 
-    private AtomicInteger counter = new AtomicInteger(0);
+    private final AtomicInteger counter = new AtomicInteger(0);
 
     private FileOutputStream fw;
     private BufferedOutputStream dw;
     private boolean dumpActive = false;
     private ICodePage codePage;
 
-    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
 
     public void toggleDebug(ICodePage cp) {
@@ -96,15 +96,15 @@ public class DataStreamDumper {
             StringBuilder h = new StringBuilder();
             for (int x = 0; x < abyte0.length; x++) {
                 if (x % 16 == 0) {
-                    System.out.println("  " + h.toString());
-                    dw.write(("  " + h.toString() + "\r\n").getBytes());
+                    System.out.println("  " + h);
+                    dw.write(("  " + h + "\r\n").getBytes());
 
                     h.setLength(0);
                     h.append("+0000");
                     h.setLength(5 - Integer.toHexString(x).length());
                     h.append(Integer.toHexString(x).toUpperCase());
 
-                    System.out.print(h.toString());
+                    System.out.print(h);
                     dw.write(h.toString().getBytes());
 
                     h.setLength(0);
@@ -147,8 +147,6 @@ public class DataStreamDumper {
             FileOutputStream fos = new FileOutputStream(fname);
             fos.write(buffer);
             fos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

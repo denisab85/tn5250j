@@ -32,7 +32,6 @@ import org.tn5250j.tools.logging.TN5250jLogger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Properties;
 
 /**
  * Base class for all attribute panels
@@ -44,7 +43,7 @@ abstract class AttributesPanel extends JPanel {
 
     private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
-    private String name;
+    private final String name;
     SessionConfig changes = null;
     // content pane to be used if needed by subclasses
     JPanel contentPane;
@@ -87,7 +86,7 @@ abstract class AttributesPanel extends JPanel {
 
         if (changes.isPropertyExists(prop)) {
             String p = changes.getStringProperty(prop);
-            if (p.length() > 0)
+            if (!p.isEmpty())
                 return p;
             else
                 return defaultValue;

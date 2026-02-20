@@ -102,7 +102,7 @@ class DefaultKeyboardHandler extends KeyboardHandler {
 
         modString = "modifiers = " + modifiers;
         tmpString = KeyEvent.getKeyModifiersText(modifiers);
-        if (tmpString.length() > 0) {
+        if (!tmpString.isEmpty()) {
             modString += " (" + tmpString + ")";
         } else {
             modString += " (no modifiers)";

@@ -64,12 +64,12 @@ public class SpoolExporter extends GenericTn5250JFrame {
     AS400 system;
 
     // Connection vt
-    tnvt vt;
-    SessionPanel session;
+    final tnvt vt;
+    final SessionPanel session;
 
-    Vector data = new Vector();
+    final Vector data = new Vector();
     Vector row = new Vector();
-    Vector names = new Vector();
+    final Vector names = new Vector();
 
     SpooledFileList splfList;
 
@@ -145,17 +145,15 @@ public class SpoolExporter extends GenericTn5250JFrame {
 
         //Setup our selection model listener
         rowSM = spools.getSelectionModel();
-        rowSM.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
+        rowSM.addListSelectionListener(e -> {
 
-                //Ignore extra messages.
-                if (e.getValueIsAdjusting())
-                    return;
+            //Ignore extra messages.
+            if (e.getValueIsAdjusting())
+                return;
 
-                ListSelectionModel lsm =
-                        (ListSelectionModel) e.getSource();
+            ListSelectionModel lsm =
+                    (ListSelectionModel) e.getSource();
 
-            }
         });
 
         rowSM.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -222,26 +220,14 @@ public class SpoolExporter extends GenericTn5250JFrame {
         JButton reset = new JButton(LangTool.getString("spool.resetPanel"));
 
         bp.add(load);
-        load.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                runLoader();
-            }
-        });
+        load.addActionListener(e -> runLoader());
 
         bp.add(reset);
 
-        reset.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                filter.resetCurrent();
-            }
-        });
+        reset.addActionListener(e -> filter.resetCurrent());
 
         bp.add(resetAll);
-        resetAll.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                filter.resetAll();
-            }
-        });
+        resetAll.addActionListener(e -> filter.resetAll());
 
         fp.add(filter, BorderLayout.CENTER);
         fp.add(bp, BorderLayout.SOUTH);
@@ -251,11 +237,7 @@ public class SpoolExporter extends GenericTn5250JFrame {
     }
 
     private void runLoader() {
-        Runnable loader = new Runnable() {
-            public void run() {
-                loadSpoolFiles();
-            }
-        };
+        Runnable loader = () -> loadSpoolFiles();
 
         Thread t = new Thread(loader);
         t.setDaemon(true);
@@ -290,7 +272,7 @@ public class SpoolExporter extends GenericTn5250JFrame {
             splfList.setQueueFilter("/QSYS.LIB/" + filter.getLibrary() + ".LIB/" +
                     filter.getQueue() + ".OUTQ");
 
-            if (filter.getUserData().length() > 0)
+            if (!filter.getUserData().isEmpty())
                 splfList.setUserDataFilter(filter.getUserData());
 
             // retrieve the output queues
@@ -474,7 +456,7 @@ public class SpoolExporter extends GenericTn5250JFrame {
             if (dateArray.length != 7)
                 return dateString;
 
-            StringBuffer db = new StringBuffer(10);
+            StringBuilder db = new StringBuilder(10);
 
             // this will strip out the starting century char as described above
             db.append(dateArray, 1, 6);
@@ -504,7 +486,7 @@ public class SpoolExporter extends GenericTn5250JFrame {
 
         if (timeString != null) {
 
-            StringBuffer tb = new StringBuffer(timeString);
+            StringBuilder tb = new StringBuilder(timeString);
 
             tb.insert(tb.length() - 2, ':');
             tb.insert(tb.length() - 5, ':');
@@ -537,11 +519,7 @@ public class SpoolExporter extends GenericTn5250JFrame {
                 System.out.println(row + " is selected ");
                 spools.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 SwingUtilities.invokeLater(
-                        new Runnable() {
-                            public void run() {
-                                displayViewer(getSpooledFile(row));
-                            }
-                        }
+                        () -> displayViewer(getSpooledFile(row))
                 );
             }
         };
@@ -638,7 +616,7 @@ public class SpoolExporter extends GenericTn5250JFrame {
         Vector rows = (Vector) data.get(row);
         SpooledFile splf = new SpooledFile(system,
                 (String) rows.get(0), // splf name
-                ((Integer) rows.get(1)).intValue(), // splf number
+                (Integer) rows.get(1), // splf number
                 (String) rows.get(2), // job name
                 (String) rows.get(3), // job user
                 (String) rows.get(4));   // job number
@@ -676,11 +654,7 @@ public class SpoolExporter extends GenericTn5250JFrame {
             final int row = spools.rowAtPoint(e.getPoint());
             spools.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             SwingUtilities.invokeLater(
-                    new Runnable() {
-                        public void run() {
-                            displayViewer(getSpooledFile(row));
-                        }
-                    }
+                    () -> displayViewer(getSpooledFile(row))
             );
 
         }
@@ -752,11 +726,7 @@ public class SpoolExporter extends GenericTn5250JFrame {
             status.setForeground(Color.black);
 
         SwingUtilities.invokeLater(
-                new Runnable() {
-                    public void run() {
-                        status.setText(stat);
-                    }
-                }
+                () -> status.setText(stat)
         );
 
     }
@@ -779,8 +749,8 @@ public class SpoolExporter extends GenericTn5250JFrame {
     class SpoolTableModel extends DefaultSortTableModel implements PrintObjectListListener {
 
         private static final long serialVersionUID = 1L;
-        String[] cols;
-        int[] colsSizes;
+        final String[] cols;
+        final int[] colsSizes;
 
         final String colLayout = "Spool Name|100|Spool Number|90|Job Name|100|Job User|100|Job Number|90|Queue|200|User Data|100|Status|100|Total Pages|90|Current Page|90|Copies|90|Form Type|100|Priority|40|Creation Date/Time|175|Size|120";
 
@@ -830,38 +800,26 @@ public class SpoolExporter extends GenericTn5250JFrame {
         public void listClosed(PrintObjectListEvent e) {
 //                System.out.println("list closed");
 
-            SwingUtilities.invokeLater(new Thread() {
-                public void run() {
-                    fireTableDataChanged();
-                }
-            });
+            SwingUtilities.invokeLater(new Thread(() -> fireTableDataChanged()));
         }
 
         public void listCompleted(PrintObjectListEvent e) {
 //                System.out.println("list completed");
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
-            SwingUtilities.invokeLater(new Thread() {
-                public void run() {
-                    fireTableDataChanged();
-                }
-            });
+            SwingUtilities.invokeLater(new Thread(() -> fireTableDataChanged()));
         }
 
         public void listErrorOccurred(PrintObjectListEvent e) {
 
             System.err.println("list error occurred : " + e.getException().getMessage());
 
-            SwingUtilities.invokeLater(new Thread() {
-                public void run() {
-                    fireTableDataChanged();
-                }
-            });
+            SwingUtilities.invokeLater(new Thread(() -> fireTableDataChanged()));
         }
 
         public void listObjectAdded(PrintObjectListEvent e) {
 //         System.out.println("list object added");
-            boolean spoolFilter = filter.getSpoolName().length() > 0;
+            boolean spoolFilter = !filter.getSpoolName().isEmpty();
             String spoolName = filter.getSpoolName();
             SpooledFile p = (SpooledFile) e.getObject();
 
@@ -895,21 +853,15 @@ public class SpoolExporter extends GenericTn5250JFrame {
                 data.add(row);
             }
 
-            SwingUtilities.invokeLater(new Thread() {
-                public void run() {
-                    fireTableDataChanged();
-                    updateStatus(data.size() + " " + LangTool.getString("spool.count"));
-                }
-            });
+            SwingUtilities.invokeLater(new Thread(() -> {
+                fireTableDataChanged();
+                updateStatus(data.size() + " " + LangTool.getString("spool.count"));
+            }));
         }
 
         public void listOpened(PrintObjectListEvent e) {
             System.out.println("list opened");
-            SwingUtilities.invokeLater(new Thread() {
-                public void run() {
-                    fireTableDataChanged();
-                }
-            });
+            SwingUtilities.invokeLater(new Thread(() -> fireTableDataChanged()));
         }
     }
 

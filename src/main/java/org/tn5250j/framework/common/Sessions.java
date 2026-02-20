@@ -39,19 +39,19 @@ public class Sessions implements SessionsInterface, ActionListener {
     private int count = 0;
     private Timer heartBeater;
 
-    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     public Sessions() {
 
-        sessions = new ArrayList<Session5250>();
+        sessions = new ArrayList<>();
     }
 
     public void actionPerformed(ActionEvent e) {
 
         Session5250 ses;
-        for (int x = 0; x < sessions.size(); x++) {
+        for (Session5250 session : sessions) {
             try {
-                ses = sessions.get(x);
+                ses = session;
                 if (ses.isConnected() && ses.isSendKeepAlive()) {
                     ses.getVT().sendHeartBeat();
                     if (log.isDebugEnabled()) {
@@ -149,9 +149,8 @@ public class Sessions implements SessionsInterface, ActionListener {
     }
 
     public ArrayList<Session5250> getSessionsList() {
-        ArrayList<Session5250> newS = new ArrayList<Session5250>(sessions.size());
-        for (int x = 0; x < sessions.size(); x++)
-            newS.add(sessions.get(x));
+        ArrayList<Session5250> newS = new ArrayList<>(sessions.size());
+        for (Session5250 session : sessions) newS.add(session);
         return newS;
     }
 

@@ -15,7 +15,7 @@ public interface ICodepageConverter extends ICodePage {
      *
      * @return
      */
-    public abstract String getName();
+    String getName();
 
     /**
      * Returns a short description for this converter.
@@ -23,11 +23,11 @@ public interface ICodepageConverter extends ICodePage {
      *
      * @return
      */
-    public abstract String getDescription();
+    String getDescription();
 
     /**
      * Does special initialization stuff for this converter.
      */
-    public abstract ICodepageConverter init();
+    ICodepageConverter init();
 
 }

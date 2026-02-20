@@ -81,27 +81,27 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
 
     private static final long serialVersionUID = 1L;
     JPanel contentPane;
-    JLabel statusBar = new JLabel();
+    final JLabel statusBar = new JLabel();
 
-    JPanel spoolPanel = new JPanel();
-    JPanel spoolData = new JPanel();
-    JPanel spoolOptions = new JPanel();
+    final JPanel spoolPanel = new JPanel();
+    final JPanel spoolData = new JPanel();
+    final JPanel spoolOptions = new JPanel();
 
     JPanel destPanel = new JPanel();
-    JLabel labelSpooledFile = new JLabel();
-    JLabel spooledFile = new JLabel();
-    JLabel labelJobName = new JLabel();
-    JLabel jobName = new JLabel();
-    JLabel labelUser = new JLabel();
-    JLabel user = new JLabel();
-    JLabel labelNumber = new JLabel();
-    JLabel number = new JLabel();
-    JLabel labelFileNumber = new JLabel();
-    JLabel spooledFileNumber = new JLabel();
-    JLabel labelSystem = new JLabel();
-    JLabel systemName = new JLabel();
-    JLabel labelPages = new JLabel();
-    JLabel pages = new JLabel();
+    final JLabel labelSpooledFile = new JLabel();
+    final JLabel spooledFile = new JLabel();
+    final JLabel labelJobName = new JLabel();
+    final JLabel jobName = new JLabel();
+    final JLabel labelUser = new JLabel();
+    final JLabel user = new JLabel();
+    final JLabel labelNumber = new JLabel();
+    final JLabel number = new JLabel();
+    final JLabel labelFileNumber = new JLabel();
+    final JLabel spooledFileNumber = new JLabel();
+    final JLabel labelSystem = new JLabel();
+    final JLabel systemName = new JLabel();
+    final JLabel labelPages = new JLabel();
+    final JLabel pages = new JLabel();
 
     JComboBox cvtType;
     JTextField pcPathInfo;
@@ -130,10 +130,10 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
     JButton getEditor;
 
     // Spooled File
-    SpooledFile splfile;
+    final SpooledFile splfile;
 
     // Session object
-    SessionPanel session;
+    final SessionPanel session;
 
     JPanel twoPDF;
     JPanel twoText;
@@ -322,11 +322,7 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
         textProps.add(editor = new JTextField(30));
         getEditor = new JButton("Browse");
 
-        getEditor.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                getEditor();
-            }
-        });
+        getEditor.addActionListener(e -> getEditor());
         textProps.add(getEditor);
 
         // see if we have an external viewer defined and if we use it or not
@@ -439,11 +435,7 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
 
         pcSave = new JButton("...");
 
-        pcSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                getPCFile();
-            }
-        });
+        pcSave.addActionListener(e -> getPCFile());
 
         spoolInfo.add(pc);
         spoolInfo.add(pcPathInfo);
@@ -454,11 +446,7 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
 
         ifsSave = new JButton("...");
 
-        ifsSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                getIFSFile();
-            }
-        });
+        ifsSave.addActionListener(e -> getIFSFile());
 
         spoolInfo.add(ifs);
         spoolInfo.add(ifsPathInfo);
@@ -475,23 +463,11 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
         bg.add(ifs);
         bg.add(email);
 
-        pc.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                doItemStateChanged(e);
-            }
-        });
+        pc.addItemListener(e -> doItemStateChanged(e));
 
-        ifs.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                doItemStateChanged(e);
-            }
-        });
+        ifs.addItemListener(e -> doItemStateChanged(e));
 
-        email.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                doItemStateChanged(e);
-            }
-        });
+        email.addItemListener(e -> doItemStateChanged(e));
 
         pc.setSelected(true);
 
@@ -530,9 +506,9 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
     private boolean pagesValid() {
 
         if (pc.isSelected()) {
-            if (pcPathInfo.getText().length() == 0)
+            if (pcPathInfo.getText().isEmpty())
                 getPCFile();
-            if (pcPathInfo.getText().length() == 0)
+            if (pcPathInfo.getText().isEmpty())
                 return false;
         }
 
@@ -639,17 +615,9 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
         workingThread = null;
 
         if (cvtType.getSelectedIndex() == 0)
-            workingThread = new Thread(new Runnable() {
-                public void run() {
-                    cvtToPDF();
-                }
-            });
+            workingThread = new Thread(() -> cvtToPDF());
         else
-            workingThread = new Thread(new Runnable() {
-                public void run() {
-                    cvtToText();
-                }
-            });
+            workingThread = new Thread(() -> cvtToText());
 
         workingThread.start();
     }
@@ -712,7 +680,7 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
 
             int read = 0;
             int totBytes = 0;
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             updateStatus("Starting Output");
 
@@ -836,7 +804,7 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
             int read = 0;
             int totBytes = 0;
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             updateStatus("Starting Output");
 
@@ -986,7 +954,7 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
                 float fontsize = 9.0f;
 
                 // if we have a font selectd then try to use it
-                if (fontSize.getText().length() > 0)
+                if (!fontSize.getText().isEmpty())
                     fontsize = Float.parseFloat(fontSize.getText().trim());
 
                 // create the pdf font to use within the document
@@ -994,11 +962,11 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
                         com.lowagie.text.Font.NORMAL);
 
                 // set the PDF properties of the supplied properties
-                if (author.getText().length() > 0)
+                if (!author.getText().isEmpty())
                     document.addAuthor(author.getText());
-                if (title.getText().length() > 0)
+                if (!title.getText().isEmpty())
                     document.addTitle(title.getText());
-                if (subject.getText().length() > 0)
+                if (!subject.getText().isEmpty())
                     document.addSubject(subject.getText());
 
                 // set the page sizes and the page orientation
@@ -1063,11 +1031,7 @@ public class SpoolExportWizard extends GenericTn5250JFrame implements WizardList
     private void updateStatus(final String stat) {
 
         SwingUtilities.invokeLater(
-                new Runnable() {
-                    public void run() {
-                        statusBar.setText(stat);
-                    }
-                }
+                () -> statusBar.setText(stat)
         );
 
     }

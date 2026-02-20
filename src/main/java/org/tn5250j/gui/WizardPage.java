@@ -64,7 +64,7 @@ public class WizardPage extends JPanel {
     protected static final int BUTTON_SPACING = 5;
 
     // Box containing the buttons used
-    protected JPanel buttonPanel;
+    protected final JPanel buttonPanel;
     protected JSeparator separator;
 
     // Pane returned by getContentPane.  This is the pane the

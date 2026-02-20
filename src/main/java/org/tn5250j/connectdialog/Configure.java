@@ -104,11 +104,7 @@ class Configure {
         heartBeat = new JCheckBox(LangTool.getString("conf.labelHeartBeat"));
 
         jtb = new JCheckBox("AS/400 Toolbox");
-        jtb.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                doCPStateChanged(e);
-            }
-        });
+        jtb.addItemListener(e -> doCPStateChanged(e));
 
         cpb = new JComboBox();
 
@@ -116,8 +112,8 @@ class Configure {
 
         cpb.addItem(LangTool.getString("conf.labelDefault"));
 
-        for (int x = 0; x < availCP.length; x++) {
-            cpb.addItem(availCP[x]);
+        for (String s : availCP) {
+            cpb.addItem(s);
         }
 
         sslType = new JComboBox();
@@ -304,11 +300,7 @@ class Configure {
                 sdn,
                 sip);
 
-        sdn.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                doItemStateChanged(e);
-            }
-        });
+        sdn.addItemListener(e -> doItemStateChanged(e));
 
         addLabelComponent(LangTool.getString("conf.labelSSLType"),
                 sslType,
@@ -533,8 +525,8 @@ class Configure {
         cpb.removeAllItems();
         cpb.addItem(LangTool.getString("conf.labelDefault"));
 
-        for (int x = 0; x < availCP.length; x++) {
-            cpb.addItem(availCP[x]);
+        for (String s : availCP) {
+            cpb.addItem(s);
         }
     }
 
@@ -561,9 +553,9 @@ class Configure {
 
     private static boolean isSpecified(String parm, String[] args) {
 
-        for (int x = 0; x < args.length; x++) {
+        for (String arg : args) {
 
-            if (args[x] != null && args[x].equals(parm))
+            if (arg != null && arg.equals(parm))
                 return true;
 
         }
@@ -600,11 +592,11 @@ class Configure {
 
         // port
         if (port.getText() != null)
-            if (port.getText().trim().length() > 0)
+            if (!port.getText().trim().isEmpty())
                 sb.append(" -p " + port.getText().trim());
 
         if (fpn.getText() != null)
-            if (fpn.getText().length() > 0)
+            if (!fpn.getText().isEmpty())
                 sb.append(" -f " + fpn.getText());
         if (!LangTool.getString("conf.labelDefault").equals(
                 cpb.getSelectedItem()))
@@ -623,7 +615,7 @@ class Configure {
             sb.append(" -132");
 
         if (deviceName.getText() != null && !sdn.isSelected())
-            if (deviceName.getText().trim().length() > 0)
+            if (!deviceName.getText().trim().isEmpty())
                 if (deviceName.getText().trim().length() > 10)
                     sb.append(" -dn " + deviceName.getText().trim().substring(0, 10).toUpperCase());
                 else
@@ -636,11 +628,11 @@ class Configure {
             sb.append(" -usp");
 
         if (proxyHost.getText() != null)
-            if (proxyHost.getText().length() > 0)
+            if (!proxyHost.getText().isEmpty())
                 sb.append(" -sph " + proxyHost.getText());
 
         if (proxyPort.getText() != null)
-            if (proxyPort.getText().length() > 0)
+            if (!proxyPort.getText().isEmpty())
                 sb.append(" -spp " + proxyPort.getText());
 
         if (noEmbed.isSelected())
@@ -674,13 +666,13 @@ class Configure {
                 throws BadLocationException {
 
             super.insertString(offs, str, a);
-            if (getText(0, getLength()).length() > 0)
+            if (!getText(0, getLength()).isEmpty())
                 doSomethingEntered();
         }
 
         public void remove(int offs, int len) throws BadLocationException {
             super.remove(offs, len);
-            if (getText(0, getLength()).length() == 0)
+            if (getText(0, getLength()).isEmpty())
                 doNothingEntered();
         }
     }

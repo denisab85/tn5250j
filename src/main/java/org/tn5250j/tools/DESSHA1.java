@@ -81,11 +81,11 @@ public class DESSHA1 implements Serializable {
      */
     public static String bytesToHex(byte[] data) {
 
-        StringBuffer retval = new StringBuffer();
+        StringBuilder retval = new StringBuilder();
 
-        for (int i = 0; i < data.length; i++) {
-            retval.append(HEX[(data[i] >> 4) & 0x0F]);
-            retval.append(HEX[data[i] & 0x0F]);
+        for (byte datum : data) {
+            retval.append(HEX[(datum >> 4) & 0x0F]);
+            retval.append(HEX[datum & 0x0F]);
         }
 
         return retval.toString();

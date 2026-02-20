@@ -28,7 +28,7 @@ import org.tn5250j.tools.logging.TN5250jLogger;
 public class KeyStrokenizer {
 
     private StringBuffer keyStrokes;
-    private StringBuffer sb;
+    private final StringBuffer sb;
     private int index;
     private int length;
 

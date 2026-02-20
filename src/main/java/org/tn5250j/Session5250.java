@@ -41,10 +41,10 @@ import org.tn5250j.interfaces.SessionInterface;
  */
 public class Session5250 implements SessionInterface {
 
-    private String configurationResource;
-    private String sessionName;
+    private final String configurationResource;
+    private final String sessionName;
     private int sessionType;
-    protected Properties sesProps;
+    protected final Properties sesProps;
     private boolean heartBeat;
     private final String propFileName;
     private final SessionConfig sesConfig;
@@ -248,13 +248,7 @@ public class Session5250 implements SessionInterface {
         final int portp = port;
 
         // lets set this puppy up to connect within its own thread
-        Runnable connectIt = new Runnable() {
-            @Override
-            public void run() {
-                vt.connect(ses, portp);
-            }
-
-        };
+        Runnable connectIt = () -> vt.connect(ses, portp);
 
         // now lets set it to connect within its own daemon thread
         //    this seems to work better and is more responsive than using
@@ -357,7 +351,7 @@ public class Session5250 implements SessionInterface {
         scanListenerLock.writeLock().lock();
         try {
             if (scanListeners == null) {
-                scanListeners = new ArrayList<ScanListener>(3);
+                scanListeners = new ArrayList<>(3);
             }
             scanListeners.add(listener);
         } finally {
@@ -409,7 +403,7 @@ public class Session5250 implements SessionInterface {
         sessionListenerLock.writeLock().lock();
         try {
             if (sessionListeners == null) {
-                sessionListeners = new ArrayList<SessionListener>(3);
+                sessionListeners = new ArrayList<>(3);
             }
             sessionListeners.add(listener);
         } finally {

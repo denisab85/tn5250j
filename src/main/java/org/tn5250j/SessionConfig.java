@@ -62,7 +62,7 @@ public class SessionConfig {
     private final KeyMnemonicSerializer keyMnemonicSerializer = new KeyMnemonicSerializer();
 
     private String configurationResource;
-    private String sessionName;
+    private final String sessionName;
     private Properties sesProps;
     private boolean usingDefaults;
 
@@ -156,8 +156,6 @@ public class SessionConfig {
                 FileOutputStream out = new FileOutputStream(settingsDirectory() + getConfigurationResource());
                 // save off the width and height to be restored later
                 sesProps.store(out, "------ Defaults --------");
-            } catch (FileNotFoundException ignore) {
-                // ignore
             } catch (IOException ignore) {
                 // ignore
             }
@@ -176,7 +174,7 @@ public class SessionConfig {
             try {
                 FileInputStream in = new FileInputStream(settingsDirectory() + getConfigurationResource());
                 sesProps.load(in);
-                if (sesProps.size() == 0)
+                if (sesProps.isEmpty())
                     loadDefaults();
             } catch (IOException ioe) {
                 System.out.println("Information Message: Properties file is being "
@@ -198,7 +196,7 @@ public class SessionConfig {
         try {
             sesProps = configureFactory
                     .getProperties("dfltSessionProps", getConfigurationResource(), true, "Default Settings");
-            if (sesProps.size() == 0) {
+            if (sesProps.isEmpty()) {
                 sesProps.putAll(loadPropertiesFromResource(getConfigurationResource()));
 
                 Properties colorSchemaDefaults = loadPropertiesFromResource("tn5250jSchemas.properties");
@@ -356,7 +354,7 @@ public class SessionConfig {
         sessionCfglistenersLock.writeLock().lock();
         try {
             if (sessionCfglisteners == null) {
-                sessionCfglisteners = new ArrayList<SessionConfigListener>(3);
+                sessionCfglisteners = new ArrayList<>(3);
             }
             sessionCfglisteners.add(listener);
         } finally {

@@ -40,10 +40,10 @@ public class CharMappings {
     public static final int NATIVE_CP = 0;
     public static final int TOOLBOX_CP = 1;
 
-    private static final HashMap<String, ICodePage> map = new HashMap<String, ICodePage>();
+    private static final HashMap<String, ICodePage> map = new HashMap<>();
 
     public static String[] getAvailableCodePages() {
-        Set<String> cpset = new HashSet<String>(); // no double entries
+        Set<String> cpset = new HashSet<>(); // no double entries
         for (String cp : BuiltInCodePageFactory.getInstance().getAvailableCodePages()) {
             cpset.add(cp);
         }

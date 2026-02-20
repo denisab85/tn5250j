@@ -41,7 +41,7 @@ public class EncodeComponent {
             "org.tn5250j.tools.encoder.PNGEncoder",
             " PNG Load Error");
 
-    public static final Encoding ENCODINGS[] = {
+    public static final Encoding[] ENCODINGS = {
             PNG
     };
 
@@ -78,10 +78,10 @@ public class EncodeComponent {
      * Class used to enumerate valid encodings
      */
     public static class Encoding {
-        private String shortName;
-        private String longName;
-        private String encoderClass;
-        private String failureMessage;
+        private final String shortName;
+        private final String longName;
+        private final String encoderClass;
+        private final String failureMessage;
 
         private Encoder encoder;
 
@@ -142,8 +142,7 @@ public class EncodeComponent {
                 if (encoder_class != null) {
                     try {
                         encoder = (Encoder) encoder_class.newInstance();
-                    } catch (InstantiationException ie) {
-                    } catch (IllegalAccessException iae) {
+                    } catch (InstantiationException | IllegalAccessException ie) {
                     }
                 }
             }

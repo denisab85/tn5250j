@@ -67,15 +67,15 @@ public final class LoadMacroMenu {
         String[] macrosList = Macronizer.getMacroList();
 
 
-        for (int x = 0; x < macrosList.length; x++) {
-            mv.add(macrosList[x]);
+        for (String s : macrosList) {
+            mv.add(s);
         }
 
         Collections.sort(mv);
 
 
-        for (int x = 0; x < mv.size(); x++) {
-            action = new AbstractAction((String) mv.get(x)) {
+        for (Object o : mv) {
+            action = new AbstractAction((String) o) {
                 private static final long serialVersionUID = 1L;
 
                 public void actionPerformed(ActionEvent e) {
@@ -139,7 +139,7 @@ public final class LoadMacroMenu {
             private static final long serialVersionUID = 1L;
 
             public void actionPerformed(ActionEvent e) {
-                StringBuffer macro = new StringBuffer(((JMenuItem) e.getSource()).getText());
+                StringBuilder macro = new StringBuilder(((JMenuItem) e.getSource()).getText());
                 macro.delete(0, LangTool.getString("popup.delete").length() + 1);
                 Macronizer.removeMacroByName(macro.toString());
             }
@@ -153,7 +153,7 @@ public final class LoadMacroMenu {
             private static final long serialVersionUID = 1L;
 
             public void actionPerformed(ActionEvent e) {
-                StringBuffer macro = new StringBuffer(((JMenuItem) e.getSource()).getText());
+                StringBuilder macro = new StringBuilder(((JMenuItem) e.getSource()).getText());
                 macro.delete(0, LangTool.getString("popup.execute").length() + 1);
                 Macronizer.invoke(macro.toString(), ses);
             }
@@ -205,13 +205,12 @@ public final class LoadMacroMenu {
 
         //KJP - We will wrap this in a try catch block to catch security
         // exceptions
-        for (int i = 0; i < macroFiles.length; i++) {
+        for (File macroFile : macroFiles) {
             try {
-                File file = macroFiles[i];
+                File file = macroFile;
                 String fileName = file.getName();
                 if (file.isHidden()) {
                     /* do nothing! */
-                    continue;
                 } else if (file.isDirectory()) {
                     Vector submenu = new Vector();
                     submenu.addElement(fileName.replace('_', ' '));

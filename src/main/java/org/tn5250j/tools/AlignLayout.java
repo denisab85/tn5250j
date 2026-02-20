@@ -59,12 +59,12 @@ public class AlignLayout extends ENHGridLayout {
 
     private int get(Hashtable table, Component comp, int def) {
         Object v = (table != null) ? table.get("" + comp.hashCode()) : null;
-        return (v != null) ? ((Integer) v).intValue() : def;
+        return (v != null) ? (Integer) v : def;
     }
 
     private boolean get(Hashtable table, Component comp, boolean def) {
         Object v = (table != null) ? table.get("" + comp.hashCode()) : null;
-        return (v != null) ? ((Boolean) v).booleanValue() : def;
+        return (v != null) ? (Boolean) v : def;
     }
 
     /**
@@ -82,7 +82,7 @@ public class AlignLayout extends ENHGridLayout {
      */
     public void setLabelVerticalAlignment(Component child, int align) {
         if (alignment == null) alignment = new Hashtable(5);
-        alignment.put("" + child.hashCode(), new Integer(align));
+        alignment.put("" + child.hashCode(), align);
     }
 
     /** Gets the component's RezizeWidth value.
@@ -97,7 +97,7 @@ public class AlignLayout extends ENHGridLayout {
      */
     public void setResizeWidth(Component child, boolean v) {
         if (resize_width == null) resize_width = new Hashtable(5);
-        resize_width.put("" + child.hashCode(), new Boolean(v));
+        resize_width.put("" + child.hashCode(), v);
     }
 
     /** Gets the component's RezizeHeight value.
@@ -113,7 +113,7 @@ public class AlignLayout extends ENHGridLayout {
      */
     public void setResizeHeight(Component child, boolean v) {
         if (resize_height == null) resize_height = new Hashtable(5);
-        resize_height.put("" + child.hashCode(), new Boolean(v));
+        resize_height.put("" + child.hashCode(), v);
     }
 
     protected boolean isLabel(int col) {

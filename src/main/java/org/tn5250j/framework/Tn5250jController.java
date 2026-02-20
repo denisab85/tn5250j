@@ -52,13 +52,13 @@ import org.tn5250j.framework.common.Sessions;
 
 
 public class Tn5250jController extends Thread {
-    private File extensionDir;
-    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+    private final File extensionDir;
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
     //private URLClassLoader loader = new URLClassLoader(null, this.getClass().getClassLoader());
-    private List<Tn5250jEvent> eventList;
-    private List<Tn5250jListener> listeners;
-    private SessionManager manager;
-    Properties sesprops;
+    private final List<Tn5250jEvent> eventList;
+    private final List<Tn5250jListener> listeners;
+    private final SessionManager manager;
+    final Properties sesprops;
     private static Tn5250jController current;
 
     private Tn5250jController() {
@@ -69,8 +69,8 @@ public class Tn5250jController extends Thread {
             log.warn("Plugin path '" + extensionDir.getAbsolutePath() + "' does not exist. No plugins will be loaded.");
         }
         this.setDaemon(true);
-        eventList = new ArrayList<Tn5250jEvent>();
-        listeners = new ArrayList<Tn5250jListener>();
+        eventList = new ArrayList<>();
+        listeners = new ArrayList<>();
         Tn5250jController.current = this;
         log.info("Tn5250j plugin manager created");
         manager = SessionManager.instance();
@@ -86,12 +86,12 @@ public class Tn5250jController extends Thread {
     private void loadExt() {
         if (this.extensionDir.exists()) {
             File[] exts = extensionDir.listFiles();
-            for (int x = 0; x < exts.length; x++) {
-                if (exts[x].isDirectory()) {
+            for (File ext : exts) {
+                if (ext.isDirectory()) {
                     String jarName =
-                            exts[x].getAbsolutePath()
+                            ext.getAbsolutePath()
                                     + File.separatorChar
-                                    + exts[x].getName()
+                                    + ext.getName()
                                     + ".jar";
                     File jarFile = new File(jarName);
                     if (jarFile.exists()) {
@@ -183,15 +183,13 @@ public class Tn5250jController extends Thread {
     }
 
     private void broadcastEvent(final Tn5250jEvent event) {
-        Iterator<Tn5250jListener> listenerIt = listeners.iterator();
-        while (listenerIt.hasNext()) {
-            Tn5250jListener listener = listenerIt.next();
+        for (Tn5250jListener listener : listeners) {
             listener.actionPerformed(event);
         }
     }
 
     public void handleEvent(Tn5250jEvent e) {
-        log.debug("Received event: " + e.getClass().toString());
+        log.debug("Received event: " + e.getClass());
         if (e instanceof Tn5250jKeyEvents) {
             log.debug("Keys: " + ((Tn5250jKeyEvents) e).getKeystrokes());
         }
@@ -219,9 +217,9 @@ public class Tn5250jController extends Thread {
     }
 
     private class ModuleThread extends Thread {
-        File dir;
-        Tn5250jListener mod;
-        Properties config;
+        final File dir;
+        final Tn5250jListener mod;
+        final Properties config;
 
         public ModuleThread(
                 File directory,
@@ -252,7 +250,7 @@ public class Tn5250jController extends Thread {
 
     public Screen5250 startSession(String name) {
         JFrame frame = new JFrame();
-        String args[] = new String[15];
+        String[] args = new String[15];
         parseArgs((String) sesprops.get(name), args);
         Properties fin = convertToProps(args);
         Session5250 newses = manager.openSession(fin, null, name);
@@ -266,7 +264,7 @@ public class Tn5250jController extends Thread {
 
     public List<String> getSessions() {
         Enumeration<Object> e = sesprops.keys();
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         String ses = null;
         //This has the nasty tendency to grab data it isn't suposed to grab.
         //please fix
@@ -288,7 +286,7 @@ public class Tn5250jController extends Thread {
         }
     }
 
-    protected Properties convertToProps(String args[]) {
+    protected Properties convertToProps(String[] args) {
         Properties sesProps = new Properties();
 
         String session = args[0];
@@ -368,9 +366,9 @@ public class Tn5250jController extends Thread {
         if (args == null)
             return false;
 
-        for (int x = 0; x < args.length; x++) {
+        for (String arg : args) {
 
-            if (args[x] != null && args[x].equals(parm))
+            if (arg != null && arg.equals(parm))
                 return true;
 
         }

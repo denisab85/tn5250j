@@ -214,13 +214,13 @@ class KeypadAttributesPanel extends AttributesPanel {
     }
 
     private KeyMnemonic[] getAvailableAndNotYetConfiguredMnemonics(KeyMnemonic[] excludedMnemonics) {
-        java.util.List<KeyMnemonic> result = new ArrayList<KeyMnemonic>();
-        Set<KeyMnemonic> alreadyConfigured = new HashSet<KeyMnemonic>();
+        java.util.List<KeyMnemonic> result = new ArrayList<>();
+        Set<KeyMnemonic> alreadyConfigured = new HashSet<>();
         Collections.addAll(alreadyConfigured, excludedMnemonics);
         for (KeyMnemonic mnemonic : KeyMnemonic.values()) {
             if (!alreadyConfigured.contains(mnemonic)) result.add(mnemonic);
         }
-        Collections.sort(result, new KeypadMnemonicDescriptionComparator());
+        result.sort(new KeypadMnemonicDescriptionComparator());
         return result.toArray(new KeyMnemonic[result.size()]);
     }
 
@@ -265,7 +265,7 @@ class KeypadAttributesPanel extends AttributesPanel {
     private JPanel createFontSizePanel() {
         JPanel fontSizePanel = new JPanel();
         fontSize = new JTextField(Float.toString(KEYPAD_FONT_SIZE_DEFAULT_VALUE), 5);
-        if (getStringProperty(SessionConfig.CONFIG_KEYPAD_FONT_SIZE).length() != 0) {
+        if (!getStringProperty(SessionConfig.CONFIG_KEYPAD_FONT_SIZE).isEmpty()) {
             fontSize.setText(getStringProperty(SessionConfig.CONFIG_KEYPAD_FONT_SIZE));
         }
         fontSizePanel.add(new JLabel(LangTool.getString("spool.labelOptsFontSize")));
@@ -330,8 +330,8 @@ class KeypadAttributesPanel extends AttributesPanel {
     }
 
     private static class KeypadMnemonicListCellRenderer implements ListCellRenderer {
-        private DefaultListCellRenderer delegateRenderer = new DefaultListCellRenderer();
-        private KeyMnemonicResolver keyMnemonicResolver = new KeyMnemonicResolver();
+        private final DefaultListCellRenderer delegateRenderer = new DefaultListCellRenderer();
+        private final KeyMnemonicResolver keyMnemonicResolver = new KeyMnemonicResolver();
 
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

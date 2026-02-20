@@ -21,7 +21,7 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
 
     private Data updateRect;
     LineMetrics lm;
-    int lenScreen;
+    final int lenScreen;
     int lastScreenUpdate;
 
     public BasicScreen(Screen5250 screen) {
@@ -35,7 +35,7 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
      * the row and column set later.
      */
 
-    public final class iOhioPosition {
+    public static final class iOhioPosition {
 
         /**
          * Null constructor for iOhioPosition.
@@ -253,7 +253,7 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
     }
 
     Rectangle csArea = new Rectangle();
-    char sChar[] = new char[1];
+    final char[] sChar = new char[1];
 
     protected class Data {
 
@@ -300,11 +300,11 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
             }
         }
 
-        public char[] text;
-        public char[] attr;
+        public final char[] text;
+        public final char[] attr;
         public char[] isAttr;
-        public char[] color;
-        public char[] extended;
+        public final char[] color;
+        public final char[] extended;
         public final char[] graphic;
         public final char[] field;
     }
@@ -439,8 +439,8 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
     }
 
     // Dup Character array for display output
-    public static final transient char[] dupChar = {'*'};
-    boolean showHex = false;
+    public static final char[] dupChar = {'*'};
+    final boolean showHex = false;
 
     //   public final void drawChar(Graphics2D g, int pos, int row, int col) {
     public final void drawChar(Graphics g, int pos, int row, int col) {
@@ -812,17 +812,17 @@ class BasicScreen extends BasicSubUI implements ScreenListener {
 
     }
 
-    Color colorBlue = new Color(140, 120, 255);
-    Color colorTurq = new Color(0, 240, 255);
-    Color colorRed = Color.red;
-    Color colorWhite = Color.white;
-    Color colorYellow = Color.yellow;
-    Color colorGreen = Color.green;
-    Color colorPink = Color.magenta;
-    Color colorGUIField = Color.white;
+    final Color colorBlue = new Color(140, 120, 255);
+    final Color colorTurq = new Color(0, 240, 255);
+    final Color colorRed = Color.red;
+    final Color colorWhite = Color.white;
+    final Color colorYellow = Color.yellow;
+    final Color colorGreen = Color.green;
+    final Color colorPink = Color.magenta;
+    final Color colorGUIField = Color.white;
     Color colorSep = Color.white;
-    Color colorHexAttr = Color.white;
-    Color colorBg = Color.black;
+    final Color colorHexAttr = Color.white;
+    final Color colorBg = Color.black;
 
     protected Color getColor(char color, boolean background) {
         int c = 0;

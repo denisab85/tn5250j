@@ -58,7 +58,7 @@ public class SSLImplementation implements SSLInterface, X509TrustManager {
 
     KeyStore userks = null;
     private String userKsPath;
-    private char[] userksPassword = "changeit".toCharArray();
+    private final char[] userksPassword = "changeit".toCharArray();
 
     KeyManagerFactory userkmf = null;
 
@@ -68,7 +68,7 @@ public class SSLImplementation implements SSLInterface, X509TrustManager {
 
     X509Certificate[] acceptedIssuers;
 
-    TN5250jLogger logger;
+    final TN5250jLogger logger;
 
     public SSLImplementation() {
         logger = TN5250jLogFactory.getLogger(getClass());
@@ -148,9 +148,9 @@ public class SSLImplementation implements SSLInterface, X509TrustManager {
     public void checkServerTrusted(X509Certificate[] chain, String type)
             throws CertificateException {
         try {
-            for (int i = 0; i < userTrustManagers.length; i++) {
-                if (userTrustManagers[i] instanceof X509TrustManager) {
-                    X509TrustManager trustManager = (X509TrustManager) userTrustManagers[i];
+            for (TrustManager userTrustManager : userTrustManagers) {
+                if (userTrustManager instanceof X509TrustManager) {
+                    X509TrustManager trustManager = (X509TrustManager) userTrustManager;
                     X509Certificate[] calist = trustManager
                             .getAcceptedIssuers();
                     if (calist.length > 0) {

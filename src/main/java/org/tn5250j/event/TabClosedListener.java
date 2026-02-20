@@ -26,6 +26,6 @@ public interface TabClosedListener {
      *
      * @param tabToBeClosed
      */
-    public void onTabClosed(int tabToBeClosed);
+    void onTabClosed(int tabToBeClosed);
 
 }

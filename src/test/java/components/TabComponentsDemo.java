@@ -40,8 +40,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ContainerAdapter;
-import java.awt.event.ContainerEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -55,7 +53,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -76,12 +73,10 @@ public class TabComponentsDemo extends JFrame {
     public static void main(String[] args) {
         // Schedule a job for the event dispatch thread:
         // creating and showing this application's GUI.
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                // Turn off metal's use of bold fonts
-                UIManager.put("swing.boldMetal", Boolean.FALSE);
-                new TabComponentsDemo("TabComponentsDemo").runTest();
-            }
+        SwingUtilities.invokeLater(() -> {
+            // Turn off metal's use of bold fonts
+            UIManager.put("swing.boldMetal", Boolean.FALSE);
+            new TabComponentsDemo("TabComponentsDemo").runTest();
         });
     }
 
@@ -157,37 +152,29 @@ public class TabComponentsDemo extends JFrame {
         tabComponentsItem = new JCheckBoxMenuItem("Use TabComponents", true);
         tabComponentsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T,
                 InputEvent.ALT_MASK));
-        tabComponentsItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                for (int i = 0; i < tabbedPane.getTabCount(); i++) {
-                    if (tabComponentsItem.isSelected()) {
-                        initTabComponent(i);
-                    } else {
-                        tabbedPane.setTabComponentAt(i, null);
-                    }
+        tabComponentsItem.addActionListener(e -> {
+            for (int i = 0; i < tabbedPane.getTabCount(); i++) {
+                if (tabComponentsItem.isSelected()) {
+                    initTabComponent(i);
+                } else {
+                    tabbedPane.setTabComponentAt(i, null);
                 }
             }
         });
         scrollLayoutItem = new JCheckBoxMenuItem("Set ScrollLayout");
         scrollLayoutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
                 InputEvent.ALT_MASK));
-        scrollLayoutItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if (tabbedPane.getTabLayoutPolicy() == JTabbedPane.WRAP_TAB_LAYOUT) {
-                    tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-                } else {
-                    tabbedPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
-                }
+        scrollLayoutItem.addActionListener(e -> {
+            if (tabbedPane.getTabLayoutPolicy() == JTabbedPane.WRAP_TAB_LAYOUT) {
+                tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+            } else {
+                tabbedPane.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
             }
         });
         JMenuItem resetItem = new JMenuItem("Reset JTabbedPane");
         resetItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,
                 InputEvent.ALT_MASK));
-        resetItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                runTest();
-            }
-        });
+        resetItem.addActionListener(e -> runTest());
 
         JMenu optionsMenu = new JMenu("Options");
         optionsMenu.add(tabComponentsItem);

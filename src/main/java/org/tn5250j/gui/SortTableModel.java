@@ -16,7 +16,7 @@ package org.tn5250j.gui;
 import javax.swing.table.TableModel;
 
 public interface SortTableModel extends TableModel {
-    public boolean isSortable(int col);
+    boolean isSortable(int col);
 
-    public void sortColumn(int col, boolean ascending);
+    void sortColumn(int col, boolean ascending);
 }

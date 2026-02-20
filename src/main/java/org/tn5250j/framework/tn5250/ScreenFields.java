@@ -35,14 +35,14 @@ import org.tn5250j.encoding.ICodePage;
 
 public class ScreenFields {
 
-    private ScreenField[] screenFields;
+    private final ScreenField[] screenFields;
     private ScreenField currentField;
     private ScreenField saveCurrent;
     private int sizeFields;
     private boolean cpfExists;
     private int nextField;
     private int fieldIds;
-    private Screen5250 screen;
+    private final Screen5250 screen;
     private boolean masterMDT;
     protected boolean currentModified;
 
@@ -614,7 +614,7 @@ public class ScreenFields {
 
         if (masterMDT) {
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for (int x = 0; x < sizeFields; x++) {
                 isSigned = false;
 

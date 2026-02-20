@@ -61,8 +61,8 @@ public class ExcelOutputFilter implements OutputFilterInterface {
         row++;
 
         int fmt = 0;
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             if (f.isWriteField()) {
                 switch (f.getFieldType()) {
 
@@ -235,8 +235,8 @@ public class ExcelOutputFilter implements OutputFilterInterface {
             //     the cell for numeric values.
             int c = 0;
 
-            for (int x = 0; x < ffd.size(); x++) {
-                f = (FileFieldDef) ffd.get(x);
+            for (Object object : ffd) {
+                f = (FileFieldDef) object;
                 if (f.isWriteField()) {
 
                     switch (f.getFieldType()) {
@@ -255,8 +255,8 @@ public class ExcelOutputFilter implements OutputFilterInterface {
             //  loop through each of the fields and write out the field name for
             //    each selected field
             c = 0;
-            for (int x = 0; x < ffd.size(); x++) {
-                f = (FileFieldDef) ffd.get(x);
+            for (Object o : ffd) {
+                f = (FileFieldDef) o;
                 if (f.isWriteField()) {
                     writeLabel(f.getFieldName(), c++);
                 }

@@ -53,8 +53,8 @@ public class KSpreadOutputFilter implements OutputFilterInterface {
         row++;
         int column = 1;
 
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             if (f.isWriteField()) {
                 rb.append("    <cell row=" + "\"" + row + "\"");
                 rb.append(" column=" + "\"" + column++ + "\" > \n");
@@ -149,8 +149,8 @@ public class KSpreadOutputFilter implements OutputFilterInterface {
             row++;
             int column = 1;
 
-            for (int x = 0; x < ffd.size(); x++) {
-                f = (FileFieldDef) ffd.get(x);
+            for (Object o : ffd) {
+                f = (FileFieldDef) o;
                 if (f.isWriteField()) {
                     fout.print("   <cell row=" + "\"" + row + "\"");
                     fout.print(" column=" + "\"" + column++ + "\" >\n");

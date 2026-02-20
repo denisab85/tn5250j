@@ -29,94 +29,94 @@ public interface TN5250jLogger {
 
     // debug levels - The levels work from lower to higher. The lower levels
     // will be activated by turning on a higher level
-    public static final int DEBUG = 1;    // most verbose
-    public static final int INFO = 2;
-    public static final int WARN = 4;  // medium verbose, should be choosen for deployment
-    public static final int ERROR = 8;
-    public static final int FATAL = 16;
-    public static final int OFF = 32;  // most silence
+    int DEBUG = 1;    // most verbose
+    int INFO = 2;
+    int WARN = 4;  // medium verbose, should be choosen for deployment
+    int ERROR = 8;
+    int FATAL = 16;
+    int OFF = 32;  // most silence
 
     /**
      * @param clazz
      */
-    abstract public void initialize(final String clazz);
+    void initialize(final String clazz);
 
     /**
      * @param message
      */
-    abstract public void debug(Object message);
-
-    /**
-     * @param message
-     * @param throwable
-     */
-    abstract public void debug(Object message, Throwable throwable);
-
-    abstract public void info(Object message);
+    void debug(Object message);
 
     /**
      * @param message
      * @param throwable
      */
-    abstract public void info(Object message, Throwable throwable);
+    void debug(Object message, Throwable throwable);
 
-    /**
-     * @param message
-     */
-    abstract public void warn(Object message);
-
-    /**
-     * @param message
-     * @param throwable
-     */
-    abstract public void warn(Object message, Throwable throwable);
-
-    /**
-     * @param message
-     */
-    abstract public void error(Object message);
+    void info(Object message);
 
     /**
      * @param message
      * @param throwable
      */
-    abstract public void error(Object message, Throwable throwable);
+    void info(Object message, Throwable throwable);
 
     /**
      * @param message
      */
-    abstract public void fatal(Object message);
+    void warn(Object message);
 
     /**
      * @param message
      * @param throwable
      */
-    abstract public void fatal(Object message, Throwable throwable);
+    void warn(Object message, Throwable throwable);
+
+    /**
+     * @param message
+     */
+    void error(Object message);
+
+    /**
+     * @param message
+     * @param throwable
+     */
+    void error(Object message, Throwable throwable);
+
+    /**
+     * @param message
+     */
+    void fatal(Object message);
+
+    /**
+     * @param message
+     * @param throwable
+     */
+    void fatal(Object message, Throwable throwable);
 
     /**
      * @return
      */
-    abstract public boolean isDebugEnabled();
+    boolean isDebugEnabled();
 
     /**
      * @return
      */
-    abstract public boolean isInfoEnabled();
+    boolean isInfoEnabled();
 
     /**
      * @return
      */
-    abstract public boolean isWarnEnabled();
+    boolean isWarnEnabled();
 
     /**
      * @return
      */
-    abstract public boolean isErrorEnabled();
+    boolean isErrorEnabled();
 
     /**
      * @return
      */
-    abstract public boolean isFatalEnabled();
+    boolean isFatalEnabled();
 
     /**
      * Sets a new log level.
@@ -124,11 +124,11 @@ public interface TN5250jLogger {
      * @param newLevel
      * @throws IllegalArgumentException If the new level is not allowed
      */
-    abstract public void setLevel(int newLevel);
+    void setLevel(int newLevel);
 
     /**
      * @return The current log level.
      */
-    abstract public int getLevel();
+    int getLevel();
 
 }

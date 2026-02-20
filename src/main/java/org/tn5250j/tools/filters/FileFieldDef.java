@@ -38,9 +38,9 @@ public class FileFieldDef {
     private String fieldName;
     private String data;
     private boolean writeField;
-    private char decChar;
+    private final char decChar;
     private boolean translateIt;
-    private tnvt vt;
+    private final tnvt vt;
     private StringBuffer sbdata;
 
     public FileFieldDef(tnvt v, char dec) {
@@ -55,7 +55,7 @@ public class FileFieldDef {
             return sbdata.toString();
         }
 
-        StringBuffer sb = new StringBuffer(bufferLength);
+        StringBuilder sb = new StringBuilder(bufferLength);
 
         int end = startOffset + length - 1;
 

@@ -6,7 +6,7 @@ import java.text.*;
 
 public class FormattedDocument extends PlainDocument {
     private static final long serialVersionUID = 1L;
-    private Format format;
+    private final Format format;
 
     public FormattedDocument(Format f) {
         format = f;
@@ -43,7 +43,7 @@ public class FormattedDocument extends PlainDocument {
         String proposedResult = beforeOffset + afterOffset;
 
         try {
-            if (proposedResult.length() != 0)
+            if (!proposedResult.isEmpty())
                 format.parseObject(proposedResult);
             super.remove(offs, len);
         } catch (ParseException e) {

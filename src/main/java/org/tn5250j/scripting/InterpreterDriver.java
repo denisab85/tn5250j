@@ -22,7 +22,7 @@ public interface InterpreterDriver {
      *               which wraps the exception throw by underlying
      *               interpreter
      */
-    public void executeScript(SessionPanel session, String script)
+    void executeScript(SessionPanel session, String script)
             throws InterpreterDriver.InterpreterException;
 
     /**
@@ -33,7 +33,7 @@ public interface InterpreterDriver {
      *               which wraps the exception throw by underlying
      *               interpreter
      */
-    public void executeScriptFile(SessionPanel session, String scriptFile)
+    void executeScriptFile(SessionPanel session, String scriptFile)
             throws InterpreterDriver.InterpreterException;
 
     /**
@@ -44,7 +44,7 @@ public interface InterpreterDriver {
      *               which wraps the exception throw by underlying
      *               interpreter
      */
-    public void executeScriptFile(String scriptFile)
+    void executeScriptFile(String scriptFile)
             throws InterpreterDriver.InterpreterException;
 
     /**
@@ -52,22 +52,22 @@ public interface InterpreterDriver {
      *
      * @return Array of string containing extension supported
      */
-    public String[] getSupportedExtensions();
+    String[] getSupportedExtensions();
 
     /**
      * Get the langauges for supported extensions by this driver
      *
      * @return Array of string containing languages supported
      */
-    public String[] getSupportedLanguages();
+    String[] getSupportedLanguages();
 
     /**
      * Nested class for wrapping the exception throw by underlying
      * interpreter while executing scripts
      */
-    public static class InterpreterException extends Exception {
+    class InterpreterException extends Exception {
         private static final long serialVersionUID = 1L;
-        private Exception _underlyingException;
+        private final Exception _underlyingException;
 
         /**
          * Construct a wrapper exception for given undelying exception.

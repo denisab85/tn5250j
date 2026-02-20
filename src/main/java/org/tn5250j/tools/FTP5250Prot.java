@@ -66,16 +66,16 @@ public class FTP5250Prot {
     private String lastResponse;
     private int lastIntResponse;
     private String hostName;
-    private int timeout = 50000;
+    private final int timeout = 50000;
     private boolean connected;
     private String remoteDir;
     private ArrayList ffd;
-    private tnvt vt;
+    private final tnvt vt;
     private int recordLength;
     private int recordOutLength;
     private int fileSize;
     private Vector<FTPStatusListener> listeners;
-    private FTPStatusEvent status;
+    private final FTPStatusEvent status;
     private boolean aborted;
     private char decChar;
     private OutputFilterInterface ofi;
@@ -161,7 +161,7 @@ public class FTP5250Prot {
     public synchronized void addFTPStatusListener(FTPStatusListener listener) {
 
         if (listeners == null) {
-            listeners = new java.util.Vector<FTPStatusListener>(3);
+            listeners = new java.util.Vector<>(3);
         }
         listeners.addElement(listener);
 
@@ -303,7 +303,7 @@ public class FTP5250Prot {
         executeCommand("SYST");
 
         // check whether this is an OS/400 system or not
-        if (lastResponse.toUpperCase().indexOf("OS/400") >= 0) return true;
+        if (lastResponse.toUpperCase().contains("OS/400")) return true;
         return false;
     }
 
@@ -324,8 +324,8 @@ public class FTP5250Prot {
     protected void selectAll() {
 
         FileFieldDef f;
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             f.setWriteField(true);
         }
 
@@ -337,8 +337,8 @@ public class FTP5250Prot {
      */
     protected void selectNone() {
         FileFieldDef f;
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             f.setWriteField(false);
         }
 
@@ -350,8 +350,8 @@ public class FTP5250Prot {
     public boolean isFieldsSelected() {
 
         FileFieldDef f;
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             if (f.isWriteField())
                 return true;
         }
@@ -420,12 +420,12 @@ public class FTP5250Prot {
                 //    from the ftpConnection socket.
 
 //            byte abyte0[] = InetAddress.getLocalHost().getAddress();
-                byte abyte0[] = localHost.getAddress();
+                byte[] abyte0 = localHost.getAddress();
                 ss = new ServerSocket(0);
                 ss.setSoTimeout(timeout);
-                StringBuffer pb = new StringBuffer("PORT ");
-                for (int i = 0; i < abyte0.length; i++) {
-                    pb.append(abyte0[i] & 0xff);
+                StringBuilder pb = new StringBuilder("PORT ");
+                for (byte b : abyte0) {
+                    pb.append(b & 0xff);
                     pb.append(",");
                 }
 
@@ -480,20 +480,17 @@ public class FTP5250Prot {
         final String member = member2;
         final boolean internal = useInternal;
 
-        Runnable getInfo = new Runnable() {
+        // set the thread to run.
+        Runnable getInfo = () -> {
 
-            // set the thread to run.
-            public void run() {
+            executeCommand("RCMD", "dspffd FILE(" + file + ") OUTPUT(*OUTFILE) " +
+                    "OUTFILE(QTEMP/FFD) ");
 
-                executeCommand("RCMD", "dspffd FILE(" + file + ") OUTPUT(*OUTFILE) " +
-                        "OUTFILE(QTEMP/FFD) ");
-
-                if (lastResponse.startsWith("2")) {
-                    if (loadFFD(internal)) {
-                        if (lastResponse.startsWith("2")) {
-                            if (getMbrInfo(file, member)) {
-                                fireInfoEvent();
-                            }
+            if (lastResponse.startsWith("2")) {
+                if (loadFFD(internal)) {
+                    if (lastResponse.startsWith("2")) {
+                        if (getMbrInfo(file, member)) {
+                            fireInfoEvent();
                         }
                     }
                 }
@@ -549,7 +546,7 @@ public class FTP5250Prot {
                             data.substring(281, 281 + 20).trim() + " " +
                             data.substring(301, 301 + 20).trim();
 
-                    if (text.length() > 0)
+                    if (!text.isEmpty())
                         ffDesc.setFieldName(text);
                     else {
 
@@ -557,7 +554,7 @@ public class FTP5250Prot {
                         ffDesc.setFieldName(data.substring(168, 168 + 50).trim());
 
                         // if the text description is blanks then use the field name
-                        if (ffDesc.getFieldName().trim().length() == 0)
+                        if (ffDesc.getFieldName().trim().isEmpty())
                             // WHFLDI  Field name internal
                             ffDesc.setFieldName(data.substring(129, 129 + 10));
                     }
@@ -604,8 +601,7 @@ public class FTP5250Prot {
                 JScrollPane sp = new JScrollPane(jta);
                 String text = new String();
 
-                for (int x = 0; x < allowsNullFields.size(); x++)
-                    text += allowsNullFields.get(x) + "\n";
+                for (Object allowsNullField : allowsNullFields) text += allowsNullField + "\n";
 
                 jta.setText(text);
 
@@ -634,8 +630,8 @@ public class FTP5250Prot {
         FileFieldDef f;
         printFTPInfo("<----------------- File Field Information ---------------->");
 
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object object : ffd) {
+            f = (FileFieldDef) object;
             l += f.getFieldLength();
             o += f.getBufferOutLength();
             printFTPInfo(f.toString());
@@ -698,11 +694,11 @@ public class FTP5250Prot {
             if (socket != null) {
                 datainputstream = new DataInputStream(socket.getInputStream());
 
-                byte abyte0[] = new byte[858];
+                byte[] abyte0 = new byte[858];
 
                 int c = 0;
                 int len = 0;
-                StringBuffer sb = new StringBuffer(10);
+                StringBuilder sb = new StringBuilder(10);
 
                 printFTPInfo("<----------------- Member Information ---------------->");
 
@@ -841,81 +837,78 @@ public class FTP5250Prot {
         final String localFileF = localFile;
         final String remoteFileF = remoteFile;
 
-        Runnable getRun = new Runnable() {
+        // set the thread to run.
+        Runnable getRun = () -> {
 
-            // set the thread to run.
-            public void run() {
+            Socket socket = null;
+            DataInputStream datainputstream = null;
+            String localFileFull = localFileF;
+            executeCommand("TYPE", "I");
 
-                Socket socket = null;
-                DataInputStream datainputstream = null;
-                String localFileFull = localFileF;
-                executeCommand("TYPE", "I");
+            try {
+                socket = createPassiveSocket("RETR " + remoteFileF);
+                if (socket != null) {
+                    datainputstream = new DataInputStream(socket.getInputStream());
 
-                try {
-                    socket = createPassiveSocket("RETR " + remoteFileF);
-                    if (socket != null) {
-                        datainputstream = new DataInputStream(socket.getInputStream());
+                    writeHeader(localFileFull);
 
-                        writeHeader(localFileFull);
+                    byte[] abyte0 = new byte[recordLength];
+                    StringBuffer rb = new StringBuffer(recordOutLength);
 
-                        byte abyte0[] = new byte[recordLength];
-                        StringBuffer rb = new StringBuffer(recordOutLength);
+                    int c = 0;
+                    int len = 0;
 
-                        int c = 0;
-                        int len = 0;
+                    for (int j = 0; j != -1 && !aborted; ) {
 
-                        for (int j = 0; j != -1 && !aborted; ) {
+                        j = datainputstream.read();
+                        if (j == -1)
+                            break;
+                        c++;
+                        abyte0[len++] = (byte) j;
+                        if (len == recordLength) {
+                            rb.setLength(0);
+                            parseFFD(abyte0, rb);
+                            len = 0;
 
-                            j = datainputstream.read();
-                            if (j == -1)
-                                break;
-                            c++;
-                            abyte0[len++] = (byte) j;
-                            if (len == recordLength) {
-                                rb.setLength(0);
-                                parseFFD(abyte0, rb);
-                                len = 0;
-
-                                status.setCurrentRecord(c / recordLength);
-                                fireStatusEvent();
-                            }
-                            Thread.yield();
-                            //            if ((c / recordLength) == 200)
-                            //               aborted = true;
-                        }
-                        System.out.println(c);
-                        if (c == 0) {
-                            status.setCurrentRecord(c);
+                            status.setCurrentRecord(c / recordLength);
                             fireStatusEvent();
-                        } else {
-                            if (!aborted)
-                                parseResponse();
                         }
-                        writeFooter();
+                        Thread.yield();
+                        //            if ((c / recordLength) == 200)
+                        //               aborted = true;
+                    }
+                    System.out.println(c);
+                    if (c == 0) {
+                        status.setCurrentRecord(c);
+                        fireStatusEvent();
+                    } else {
+                        if (!aborted)
+                            parseResponse();
+                    }
+                    writeFooter();
 //                  parseResponse();
-                        printFTPInfo("Transfer complete!");
+                    printFTPInfo("Transfer complete!");
 
-                    }
-                } catch (InterruptedIOException iioe) {
-                    printFTPInfo("Interrupted! " + iioe.getMessage());
-                } catch (Exception _ex) {
-                    printFTPInfo("Error! " + _ex);
-                } finally {
-                    try {
-                        socket.close();
-                    } catch (Exception _ex) {
-                    }
-                    try {
-                        datainputstream.close();
-                    } catch (Exception _ex) {
-                    }
-                    try {
-                        writeFooter();
-                    } catch (Exception _ex) {
-                    }
-
-                    disconnect();
                 }
+            } catch (InterruptedIOException iioe) {
+                printFTPInfo("Interrupted! " + iioe.getMessage());
+            } catch (Exception _ex) {
+                printFTPInfo("Error! " + _ex);
+            } finally {
+                try {
+                    socket.close();
+                } catch (Exception _ex) {
+                }
+                try {
+                    datainputstream.close();
+                } catch (Exception _ex) {
+                }
+                try {
+                    writeFooter();
+                } catch (Exception _ex) {
+                }
+
+                disconnect();
             }
         };
 
@@ -1068,10 +1061,10 @@ public class FTP5250Prot {
 
     }
 
-    class MemberInfo {
+    static class MemberInfo {
 
-        private String name;
-        private int size;
+        private final String name;
+        private final int size;
 
         MemberInfo(String name, int size) {
 

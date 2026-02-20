@@ -84,25 +84,25 @@ public class KeyConfigure extends JDialog implements ActionListener {
 
     private final KeyMnemonicResolver keyMnemonicResolver = new KeyMnemonicResolver();
 
-    private JPanel keyPanel = new JPanel();
-    private JPanel options = new JPanel();
-    private JTextArea strokeDesc = new JTextArea();
-    private JTextArea strokeDescAlt = new JTextArea();
-    private JLabel strokeLocation = new JLabel();
-    private JLabel strokeLocationAlt = new JLabel();
+    private final JPanel keyPanel = new JPanel();
+    private final JPanel options = new JPanel();
+    private final JTextArea strokeDesc = new JTextArea();
+    private final JTextArea strokeDescAlt = new JTextArea();
+    private final JLabel strokeLocation = new JLabel();
+    private final JLabel strokeLocationAlt = new JLabel();
     private JList functions;
     private JDialog dialog;
     private boolean mods;
-    private String[] macrosList;
-    private DefaultListModel lm = new DefaultListModel();
+    private final String[] macrosList;
+    private final DefaultListModel lm = new DefaultListModel();
     private boolean macros;
     private boolean special;
-    private ICodePage codePage;
+    private final ICodePage codePage;
     private boolean isLinux;
     private boolean isAltGr;
     private boolean altKey;
 
-    private static final SortedMap<Integer, String> colorMap = new TreeMap<Integer, String>();
+    private static final SortedMap<Integer, String> colorMap = new TreeMap<>();
 
     static {
         colorMap.put(0x20, "Green");
@@ -201,11 +201,9 @@ public class KeyConfigure extends JDialog implements ActionListener {
         // add list selection listener to our functions list so that we
         //   can display the mapped key(s) to the function when a new
         //   function is selected.
-        functions.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent lse) {
-                if (!lse.getValueIsAdjusting()) {
-                    setKeyDescription(functions.getSelectedIndex());
-                }
+        functions.addListSelectionListener(lse -> {
+            if (!lse.getValueIsAdjusting()) {
+                setKeyDescription(functions.getSelectedIndex());
             }
         });
 
@@ -221,12 +219,10 @@ public class KeyConfigure extends JDialog implements ActionListener {
         whichKeys.addItem(LangTool.getString("key.labelMacros"));
         whichKeys.addItem(LangTool.getString("key.labelSpecial"));
 
-        whichKeys.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        whichKeys.addActionListener(e -> {
 
-                JComboBox cb = (JComboBox) e.getSource();
-                loadList((String) cb.getSelectedItem());
-            }
+            JComboBox cb = (JComboBox) e.getSource();
+            loadList((String) cb.getSelectedItem());
         });
 
         fp.setBorder(BorderFactory.createTitledBorder(
@@ -419,12 +415,12 @@ public class KeyConfigure extends JDialog implements ActionListener {
 
 
         if (which.equals(LangTool.getString("key.labelKeys"))) {
-            Vector<KeyDescription> lk = new Vector<KeyDescription>(keyMnemonicResolver.getMnemonics().length);
+            Vector<KeyDescription> lk = new Vector<>(keyMnemonicResolver.getMnemonics().length);
             for (int x = 0; x < keyMnemonicResolver.getMnemonics().length; x++) {
                 lk.addElement(new KeyDescription(LangTool.getString("key." + keyMnemonicResolver.getMnemonics()[x]), x));
             }
 
-            Collections.sort(lk, new KeyDescriptionCompare());
+            lk.sort(new KeyDescriptionCompare());
 
             for (int x = 0; x < keyMnemonicResolver.getMnemonics().length; x++) {
                 lm.addElement(lk.get(x));
@@ -433,10 +429,10 @@ public class KeyConfigure extends JDialog implements ActionListener {
             special = false;
         } else {
             if (which.equals(LangTool.getString("key.labelMacros"))) {
-                Vector<String> macrosVector = new Vector<String>();
+                Vector<String> macrosVector = new Vector<>();
                 if (macrosList != null)
-                    for (int x = 0; x < macrosList.length; x++) {
-                        macrosVector.add(macrosList[x]);
+                    for (String s : macrosList) {
+                        macrosVector.add(s);
                     }
                 scriptDir("scripts", macrosVector);
                 loadListModel(lm, macrosVector, null, 0);
@@ -449,7 +445,7 @@ public class KeyConfigure extends JDialog implements ActionListener {
                 CollationKey key = null;
                 StringBuffer sb = new StringBuffer();
 
-                Set<CollationKey> set = new TreeSet<CollationKey>();
+                Set<CollationKey> set = new TreeSet<>();
 
                 supportAplColorCodesInSEU(collator, sb, set);
 
@@ -471,9 +467,7 @@ public class KeyConfigure extends JDialog implements ActionListener {
                     }
                 }
 
-                Iterator<CollationKey> iterator = set.iterator();
-                while (iterator.hasNext()) {
-                    CollationKey keyc = iterator.next();
+                for (CollationKey keyc : set) {
                     lm.addElement(keyc.getSourceString());
                 }
 
@@ -488,7 +482,7 @@ public class KeyConfigure extends JDialog implements ActionListener {
 
     private void supportAplColorCodesInSEU(Collator collator, StringBuffer sb, Set<CollationKey> set) {
         for (Entry<Integer, String> color : colorMap.entrySet()) {
-            int keyVal = color.getKey().intValue();
+            int keyVal = color.getKey();
             char c = (char) ('\uff00' + keyVal);
 
             sb.setLength(0);
@@ -798,10 +792,10 @@ public class KeyConfigure extends JDialog implements ActionListener {
 
     }
 
-    private class KeyDescription {
+    private static class KeyDescription {
 
-        private int index;
-        private String text;
+        private final int index;
+        private final String text;
 
         public KeyDescription(String text, int index) {
 
@@ -857,14 +851,12 @@ public class KeyConfigure extends JDialog implements ActionListener {
 
         Arrays.sort(macroFiles, new MacroCompare());
 
-        for (int i = 0; i < macroFiles.length; i++) {
-            File file = macroFiles[i];
+        for (File file : macroFiles) {
             String fileName = file.getName();
             if (file.isHidden()) {
                 /* do nothing! */
-                continue;
             } else if (file.isDirectory()) {
-                Vector<String> subvector = new Vector<String>();
+                Vector<String> subvector = new Vector<>();
                 subvector.addElement(fileName.replace('_', ' '));
                 loadScripts(subvector, path + fileName + '/', file);
                 // if we do not want empty directories to show up uncomment this
@@ -925,10 +917,10 @@ public class KeyConfigure extends JDialog implements ActionListener {
 
     private static class Macro {
 
-        String name;
-        String path;
+        final String name;
+        final String path;
         String prefix;
-        String fileName;
+        final String fileName;
 
         Macro(String name, String path, String fileName) {
 

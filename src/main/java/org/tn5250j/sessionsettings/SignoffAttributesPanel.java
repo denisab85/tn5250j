@@ -66,11 +66,7 @@ class SignoffAttributesPanel extends AttributesPanel {
         // check if signoff confirmation is to be checked
         signoffCheck.setSelected(getStringProperty("confirmSignoff").equals("Yes"));
 
-        signoffCheck.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                doItemStateChanged(e);
-            }
-        });
+        signoffCheck.addItemListener(e -> doItemStateChanged(e));
 
         soConfirm.add(signoffCheck);
 

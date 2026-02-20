@@ -68,9 +68,9 @@ class FontAttributesPanel extends AttributesPanel {
 
         String font = getStringProperty("font");
 
-        for (int x = 0; x < fonts.length; x++) {
-            if (fonts[x].getFontName().indexOf('.') < 0)
-                fontsList.addItem(fonts[x].getFontName());
+        for (Font value : fonts) {
+            if (value.getFontName().indexOf('.') < 0)
+                fontsList.addItem(value.getFontName());
         }
 
         fontsList.setSelectedItem(font);
@@ -90,11 +90,11 @@ class FontAttributesPanel extends AttributesPanel {
         verticalScale = new JTextField("1.2", 5);
         horizontalScale = new JTextField("1.0", 5);
         pointSize = new JTextField("0", 5);
-        if (getStringProperty("fontScaleWidth").length() != 0)
+        if (!getStringProperty("fontScaleWidth").isEmpty())
             horizontalScale.setText(getStringProperty("fontScaleWidth"));
-        if (getStringProperty("fontScaleHeight").length() != 0)
+        if (!getStringProperty("fontScaleHeight").isEmpty())
             verticalScale.setText(getStringProperty("fontScaleHeight"));
-        if (getStringProperty("fontPointSize").length() != 0)
+        if (!getStringProperty("fontPointSize").isEmpty())
             pointSize.setText(getStringProperty("fontPointSize"));
         fsp.add(new JLabel(LangTool.getString("sa.fixedPointSize")));
         fsp.add(pointSize);

@@ -38,7 +38,7 @@ class CustomizedTableModel extends AbstractTableModel implements SortTableModel 
             LangTool.getString("customized.window"),
             LangTool.getString("customized.unix")};
 
-    private List<CustomizedExternalProgram> externalPrograms = new ArrayList<CustomizedExternalProgram>();
+    private final List<CustomizedExternalProgram> externalPrograms = new ArrayList<>();
     private int sortedColumn = 0;
     private boolean isAscending = true;
     private final Properties externalProgramConfig;
@@ -53,7 +53,7 @@ class CustomizedTableModel extends AbstractTableModel implements SortTableModel 
         externalPrograms.clear();
 
         String count = externalProgramConfig.getProperty("etn.pgm.support.total.num");
-        if (count != null && count.length() > 0) {
+        if (count != null && !count.isEmpty()) {
             int total = Integer.parseInt(count);
             for (int i = 1; i <= total; i++) {
                 String program = externalProgramConfig.getProperty("etn.pgm." + i + ".command.name");

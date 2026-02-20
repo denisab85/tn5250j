@@ -20,7 +20,7 @@ public class My5250Applet extends JApplet {
 
     private static final long serialVersionUID = 1L;
 
-    boolean isStandalone = true;
+    final boolean isStandalone = true;
     private SessionManager manager;
 
     private TN5250jLogger log;
@@ -139,11 +139,9 @@ public class My5250Applet extends JApplet {
         this.getContentPane().add(gui);
 
         s.connect();
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+        SwingUtilities.invokeLater(() -> {
 //            jt.grabFocus();
-                gui.grabFocus();
-            }
+            gui.grabFocus();
         });
 
     }

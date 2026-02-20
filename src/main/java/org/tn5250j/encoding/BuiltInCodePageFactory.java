@@ -42,14 +42,14 @@ import org.tn5250j.tools.logging.TN5250jLogger;
 
     private static BuiltInCodePageFactory singleton;
 
-    private final List<Class<?>> clazzes = new ArrayList<Class<?>>();
+    private final List<Class<?>> clazzes = new ArrayList<>();
     private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     private BuiltInCodePageFactory() {
         register();
     }
 
-    public static synchronized final BuiltInCodePageFactory getInstance() {
+    public static synchronized BuiltInCodePageFactory getInstance() {
         if (singleton == null) {
             singleton = new BuiltInCodePageFactory();
         }
@@ -84,7 +84,7 @@ import org.tn5250j.tools.logging.TN5250jLogger;
      * @return unsorted list of available code pages
      */
     public String[] getAvailableCodePages() {
-        HashSet<String> cpset = new HashSet<String>();
+        HashSet<String> cpset = new HashSet<>();
         for (Class<?> clazz : clazzes) {
             final ICodepageConverter converter = getConverterFromClassName(clazz);
             if (converter != null) {

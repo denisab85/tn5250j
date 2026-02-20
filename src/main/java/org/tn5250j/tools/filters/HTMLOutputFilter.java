@@ -45,8 +45,8 @@ public class HTMLOutputFilter implements OutputFilterInterface {
 
         rb.append("<TR>");
         rb.append('\n');
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             if (f.isWriteField()) {
                 rb.append("<TD>");
                 rb.append(f.parseData(cByte));
@@ -117,8 +117,8 @@ public class HTMLOutputFilter implements OutputFilterInterface {
 
             //  loop through each of the fields and write out the field name for
             //    each selected field
-            for (int x = 0; x < ffd.size(); x++) {
-                f = (FileFieldDef) ffd.get(x);
+            for (Object o : ffd) {
+                f = (FileFieldDef) o;
                 if (f.isWriteField()) {
                     out = "<TH>" + f.getFieldName() + "</TH>";
                     fout.write(out.getBytes());

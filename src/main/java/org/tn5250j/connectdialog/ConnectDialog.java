@@ -66,22 +66,22 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
 
     private static final long serialVersionUID = 1L;
 
-    volatile private static TN5250jLogger LOG = TN5250jLogFactory.getLogger(ConnectDialog.class);
+    private static final TN5250jLogger LOG = TN5250jLogFactory.getLogger(ConnectDialog.class);
 
     private final KeyMnemonicResolver keyMnemonicResolver = new KeyMnemonicResolver();
 
     // panels to be displayed
-    private JPanel configOptions = new JPanel();
-    private JPanel sessionPanel = new JPanel();
-    private JPanel options = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
-    private JPanel sessionOpts = new JPanel();
-    private JPanel sessionOptPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
-    private JPanel emulOptPanel = new JPanel();
-    private JPanel accessPanel = new JPanel();
-    private JPanel loggingPanel = new JPanel();
-    private JPanel externalPanel = new JPanel();
-    private JPanel externalOpts = new JPanel();
-    private JPanel externalOptPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
+    private final JPanel configOptions = new JPanel();
+    private final JPanel sessionPanel = new JPanel();
+    private final JPanel options = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
+    private final JPanel sessionOpts = new JPanel();
+    private final JPanel sessionOptPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
+    private final JPanel emulOptPanel = new JPanel();
+    private final JPanel accessPanel = new JPanel();
+    private final JPanel loggingPanel = new JPanel();
+    private final JPanel externalPanel = new JPanel();
+    private final JPanel externalOpts = new JPanel();
+    private final JPanel externalOptPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 10));
     private JPanel aboutPanel = null;
 
     private JTable sessions = null;
@@ -123,7 +123,7 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
     private JCheckBox lastView = null;
 
     // create some reusable borders and layouts
-    private BorderLayout borderLayout = new BorderLayout();
+    private final BorderLayout borderLayout = new BorderLayout();
 
     private MultiSelectListComponent accessOptions;
     // password protection field for access to options list
@@ -241,12 +241,7 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
         // focus of the sessions list.
         addWindowListener(new WindowAdapter() {
             public void windowOpened(WindowEvent e) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-
-                        sessions.requestFocus();
-                    }
-                });
+                SwingUtilities.invokeLater(() -> sessions.requestFocus());
             }
         });
 
@@ -320,27 +315,25 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
 
         // Setup our selection model listener
         rowSM = sessions.getSelectionModel();
-        rowSM.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
+        rowSM.addListSelectionListener(e -> {
 
-                // Ignore extra messages.
-                if (e.getValueIsAdjusting())
-                    return;
+            // Ignore extra messages.
+            if (e.getValueIsAdjusting())
+                return;
 
-                ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+            ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 
-                if (lsm.isSelectionEmpty()) {
-                    // no rows are selected
-                    editButton.setEnabled(false);
-                    removeButton.setEnabled(false);
-                    connectButton.setEnabled(false);
-                } else {
+            if (lsm.isSelectionEmpty()) {
+                // no rows are selected
+                editButton.setEnabled(false);
+                removeButton.setEnabled(false);
+                connectButton.setEnabled(false);
+            } else {
 
-                    // selectedRow is selected
-                    editButton.setEnabled(true);
-                    removeButton.setEnabled(true);
-                    connectButton.setEnabled(true);
-                }
+                // selectedRow is selected
+                editButton.setEnabled(true);
+                removeButton.setEnabled(true);
+                connectButton.setEnabled(true);
             }
         });
 
@@ -401,19 +394,13 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
                 hideTabBar.setSelected(true);
         }
 
-        hideTabBar.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                hideTabBar_itemStateChanged(e);
-            }
-        });
+        hideTabBar.addItemListener(e -> hideTabBar_itemStateChanged(e));
 
         JRadioButton intTABS = new JRadioButton(LangTool.getString("conf.labelTABS"));
         intTABS.setSelected(true);
-        intTABS.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                // intTABS_itemStateChanged(e);
-                // nothing to do because there is only one option
-            }
+        intTABS.addItemListener(e -> {
+            // intTABS_itemStateChanged(e);
+            // nothing to do because there is only one option
         });
 
         // add the interface options to the group control
@@ -445,21 +432,13 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
         if (properties.containsKey("emul.showConnectDialog"))
             showMe.setSelected(true);
 
-        showMe.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                showMe_itemStateChanged(e);
-            }
-        });
+        showMe.addItemListener(e -> showMe_itemStateChanged(e));
 
         lastView = new JCheckBox(LangTool.getString("ss.labelLastView"));
         if (properties.containsKey("emul.startLastView"))
             lastView.setSelected(true);
 
-        lastView.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                lastView_itemStateChanged(e);
-            }
-        });
+        lastView.addItemListener(e -> lastView_itemStateChanged(e));
 
         startupPanel.add(showMe);
         startupPanel.add(lastView);
@@ -489,45 +468,21 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
         ButtonGroup levelGroup = new ButtonGroup();
         intOFF = new JRadioButton(LangTool.getString("logscr.Off"));
         intOFF.setSelected(true);
-        intOFF.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                intOFF_itemStateChanged(e);
-            }
-        });
+        intOFF.addItemListener(e -> intOFF_itemStateChanged(e));
 
         intDEBUG = new JRadioButton(LangTool.getString("logscr.Debug"));
-        intDEBUG.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                intDEBUG_itemStateChanged(e);
-            }
-        });
+        intDEBUG.addItemListener(e -> intDEBUG_itemStateChanged(e));
         intINFO = new JRadioButton(LangTool.getString("logscr.Info"));
-        intINFO.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                intINFO_itemStateChanged(e);
-            }
-        });
+        intINFO.addItemListener(e -> intINFO_itemStateChanged(e));
 
         intWARN = new JRadioButton(LangTool.getString("logscr.Warn"));
-        intWARN.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                intWARN_itemStateChanged(e);
-            }
-        });
+        intWARN.addItemListener(e -> intWARN_itemStateChanged(e));
 
         intERROR = new JRadioButton(LangTool.getString("logscr.Error"));
-        intERROR.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                intERROR_itemStateChanged(e);
-            }
-        });
+        intERROR.addItemListener(e -> intERROR_itemStateChanged(e));
 
         intFATAL = new JRadioButton(LangTool.getString("logscr.Fatal"));
-        intFATAL.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                intFATAL_itemStateChanged(e);
-            }
-        });
+        intFATAL.addItemListener(e -> intFATAL_itemStateChanged(e));
 
         // add the interface options to the group control
         levelGroup.add(intOFF);
@@ -580,10 +535,8 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
         intConsole = new JRadioButton(LangTool.getString("logscr.Console"));
         intConsole.setSelected(true);
         intConsole.setEnabled(false);
-        intConsole.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                // TODO: Provide the itemstatechanged for the intConsole checkbox
-            }
+        intConsole.addItemListener(e -> {
+            // TODO: Provide the itemstatechanged for the intConsole checkbox
         });
         intFile = new JRadioButton(LangTool.getString("logscr.File"));
         intFile.setEnabled(false);
@@ -656,7 +609,7 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
         String[] options = keyMnemonicResolver.getMnemonicsSorted();
 
         // set up a hashtable of option descriptions to options
-        Hashtable<String, String> ht = new Hashtable<String, String>(options.length);
+        Hashtable<String, String> ht = new Hashtable<>(options.length);
         for (String option : options) {
             ht.put(LangTool.getString("key." + option), option);
         }
@@ -781,23 +734,21 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
 
         // Setup our selection model listener
         rowSM2 = externals.getSelectionModel();
-        rowSM2.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                // Ignore extra messages.
-                if (e.getValueIsAdjusting())
-                    return;
-                ListSelectionModel lsm = (ListSelectionModel) e.getSource();
-                if (lsm.isSelectionEmpty()) {
-                    // no rows are selected
-                    cEditButton.setEnabled(false);
-                    cRemoveButton.setEnabled(false);
-                    cAddButton.setEnabled(false);
-                } else {
-                    // selectedRow is selected
-                    cEditButton.setEnabled(true);
-                    cRemoveButton.setEnabled(true);
-                    cAddButton.setEnabled(true);
-                }
+        rowSM2.addListSelectionListener(e -> {
+            // Ignore extra messages.
+            if (e.getValueIsAdjusting())
+                return;
+            ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+            if (lsm.isSelectionEmpty()) {
+                // no rows are selected
+                cEditButton.setEnabled(false);
+                cRemoveButton.setEnabled(false);
+                cAddButton.setEnabled(false);
+            } else {
+                // selectedRow is selected
+                cEditButton.setEnabled(true);
+                cRemoveButton.setEnabled(true);
+                cAddButton.setEnabled(true);
             }
         });
 
@@ -1053,7 +1004,7 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
     private void setExternalPrograms() {
 
         // set the external browser program to use
-        if (browser.getText().trim().length() > 0) {
+        if (!browser.getText().trim().isEmpty()) {
 
             properties.setProperty("emul.protocol.http", browser.getText().trim());
         } else {
@@ -1062,7 +1013,7 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
         }
 
         // set the external mailer program to use
-        if (mailer.getText().trim().length() > 0) {
+        if (!mailer.getText().trim().isEmpty()) {
 
             properties.setProperty("emul.protocol.mailto", mailer.getText().trim());
         } else {
@@ -1118,15 +1069,15 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
         String[] options = keyMnemonicResolver.getMnemonicsSorted();
 
         // set up a hashtable of option descriptions to options
-        Hashtable<String, String> ht = new Hashtable<String, String>(options.length);
-        for (int x = 0; x < options.length; x++) {
-            ht.put(LangTool.getString("key." + options[x]), options[x]);
+        Hashtable<String, String> ht = new Hashtable<>(options.length);
+        for (String option : options) {
+            ht.put(LangTool.getString("key." + option), option);
         }
 
         Object[] restrict = accessOptions.getSelectedValues();
         String s = "";
-        for (int x = 0; x < restrict.length; x++) {
-            s += ht.get(restrict[x]) + ";";
+        for (Object o : restrict) {
+            s += ht.get(o) + ";";
         }
         properties.setProperty("emul.restricted", s);
     }
@@ -1153,7 +1104,7 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
         }
         Properties newProps = new Properties();
         String count = externalProgramConfig.getProperty("etn.pgm.support.total.num");
-        if (count != null && count.length() > 0) {
+        if (count != null && !count.isEmpty()) {
             int total = Integer.parseInt(count);
             for (int i = 1; i <= total; i++) {
                 int order = i;
@@ -1258,13 +1209,13 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
                 throws BadLocationException {
 
             super.insertString(offs, str, a);
-            if (getText(0, getLength()).length() > 0)
+            if (!getText(0, getLength()).isEmpty())
                 doSomethingEntered();
         }
 
         public void remove(int offs, int len) throws BadLocationException {
             super.remove(offs, len);
-            if (getText(0, getLength()).length() == 0)
+            if (getText(0, getLength()).isEmpty())
                 doNothingEntered();
         }
     }

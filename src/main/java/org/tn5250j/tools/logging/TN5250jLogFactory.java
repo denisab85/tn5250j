@@ -41,7 +41,7 @@ import static org.tn5250j.tools.logging.TN5250jLogger.INFO;
 public final class TN5250jLogFactory {
 
     // map of TN5250jLogger instances, with classes as keys
-    private static final Map<String, TN5250jLogger> _loggers = new HashMap<String, TN5250jLogger>();
+    private static final Map<String, TN5250jLogger> _loggers = new HashMap<>();
     private static boolean log4j;
     private static String customLogger;
     private static int level = INFO;
@@ -130,9 +130,8 @@ public final class TN5250jLogFactory {
         if (level != newLevel) {
             level = newLevel;
             Set<String> loggerSet = _loggers.keySet();
-            Iterator<String> loggerIterator = loggerSet.iterator();
-            while (loggerIterator.hasNext()) {
-                TN5250jLogger logger = _loggers.get(loggerIterator.next());
+            for (String s : loggerSet) {
+                TN5250jLogger logger = _loggers.get(s);
                 logger.setLevel(newLevel);
             }
         }

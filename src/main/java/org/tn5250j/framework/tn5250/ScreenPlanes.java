@@ -526,7 +526,7 @@ public class ScreenPlanes {
      * @param plane
      * @return The number of characters copied to the buffer
      */
-    public synchronized int GetScreen(char buffer[], int bufferLength, int plane) {
+    public synchronized int GetScreen(char[] buffer, int bufferLength, int plane) {
         return GetScreen(buffer, bufferLength, 0, screenSize, plane);
     }
 
@@ -554,7 +554,7 @@ public class ScreenPlanes {
      * @return The number of characters copied to the buffer
      * @throws OhioException
      */
-    public synchronized int GetScreen(char buffer[], int bufferLength, int from,
+    public synchronized int GetScreen(char[] buffer, int bufferLength, int from,
                                       int length, int plane) {
         //      if(buffer == null)
         //         throw new OhioException(sessionVT.getSessionConfiguration(),
@@ -602,7 +602,7 @@ public class ScreenPlanes {
      * @return The number of characters copied to the buffer.
      * @throws OhioException
      */
-    public synchronized int GetScreen(char buffer[], int bufferLength, int row,
+    public synchronized int GetScreen(char[] buffer, int bufferLength, int row,
                                       int col, int length, int plane)
     //                                       throws OhioException {
     {
@@ -642,7 +642,7 @@ public class ScreenPlanes {
      * @return The number of characters copied to the buffer
      * @throws OhioException
      */
-    protected int GetScreenRect(char buffer[], int bufferLength,
+    protected int GetScreenRect(char[] buffer, int bufferLength,
                                 int startPos, int endPos, int plane)
     //                                             throws OhioException {
     {
@@ -691,7 +691,7 @@ public class ScreenPlanes {
      * @return The number characters copied to the buffer
      * @throws OhioException
      */
-    protected int GetScreenRect(char buffer[], int bufferLength,
+    protected int GetScreenRect(char[] buffer, int bufferLength,
                                 int startRow, int startCol,
                                 int endRow, int endCol, int plane)
     //                                             throws OhioException {
@@ -723,7 +723,7 @@ public class ScreenPlanes {
             // make sure it is one larger.  I guess for other languanges to
             // reference like in C which is terminated by a zero byte at the end
             // of strings.
-            char cb[] = new char[numCols + 1];
+            char[] cb = new char[numCols + 1];
             int charOffset = 0;
             int bytes = 0;
 
@@ -1064,7 +1064,7 @@ public class ScreenPlanes {
             ) {
                 Properties etnProps = ExternalProgramConfig.getInstance().getEtnPgmProps();
                 String count = etnProps.getProperty("etn.pgm.support.total.num");
-                if (count != null && count.length() > 0) {
+                if (count != null && !count.isEmpty()) {
                     int total = Integer.parseInt(count);
                     for (int i = 1; i <= total; i++) {
                         String program = etnProps.getProperty("etn.pgm." + i + ".command.name");

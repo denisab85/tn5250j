@@ -113,5 +113,5 @@ public class JTerminal extends JComponent {
 //    map.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, false), OS_OHIO_MNEMONIC_UP);
     }
 
-    private Session5250 session;
+    private final Session5250 session;
 }

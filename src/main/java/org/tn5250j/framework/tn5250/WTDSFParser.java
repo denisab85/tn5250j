@@ -53,19 +53,19 @@ import org.tn5250j.tools.logging.TN5250jLogger;
  */
 public class WTDSFParser {
 
-    private Screen5250 screen52;
-    private tnvt vt;
-    private ICodePage codePage;
+    private final Screen5250 screen52;
+    private final tnvt vt;
+    private final ICodePage codePage;
     int pos;
     byte[] segment;
     int length;
     boolean error;
     boolean guiStructsExist;
 
-    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
-    private final List<Window> guiStructs = new ArrayList<Window>(3);
-    private final List<ChoiceField> choices = new ArrayList<ChoiceField>(3);
+    private final List<Window> guiStructs = new ArrayList<>(3);
+    private final List<ChoiceField> choices = new ArrayList<>(3);
 
 
     WTDSFParser(tnvt vt) {
@@ -76,12 +76,12 @@ public class WTDSFParser {
 
     }
 
-    protected class ChoiceField {
+    protected static class ChoiceField {
 
-        int x;
-        int y;
-        int row;
-        int col;
+        final int x;
+        final int y;
+        final int row;
+        final int col;
         int width;
         int height;
         char mnemonic;
@@ -98,8 +98,8 @@ public class WTDSFParser {
 
     protected class Window {
 
-        byte[] window;
-        int pos;
+        final byte[] window;
+        final int pos;
 
         Window(byte[] seg, int pos) {
 
@@ -127,8 +127,7 @@ public class WTDSFParser {
 
     protected byte[] getSegmentAtPos(int pos) {
         int len = guiStructs.size();
-        for (int x = 0; x < len; x++) {
-            Window w = guiStructs.get(x);
+        for (Window w : guiStructs) {
             if (w.pos == pos)
                 return w.window;
         }

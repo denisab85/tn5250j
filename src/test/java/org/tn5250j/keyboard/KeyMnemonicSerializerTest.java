@@ -64,10 +64,10 @@ public class KeyMnemonicSerializerTest {
     public void mnemonics_are_deserialized_from_comma_separated_string() throws Exception {
         KeyMnemonic[] actual = serializer.deserialize("[clear], [attn] ,[copy]");
 
-        assertTrue(actual.length == 3);
-        assertEquals(actual[0], CLEAR);
-        assertEquals(actual[1], ATTN);
-        assertEquals(actual[2], COPY);
+        assertEquals(3, actual.length);
+        assertEquals(CLEAR, actual[0]);
+        assertEquals(ATTN, actual[1]);
+        assertEquals(COPY, actual[2]);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class KeyMnemonicSerializerTest {
         KeyMnemonic[] actual = serializer.deserialize(null);
 
         assertNotNull(actual);
-        assertTrue(actual.length == 0);
+        assertEquals(0, actual.length);
     }
 
     @Test
@@ -83,15 +83,15 @@ public class KeyMnemonicSerializerTest {
         KeyMnemonic[] actual = serializer.deserialize("");
 
         assertNotNull(actual);
-        assertTrue(actual.length == 0);
+        assertEquals(0, actual.length);
     }
 
     @Test
     public void deserializer_ignores_unknown_values() throws Exception {
         KeyMnemonic[] actual = serializer.deserialize("[clear],,[foobar],[attn]");
 
-        assertTrue(actual.length == 2);
-        assertEquals(actual[0], CLEAR);
-        assertEquals(actual[1], ATTN);
+        assertEquals(2, actual.length);
+        assertEquals(CLEAR, actual[0]);
+        assertEquals(ATTN, actual[1]);
     }
 }

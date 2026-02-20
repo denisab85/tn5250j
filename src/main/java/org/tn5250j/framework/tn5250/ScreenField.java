@@ -164,7 +164,7 @@ public class ScreenField {
 
     protected String getText() {
 
-        StringBuffer text = new StringBuffer();
+        StringBuilder text = new StringBuilder();
         getKeyPos(endPos);
         int x = length;
         text.setLength(x);
@@ -208,7 +208,7 @@ public class ScreenField {
 
     public String getString() {
 
-        StringBuffer text = new StringBuffer();
+        StringBuilder text = new StringBuilder();
         getKeyPos(endPos);
         int x = length;
         text.setLength(x);
@@ -585,7 +585,7 @@ public class ScreenField {
     int fcw1 = 0;
     int fcw2 = 0;
     int cursorPos = 0;
-    Screen5250 s;
+    final Screen5250 s;
     int cursorProg = 0;
     int fieldId = 0;
     ScreenField next = null;

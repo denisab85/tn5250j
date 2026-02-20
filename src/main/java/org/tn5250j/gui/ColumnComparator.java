@@ -17,8 +17,8 @@ package org.tn5250j.gui;
 import java.util.*;
 
 public class ColumnComparator implements Comparator {
-    protected int index;
-    protected boolean ascending;
+    protected final int index;
+    protected final boolean ascending;
 
     public ColumnComparator(int index, boolean ascending) {
         this.index = index;

@@ -30,7 +30,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.tn5250j.encoding.CharMappings;
 import org.tn5250j.encoding.ICodePage;
@@ -43,7 +42,7 @@ import org.tn5250j.encoding.builtin.CCSID277;
  */
 public class CCSID277Test {
 
-    private char[] TESTSTRING = new char[255];
+    private final char[] TESTSTRING = new char[255];
 
     @Before
     public void setUp() {

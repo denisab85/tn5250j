@@ -1481,9 +1481,9 @@ public class GUIGraphicsUtils {
                 fonts = nixFonts;
             }
 
-            for (int x = 0; x < fonts.length; x++) {
-                if (isFontNameExists(fonts[x])) {
-                    defaultFont = fonts[x];
+            for (String font : fonts) {
+                if (isFontNameExists(font)) {
+                    defaultFont = font;
                     break;
                 }
             }
@@ -1508,9 +1508,9 @@ public class GUIGraphicsUtils {
         // fonts from the environment
         Font[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
 
-        for (int x = 0; x < fonts.length; x++) {
-            if (fonts[x].getFontName().indexOf('.') < 0)
-                if (fonts[x].getFontName().equals(fontString))
+        for (Font font : fonts) {
+            if (font.getFontName().indexOf('.') < 0)
+                if (font.getFontName().equals(fontString))
                     return true;
         }
 
@@ -1560,10 +1560,10 @@ public class GUIGraphicsUtils {
     }
 
 
-    public final static List<Image> getApplicationIcons() {
+    public static List<Image> getApplicationIcons() {
 
         if (tnicon == null) {
-            tnicon = new ArrayList<Image>();
+            tnicon = new ArrayList<>();
             tnicon.add(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("tn5250j-16x16.png")).getImage());
             tnicon.add(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("tn5250j-32x32.png")).getImage());
             tnicon.add(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("tn5250j-48x48.png")).getImage());

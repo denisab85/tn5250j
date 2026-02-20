@@ -43,7 +43,7 @@ public class OperatingSystem {
     private static final TN5250jLogger LOG =
             TN5250jLogFactory.getLogger("org.tn5250j.tools.system.OperatingSystem");
 
-    public static final Rectangle getScreenBounds() {
+    public static Rectangle getScreenBounds() {
         int screenX = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth();
         int screenY = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight();
         int x, y, w, h;
@@ -73,7 +73,7 @@ public class OperatingSystem {
     /**
      * Returns if we're running Windows 95/98/ME/NT/2000/XP.
      */
-    public static final boolean isWindows() {
+    public static boolean isWindows() {
         return os == WINDOWS_9x || os == WINDOWS_NT;
     } //}}}
 
@@ -82,7 +82,7 @@ public class OperatingSystem {
     /**
      * Returns if we're running Unix (this includes MacOS X).
      */
-    public static final boolean isUnix() {
+    public static boolean isUnix() {
         return os == UNIX || os == MAC_OS_X || os == LINUX;
     } //}}}
 
@@ -91,7 +91,7 @@ public class OperatingSystem {
     /**
      * Returns if we're running MacOS X.
      */
-    public static final boolean isMacOS() {
+    public static boolean isMacOS() {
         return os == MAC_OS_X;
     } //}}}
 
@@ -100,7 +100,7 @@ public class OperatingSystem {
     /**
      * Returns if Java 2 version 1.4 is in use.
      */
-    public static final boolean hasJava14() {
+    public static boolean hasJava14() {
         return java14;
     }
 
@@ -135,7 +135,7 @@ public class OperatingSystem {
 
         // We now check if we have a property defined for the external program to
         //   handle this protocol.
-        if (props.getProperty("emul.protocol." + protocol, "").trim().length() > 0) {
+        if (!props.getProperty("emul.protocol." + protocol, "").trim().isEmpty()) {
             String commandTemplate = props.getProperty("emul.protocol." + protocol).trim();
 
             Object[] urlParm = new Object[1];
@@ -153,7 +153,7 @@ public class OperatingSystem {
 
         // execute the command if there was one if not then fall through to generic
         //   processing.
-        if (command != null && command.trim().length() > 0) {
+        if (command != null && !command.trim().isEmpty()) {
 
             execute(command);
 
@@ -205,7 +205,7 @@ public class OperatingSystem {
         try {
             Properties properties = ExternalProgramConfig.getInstance().getEtnPgmProps();
             String count = properties.getProperty("etn.pgm.support.total.num");
-            if (count != null && count.length() > 0) {
+            if (count != null && !count.isEmpty()) {
                 int total = Integer.parseInt(count);
                 for (int i = 1; i <= total; i++) {
                     String program = properties.getProperty("etn.pgm." + i + ".command.name");
@@ -274,7 +274,7 @@ public class OperatingSystem {
     private static final int UNKNOWN = 0xBAD;
     private static final int LINUX = 0x1337;
 
-    private static int os;
+    private static final int os;
     private static boolean java14;
 
     //{{{ Class initializer
@@ -283,16 +283,16 @@ public class OperatingSystem {
             os = MAC_OS_X;
         } else {
             String osName = System.getProperty("os.name");
-            if (osName.indexOf("Windows 9") != -1
-                    || osName.indexOf("Windows M") != -1) {
+            if (osName.contains("Windows 9")
+                    || osName.contains("Windows M")) {
                 os = WINDOWS_9x;
-            } else if (osName.indexOf("Windows") != -1) {
+            } else if (osName.contains("Windows")) {
                 os = WINDOWS_NT;
-            } else if (osName.indexOf("OS/2") != -1) {
+            } else if (osName.contains("OS/2")) {
                 os = OS2;
             } else if (File.separatorChar == '/') {
                 os = UNIX;
-            } else if (osName.toLowerCase().indexOf("linux") != -1) {
+            } else if (osName.toLowerCase().contains("linux")) {
                 os = LINUX;
             } else {
                 os = UNKNOWN;

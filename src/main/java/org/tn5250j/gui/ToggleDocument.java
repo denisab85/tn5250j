@@ -36,13 +36,13 @@ public class ToggleDocument extends PlainDocument {
             throws BadLocationException {
 
         super.insertString(offs, str, a);
-        if (getText(0, getLength()).length() > 0)
+        if (!getText(0, getLength()).isEmpty())
             fireNotEmpty();
     }
 
     public void remove(int offs, int len) throws BadLocationException {
         super.remove(offs, len);
-        if (getText(0, getLength()).length() == 0)
+        if (getText(0, getLength()).isEmpty())
             fireEmpty();
     }
 
@@ -54,7 +54,7 @@ public class ToggleDocument extends PlainDocument {
     public synchronized void addToggleDocumentListener(ToggleDocumentListener listener) {
 
         if (listeners == null) {
-            listeners = new java.util.Vector<ToggleDocumentListener>(3);
+            listeners = new java.util.Vector<>(3);
         }
         listeners.addElement(listener);
 

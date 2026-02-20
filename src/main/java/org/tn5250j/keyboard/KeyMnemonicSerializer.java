@@ -45,7 +45,7 @@ public class KeyMnemonicSerializer {
     public KeyMnemonic[] deserialize(String keypadMnemonics) {
         if (keypadMnemonics == null) return new KeyMnemonic[0];
         String[] parts = keypadMnemonics.split(",");
-        List<KeyMnemonic> result = new ArrayList<KeyMnemonic>();
+        List<KeyMnemonic> result = new ArrayList<>();
         for (String part : parts) {
             KeyMnemonic mnemonic = keyMnemonicResolver.findMnemonic(part.trim());
             if (mnemonic != null) {

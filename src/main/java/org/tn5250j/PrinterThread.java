@@ -39,12 +39,12 @@ class PrinterThread extends Thread implements Printable {
 
     private char[] screen;
     private char[] screenExtendedAttr;
-    private char[] screenAttrPlace;
-    private int numCols;
-    private int numRows;
+    private final char[] screenAttrPlace;
+    private final int numCols;
+    private final int numRows;
     private Font font;
     private SessionPanel session;
-    private SessionConfig config;
+    private final SessionConfig config;
 
     PrinterThread(Screen5250 scr, Font font, int cols, int rows,
                   Color colorBg, boolean toDefaultPrinter, SessionPanel ses) {
@@ -91,12 +91,12 @@ class PrinterThread extends Thread implements Printable {
 
 
         if (numCols != 132) {
-            if (config.getStringProperty("print.portWidth").length() != 0 &&
-                    config.getStringProperty("print.portHeight").length() != 0 &&
-                    config.getStringProperty("print.portImageWidth").length() != 0 &&
-                    config.getStringProperty("print.portImageHeight").length() != 0 &&
-                    config.getStringProperty("print.portImage.X").length() != 0 &&
-                    config.getStringProperty("print.portImage.Y").length() != 0) {
+            if (!config.getStringProperty("print.portWidth").isEmpty() &&
+                    !config.getStringProperty("print.portHeight").isEmpty() &&
+                    !config.getStringProperty("print.portImageWidth").isEmpty() &&
+                    !config.getStringProperty("print.portImageHeight").isEmpty() &&
+                    !config.getStringProperty("print.portImage.X").isEmpty() &&
+                    !config.getStringProperty("print.portImage.Y").isEmpty()) {
 
                 Paper paper = pf.getPaper();
 
@@ -113,12 +113,12 @@ class PrinterThread extends Thread implements Printable {
             }
         } else {
 
-            if (config.getStringProperty("print.landWidth").length() != 0 &&
-                    config.getStringProperty("print.landHeight").length() != 0 &&
-                    config.getStringProperty("print.landImageWidth").length() != 0 &&
-                    config.getStringProperty("print.landImageHeight").length() != 0 &&
-                    config.getStringProperty("print.landImage.X").length() != 0 &&
-                    config.getStringProperty("print.landImage.Y").length() != 0) {
+            if (!config.getStringProperty("print.landWidth").isEmpty() &&
+                    !config.getStringProperty("print.landHeight").isEmpty() &&
+                    !config.getStringProperty("print.landImageWidth").isEmpty() &&
+                    !config.getStringProperty("print.landImageHeight").isEmpty() &&
+                    !config.getStringProperty("print.landImage.X").isEmpty() &&
+                    !config.getStringProperty("print.landImage.Y").isEmpty()) {
 
                 Paper paper = pf.getPaper();
 
@@ -134,7 +134,7 @@ class PrinterThread extends Thread implements Printable {
             }
         }
 
-        if (config.getStringProperty("print.font").length() > 0) {
+        if (!config.getStringProperty("print.font").isEmpty()) {
 
             font = new Font(config.getStringProperty("print.font"),
                     Font.PLAIN, 8);

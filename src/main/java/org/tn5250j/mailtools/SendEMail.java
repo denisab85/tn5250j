@@ -150,7 +150,7 @@ public class SendEMail {
         SMTPProperties = ConfigureFactory.getInstance().getProperties("smtp",
                 "SMTPProperties.cfg");
 
-        if (SMTPProperties.size() > 0)
+        if (!SMTPProperties.isEmpty())
             return true;
         else
             return false;
@@ -203,12 +203,12 @@ public class SendEMail {
             if (from == null)
                 from = SMTPProperties.getProperty("mail.smtp.from");
 
-            if (from != null && from.length() > 0) {
+            if (from != null && !from.isEmpty()) {
                 pers = SMTPProperties.getProperty("mail.smtp.realname");
                 if (pers != null) msg.setFrom(new InternetAddress(from, pers));
             }
 
-            if (message != null && message.length() > 0) {
+            if (message != null && !message.isEmpty()) {
                 // create and fill the attachment message part
                 MimeBodyPart mbp = new MimeBodyPart();
                 mbp.setText(message, "us-ascii");
@@ -217,13 +217,13 @@ public class SendEMail {
 
             msg.setSentDate(new Date());
 
-            if (attachment != null && attachment.length() > 0) {
+            if (attachment != null && !attachment.isEmpty()) {
                 // create and fill the attachment message part
                 MimeBodyPart abp = new MimeBodyPart();
 
                 abp.setText(attachment, "us-ascii");
 
-                if (attachmentName == null || attachmentName.length() == 0)
+                if (attachmentName == null || attachmentName.isEmpty())
                     abp.setFileName("tn5250j.txt");
                 else
                     abp.setFileName(attachmentName);
@@ -231,13 +231,13 @@ public class SendEMail {
 
             }
 
-            if (fileName != null && fileName.length() > 0) {
+            if (fileName != null && !fileName.isEmpty()) {
                 // create and fill the attachment message part
                 MimeBodyPart fbp = new MimeBodyPart();
 
                 fbp.setText("File sent using tn5250j", "us-ascii");
 
-                if (attachmentName == null || attachmentName.length() == 0) {
+                if (attachmentName == null || attachmentName.isEmpty()) {
                     fbp.setFileName("tn5250j.txt");
                 } else
                     fbp.setFileName(attachmentName);
@@ -277,8 +277,8 @@ public class SendEMail {
         Address[] ia = sfe.getInvalidAddresses();
 
         if (ia != null) {
-            for (int x = 0; x < ia.length; x++) {
-                error += "Invalid Address: " + ia[x].toString() + "\n";
+            for (Address address : ia) {
+                error += "Invalid Address: " + address.toString() + "\n";
             }
         }
 

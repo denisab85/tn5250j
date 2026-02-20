@@ -86,23 +86,18 @@ public class JPythonInterpreterDriver implements InterpreterDriver {
             final String s2 = scriptFile;
 
             s1.setMacroRunning(true);
-            Runnable interpretIt = new Runnable() {
-                public void run() {
+            Runnable interpretIt = () -> {
 //               PySystemState.initialize(System.getProperties(),null, new String[] {""},this.getClass().getClassLoader());
 
-                    _interpreter = new PythonInterpreter();
-                    _interpreter.set("_session", s1);
-                    try {
-                        _interpreter.execfile(s2);
-                    } catch (org.python.core.PySyntaxError pse) {
-                        JOptionPane.showMessageDialog(s1, pse, "Error in script " + s2, JOptionPane.ERROR_MESSAGE);
-                    } catch (org.python.core.PyException pse) {
-                        JOptionPane.showMessageDialog(s1, pse, "Error in script " + s2, JOptionPane.ERROR_MESSAGE);
-                    } finally {
-                        s1.setMacroRunning(false);
-                    }
+                _interpreter = new PythonInterpreter();
+                _interpreter.set("_session", s1);
+                try {
+                    _interpreter.execfile(s2);
+                } catch (PyException pse) {
+                    JOptionPane.showMessageDialog(s1, pse, "Error in script " + s2, JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    s1.setMacroRunning(false);
                 }
-
             };
 
             // lets start interpreting it.
@@ -110,10 +105,8 @@ public class JPythonInterpreterDriver implements InterpreterDriver {
             interpThread.setDaemon(true);
             interpThread.start();
 
-        } catch (PyException ex) {
-            throw new InterpreterDriver.InterpreterException(ex);
         } catch (Exception ex2) {
-            throw new InterpreterDriver.InterpreterException(ex2);
+            throw new InterpreterException(ex2);
         }
     }
 

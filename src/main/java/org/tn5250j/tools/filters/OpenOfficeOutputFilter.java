@@ -413,8 +413,8 @@ public class OpenOfficeOutputFilter implements OutputFilterInterface {
             int column = 1;
             fout.write("   <table:table-row table:style-name=\"ro1\">\n".getBytes());
 
-            for (int x = 0; x < ffd.size(); x++) {
-                f = (FileFieldDef) ffd.get(x);
+            for (Object o : ffd) {
+                f = (FileFieldDef) o;
                 if (f.isWriteField()) {
                     fout.write("    <table:table-cell>\n".getBytes());
                     fout.write("     <text:p>".getBytes());

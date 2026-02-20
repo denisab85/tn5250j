@@ -44,32 +44,32 @@ public class ENHGridLayout extends GridLayout {
     private static final long serialVersionUID = 1L;
 
     /** The horiztonal gap between items. */
-    protected int hgap;
+    protected final int hgap;
 
     /** The vertical gap between items. */
-    protected int vgap;
+    protected final int vgap;
 
     /** The number of rows in the layout, as set by the user.
      * This number may not correspond exactly to the number of
      * rows in the layout.
      */
-    protected int rows;
+    protected final int rows;
 
     /** The number of columns in the layout, as set by the user.
      * This number may not correspond exactly to the number of
      * columns in the layout.
      */
-    protected int cols;
+    protected final int cols;
 
     /** Array of row heights.
      * It is accurate only after a call to getGridSizes()
      */
-    protected int row_heights[] = new int[0];
+    protected int[] row_heights = new int[0];
 
     /** Array of column widths.
      * It is accurate only after a call to getGridSizes()
      */
-    protected int col_widths[] = new int[0];
+    protected int[] col_widths = new int[0];
 
     public final static int VARIABLE = 0;
 
@@ -139,8 +139,7 @@ public class ENHGridLayout extends GridLayout {
     final int sum(int[] array) {
         if (array == null) return 0;
         int s = 0;
-        for (int i = 0; i < array.length; i++)
-            s += array[i];
+        for (int j : array) s += j;
         return s;
     }
 

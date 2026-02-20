@@ -37,9 +37,9 @@ public class TN5250jFontsSelection extends JComboBox {
         // fonts
         Font[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
 
-        for (int x = 0; x < fonts.length; x++) {
-            if (fonts[x].getFontName().indexOf('.') < 0)
-                addItem(fonts[x].getFontName());
+        for (Font font : fonts) {
+            if (font.getFontName().indexOf('.') < 0)
+                addItem(font.getFontName());
         }
 
     }

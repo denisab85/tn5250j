@@ -33,7 +33,7 @@ public interface SSLInterface {
      * @param type The ssl socket type (SSLv2, SSLv3, TLS)
      * @see org.tn5250j.framework.transport.SSLConstants
      */
-    public abstract void init(String sslType);
+    void init(String sslType);
 
     /**
      * Create a new socket
@@ -42,6 +42,6 @@ public interface SSLInterface {
      * @param port
      * @return new socket, or null if none could be created.
      */
-    public abstract Socket createSSLSocket(String destination, int port);
+    Socket createSSLSocket(String destination, int port);
 
 }

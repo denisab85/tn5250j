@@ -64,10 +64,10 @@ public class Gui5250Frame extends GUIViewInterface implements
 
     private static final long serialVersionUID = 1L;
 
-    private JTabbedPane sessTabbedPane = new JTabbedPane();
+    private final JTabbedPane sessTabbedPane = new JTabbedPane();
     private boolean embedded = false;
     private boolean hideTabBar = false;
-    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
 
     //Construct the frame
@@ -174,17 +174,14 @@ public class Gui5250Frame extends GUIViewInterface implements
 
         final int index = sessTabbedPane.getSelectedIndex();
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                int index1 = index;
-                if (index1 < sessTabbedPane.getTabCount() - 1) {
-                    sessTabbedPane.setSelectedIndex(++index1);
-                } else {
-                    sessTabbedPane.setSelectedIndex(0);
-                }
-                updateSessionTitle();
+        SwingUtilities.invokeLater(() -> {
+            int index1 = index;
+            if (index1 < sessTabbedPane.getTabCount() - 1) {
+                sessTabbedPane.setSelectedIndex(++index1);
+            } else {
+                sessTabbedPane.setSelectedIndex(0);
             }
+            updateSessionTitle();
         });
 
     }
@@ -193,17 +190,14 @@ public class Gui5250Frame extends GUIViewInterface implements
 
         final int index = sessTabbedPane.getSelectedIndex();
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                int index1 = index;
-                if (index1 == 0) {
-                    sessTabbedPane.setSelectedIndex(sessTabbedPane.getTabCount() - 1);
-                } else {
-                    sessTabbedPane.setSelectedIndex(--index1);
-                }
-                updateSessionTitle();
+        SwingUtilities.invokeLater(() -> {
+            int index1 = index;
+            if (index1 == 0) {
+                sessTabbedPane.setSelectedIndex(sessTabbedPane.getTabCount() - 1);
+            } else {
+                sessTabbedPane.setSelectedIndex(--index1);
             }
+            updateSessionTitle();
         });
     }
 
@@ -309,12 +303,7 @@ public class Gui5250Frame extends GUIViewInterface implements
                 sessTabbedPane.setTitleAt(0, determineTabName(firstsesgui));
 
                 this.getContentPane().add(sessTabbedPane, BorderLayout.CENTER);
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        repaint();
-                    }
-                });
+                SwingUtilities.invokeLater(() -> repaint());
             }
 
             createTabWithSessionContent(tabText, sesspanel, true);
@@ -326,7 +315,7 @@ public class Gui5250Frame extends GUIViewInterface implements
      * @param sesgui
      * @param focus TRUE is the new tab should be focused, otherwise FALSE
      */
-    private final void createTabWithSessionContent(final String tabText, final SessionPanel sesgui, final boolean focus) {
+    private void createTabWithSessionContent(final String tabText, final SessionPanel sesgui, final boolean focus) {
 
         sessTabbedPane.addTab(tabText, determineIconForSession(sesgui.session), sesgui);
         final int idx = sessTabbedPane.indexOfComponent(sesgui);
@@ -341,15 +330,12 @@ public class Gui5250Frame extends GUIViewInterface implements
         sesgui.addSessionListener(bttab);
 
         // visual cleanups
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                sesgui.resizeMe();
-                sesgui.repaint();
-                if (focus) {
-                    sessTabbedPane.setSelectedIndex(idx);
-                    sesgui.requestFocusInWindow();
-                }
+        SwingUtilities.invokeLater(() -> {
+            sesgui.resizeMe();
+            sesgui.repaint();
+            if (focus) {
+                sessTabbedPane.setSelectedIndex(idx);
+                sesgui.requestFocusInWindow();
             }
         });
     }
@@ -443,12 +429,7 @@ public class Gui5250Frame extends GUIViewInterface implements
                         this.log.debug("SessionChangedEvent: " + changeEvent.getState() + " " + devname);
                     }
                     if (tabidx >= 0 && tabidx < sessTabbedPane.getTabCount()) {
-                        Runnable tc = new Runnable() {
-                            @Override
-                            public void run() {
-                                sessTabbedPane.setTitleAt(tabidx, determineTabName(sesgui));
-                            }
-                        };
+                        Runnable tc = () -> sessTabbedPane.setTitleAt(tabidx, determineTabName(sesgui));
                         SwingUtilities.invokeLater(tc);
                     }
                     updateSessionTitle();
@@ -461,7 +442,7 @@ public class Gui5250Frame extends GUIViewInterface implements
      * @param ses5250
      * @return Icon or NULL depending on session State
      */
-    private static final Icon determineIconForSession(Session5250 ses5250) {
+    private static Icon determineIconForSession(Session5250 ses5250) {
         if (ses5250 != null && ses5250.isSslConfigured()) {
             if (ses5250.isSslSocket()) {
                 return GUIGraphicsUtils.getClosedLockIcon();

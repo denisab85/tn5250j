@@ -10,7 +10,7 @@ import static java.lang.Class.forName;
 
 class AppleApplicationTools {
 
-    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     boolean tryToSetDockIconImages(List<Image> images) {
         return tryToSetDockIconImage(images.get(images.size() - 1));
@@ -19,7 +19,7 @@ class AppleApplicationTools {
     private boolean tryToSetDockIconImage(Image image) {
         if (isAppleEnvironment()) {
             try {
-                Class applicationClass = forName("com.apple.eawt.Application");
+                Class<?> applicationClass = Class.forName("com.apple.eawt.Application");
                 Object application = applicationClass.getMethod("getApplication").invoke(applicationClass);
                 applicationClass.getMethod("setDockIconImage", Image.class).invoke(application, image);
                 return true;

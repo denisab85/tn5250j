@@ -76,16 +76,16 @@ public class Screen5250 {
 
     public boolean cursorActive = false;
     public boolean cursorShown = false;
-    private boolean keyProcessed = false;
-    private Rect dirtyScreen = new Rect();
+    private final boolean keyProcessed = false;
+    private final Rect dirtyScreen = new Rect();
 
     public int homePos = 0;
     private int saveHomePos = 0;
     private String bufferedKeys;
     private boolean pendingInsert = false;
 
-    private StringBuffer hsMore = new StringBuffer("More...");
-    private StringBuffer hsBottom = new StringBuffer("Bottom");
+    private final StringBuffer hsMore = new StringBuffer("More...");
+    private final StringBuffer hsBottom = new StringBuffer("Bottom");
 
     private boolean guiInterface = false;
     private boolean resetRequired = true;
@@ -357,7 +357,7 @@ public class Screen5250 {
 
         df.setDecimalFormatSymbols(dfs);
 
-        Vector<Double> sumVector = new Vector<Double>();
+        Vector<Double> sumVector = new Vector<>();
 
         // loop through all the screen characters to send them to the clip board
         int m = workR.x;
@@ -428,7 +428,7 @@ public class Screen5250 {
 
             // lets check for hot spots
             if (g >= BUTTON_LEFT && g <= BUTTON_LAST) {
-                StringBuffer aid = new StringBuffer();
+                StringBuilder aid = new StringBuilder();
                 boolean aidFlag = true;
                 switch (g) {
                     case BUTTON_RIGHT:
@@ -478,7 +478,7 @@ public class Screen5250 {
                         case BUTTON_LEFT_EB:
                         case BUTTON_MIDDLE_EB:
                         case BUTTON_RIGHT_EB:
-                            StringBuffer eb = new StringBuffer();
+                            StringBuilder eb = new StringBuilder();
                             while (planes.getWhichGUI(pos--) != BUTTON_LEFT_EB)
                                 ;
                             while (planes.getWhichGUI(pos++) != BUTTON_RIGHT_EB) {
@@ -488,7 +488,7 @@ public class Screen5250 {
                                     .toString());
                             // take out the log statement when we are sure it is
                             // working
-                            log.info("Send to external Browser: " + eb.toString());
+                            log.info("Send to external Browser: " + eb);
                             break;
 
                         default:
@@ -2131,7 +2131,7 @@ public class Screen5250 {
      * @param plane
      * @return The number of characters copied to the buffer
      */
-    public synchronized int GetScreen(char buffer[], int bufferLength, int plane) {
+    public synchronized int GetScreen(char[] buffer, int bufferLength, int plane) {
         return GetScreen(buffer, bufferLength, 0, lenScreen, plane);
     }
 
@@ -2158,7 +2158,7 @@ public class Screen5250 {
      * @param plane
      * @return The number of characters copied to the buffer
      */
-    public synchronized int GetScreen(char buffer[], int bufferLength, int from, int length, int plane) {
+    public synchronized int GetScreen(char[] buffer, int bufferLength, int from, int length, int plane) {
         return planes.GetScreen(buffer, bufferLength, from, length, plane);
     }
 
@@ -2187,7 +2187,7 @@ public class Screen5250 {
      * @param plane
      * @return The number of characters copied to the buffer.
      */
-    public synchronized int GetScreen(char buffer[], int bufferLength, int row, int col, int length, int plane) {
+    public synchronized int GetScreen(char[] buffer, int bufferLength, int row, int col, int length, int plane) {
         // Call GetScreen function after converting row and column to
         // a position.
         return planes.GetScreen(buffer, bufferLength, row, col, length, plane);
@@ -2222,7 +2222,7 @@ public class Screen5250 {
      * @param plane
      * @return The number of characters copied to the buffer
      */
-    public synchronized int GetScreenRect(char buffer[], int bufferLength, int startPos, int endPos, int plane) {
+    public synchronized int GetScreenRect(char[] buffer, int bufferLength, int startPos, int endPos, int plane) {
         return planes.GetScreenRect(buffer, bufferLength, startPos, endPos, plane);
 
     }
@@ -2258,7 +2258,7 @@ public class Screen5250 {
      * @param plane
      * @return The number characters copied to the buffer
      */
-    public synchronized int GetScreenRect(char buffer[], int bufferLength,
+    public synchronized int GetScreenRect(char[] buffer, int bufferLength,
                                           int startRow, int startCol, int endRow, int endCol, int plane) {
 
         return planes.GetScreenRect(buffer, bufferLength, startRow, startCol, endRow,
@@ -2774,7 +2774,7 @@ public class Screen5250 {
 
     public void dumpScreen() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         char[] s = getScreenAsChars();
         int c = getColumns();
         int l = getRows() * c;
@@ -3313,7 +3313,7 @@ public class Screen5250 {
         if (screenListeners != null) {
             // Patch below contributed by Mitch Blevins
             //int size = listeners.size();
-            Vector<ScreenListener> lc = new Vector<ScreenListener>(screenListeners);
+            Vector<ScreenListener> lc = new Vector<>(screenListeners);
             int size = lc.size();
             for (int i = 0; i < size; i++) {
                 //ScreenListener target =
@@ -3349,7 +3349,7 @@ public class Screen5250 {
         int startCol = getCol(lastPos);
 
         if (screenListeners != null) {
-            Vector<ScreenListener> lc = new Vector<ScreenListener>(screenListeners);
+            Vector<ScreenListener> lc = new Vector<>(screenListeners);
             for (int i = 0, len = lc.size(); i < len; i++) {
                 ScreenListener target = lc.elementAt(i);
                 target.onScreenChanged(update, startRow, startCol, startRow, startCol);
@@ -3363,7 +3363,7 @@ public class Screen5250 {
      */
     private void fireScreenSizeChanged() {
         if (screenListeners != null) {
-            Vector<ScreenListener> lc = new Vector<ScreenListener>(screenListeners);
+            Vector<ScreenListener> lc = new Vector<>(screenListeners);
             for (int i = 0, size = lc.size(); i < size; i++) {
                 ScreenListener target =
                         lc.elementAt(i);
@@ -3389,7 +3389,7 @@ public class Screen5250 {
     public void addScreenListener(ScreenListener listener) {
 
         if (screenListeners == null) {
-            screenListeners = new java.util.Vector<ScreenListener>(3);
+            screenListeners = new java.util.Vector<>(3);
         }
         screenListeners.addElement(listener);
 

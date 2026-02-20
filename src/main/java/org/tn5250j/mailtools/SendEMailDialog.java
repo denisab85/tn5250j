@@ -79,7 +79,7 @@ public class SendEMailDialog extends GenericTn5250JFrame implements Runnable {
     JButton browse;
     boolean sendScreen;
     SendEMail sendEMail;
-    Thread myThread = new Thread(this);
+    final Thread myThread = new Thread(this);
 
     /**
      * Constructor to send the screen information
@@ -144,10 +144,10 @@ public class SendEMailDialog extends GenericTn5250JFrame implements Runnable {
                         sendEMail.setConfigFile("SMTPProperties.cfg");
                         sendEMail.setTo((String) toAddress.getSelectedItem());
                         sendEMail.setSubject(subject.getText());
-                        if (bodyText.getText().length() > 0)
+                        if (!bodyText.getText().isEmpty())
                             sendEMail.setMessage(bodyText.getText());
 
-                        if (attachmentName.getText().length() > 0)
+                        if (!attachmentName.getText().isEmpty())
                             if (!normal.isSelected())
                                 sendEMail.setAttachmentName(attachmentName.getText());
                             else
@@ -167,7 +167,7 @@ public class SendEMailDialog extends GenericTn5250JFrame implements Runnable {
                             screen.GetScreen(screenExtendedAttr, len, TN5250jConstants.PLANE_EXTENDED);
                             screen.GetScreen(screenAttrPlace, len, TN5250jConstants.PLANE_IS_ATTR_PLACE);
 
-                            StringBuffer sb = new StringBuffer();
+                            StringBuilder sb = new StringBuilder();
 //							char[] s = screen.getScreenAsChars();
                             int c = screen.getColumns();
                             int l = screen.getRows() * c;
@@ -232,7 +232,7 @@ public class SendEMailDialog extends GenericTn5250JFrame implements Runnable {
                                 System.out.println(ex.getMessage());
                             }
 
-                        } else if (attachmentName.getText().length() > 0) {
+                        } else if (!attachmentName.getText().isEmpty()) {
                             File f = new File(attachmentName.getText());
                             sendEMail.setFileName(f.toString());
                         }
@@ -307,13 +307,13 @@ public class SendEMailDialog extends GenericTn5250JFrame implements Runnable {
                         sendEMail.setConfigFile("SMTPProperties.cfg");
                         sendEMail.setTo((String) toAddress.getSelectedItem());
                         sendEMail.setSubject(subject.getText());
-                        if (bodyText.getText().length() > 0)
+                        if (!bodyText.getText().isEmpty())
                             sendEMail.setMessage(bodyText.getText());
 
-                        if (attachmentName.getText().length() > 0)
+                        if (!attachmentName.getText().isEmpty())
                             sendEMail.setAttachmentName(attachmentName.getText());
 
-                        if (fileName != null && fileName.length() > 0)
+                        if (fileName != null && !fileName.isEmpty())
                             sendEMail.setFileName(fileName);
 
                         // send the information
@@ -471,11 +471,7 @@ public class SendEMailDialog extends GenericTn5250JFrame implements Runnable {
         JLabel tom = new JLabel(LangTool.getString("em.typeofmail"));
 
         browse = new JButton(LangTool.getString("em.choosefile"));
-        browse.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                browse_actionPerformed(e);
-            }
-        });
+        browse.addActionListener(e -> browse_actionPerformed(e));
 
         toAddress = new JComboBox();
         toAddress.setPreferredSize(new Dimension(175, 25));
@@ -489,21 +485,13 @@ public class SendEMailDialog extends GenericTn5250JFrame implements Runnable {
         bodyScrollPane.setVerticalScrollBarPolicy(
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         attachmentName = new JTextField(fileName, 30);
-        if (fileName != null && fileName.length() > 0)
+        if (fileName != null && !fileName.isEmpty())
             attachmentName.setText(fileName);
         else
             attachmentName.setText("");
 
-        text.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent e) {
-                setAttachmentName();
-            }
-        });
-        normal.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent e) {
-                setTypeOfMail();
-            }
-        });
+        text.addItemListener(e -> setAttachmentName());
+        normal.addItemListener(e -> setTypeOfMail());
 
         if (sendScreen) {
             screenshot.setSelected(true);
@@ -712,7 +700,7 @@ public class SendEMailDialog extends GenericTn5250JFrame implements Runnable {
      */
     private String getToTokens(String to, JComboBox boxen) {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String selected = (String) boxen.getSelectedItem();
 
         sb.append(selected + '|');

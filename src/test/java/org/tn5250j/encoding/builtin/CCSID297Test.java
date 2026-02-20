@@ -42,7 +42,7 @@ import org.tn5250j.encoding.builtin.CCSID297;
  */
 public class CCSID297Test {
 
-    private char[] TESTSTRING = new char[255];
+    private final char[] TESTSTRING = new char[255];
 
     @Before
     public void setUp() {

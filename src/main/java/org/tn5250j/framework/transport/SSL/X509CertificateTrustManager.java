@@ -44,7 +44,7 @@ import javax.swing.JOptionPane;
 public class X509CertificateTrustManager implements X509TrustManager {
 
     KeyStore ks = null;
-    TrustManager[] trustManagers;
+    final TrustManager[] trustManagers;
     //X509TrustManager trustManager = null;
 
     public X509CertificateTrustManager(TrustManager[] managers, KeyStore keyStore) {
@@ -65,9 +65,9 @@ public class X509CertificateTrustManager implements X509TrustManager {
     public void checkServerTrusted(X509Certificate[] chain, String type)
             throws CertificateException {
         try {
-            for (int i = 0; i < trustManagers.length; i++) {
-                if (trustManagers[i] instanceof X509TrustManager)
-                    ((X509TrustManager) trustManagers[i]).checkServerTrusted(chain, type);
+            for (TrustManager trustManager : trustManagers) {
+                if (trustManager instanceof X509TrustManager)
+                    ((X509TrustManager) trustManager).checkServerTrusted(chain, type);
             }
             return;
         } catch (CertificateException ce) {
@@ -90,10 +90,10 @@ public class X509CertificateTrustManager implements X509TrustManager {
     }
 
     public X509Certificate[] getAcceptedIssuers() {
-        ArrayList<X509Certificate> list = new ArrayList<X509Certificate>(10);
-        for (int i = 0; i < trustManagers.length; i++) {
-            if (trustManagers[i] instanceof X509TrustManager)
-                list.addAll(Arrays.asList(((X509TrustManager) trustManagers[i]).getAcceptedIssuers()));
+        ArrayList<X509Certificate> list = new ArrayList<>(10);
+        for (TrustManager trustManager : trustManagers) {
+            if (trustManager instanceof X509TrustManager)
+                list.addAll(Arrays.asList(((X509TrustManager) trustManager).getAcceptedIssuers()));
         }
         X509Certificate[] acceptedIssuers = new X509Certificate[list.size()];
         acceptedIssuers = list.toArray(acceptedIssuers);

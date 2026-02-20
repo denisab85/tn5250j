@@ -40,7 +40,7 @@ public abstract class EmulatorAction extends AbstractAction {
 
     private static final long serialVersionUID = 1L;
     // content pane to be used if needed by subclasses
-    protected SessionPanel session;
+    protected final SessionPanel session;
 
     public EmulatorAction(SessionPanel session, String name) {
 

@@ -49,7 +49,7 @@ public class OptionAccess extends OptionAccessFactory {
     /**
      * A handle to non valid options.
      */
-    static private List<String> restricted = new ArrayList<String>();
+    static private final List<String> restricted = new ArrayList<>();
 
     private final KeyMnemonicResolver keyMnemonicResolver = new KeyMnemonicResolver();
 

@@ -46,7 +46,7 @@ public class SessionSettings extends JDialog {
     private static final long serialVersionUID = 1L;
     private final String fileName;
     private final Properties props;
-    private JPanel jpm = new JPanel(new BorderLayout());
+    private final JPanel jpm = new JPanel(new BorderLayout());
 
     private final SessionConfig changes;
 
@@ -103,17 +103,14 @@ public class SessionSettings extends JDialog {
                 (TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         //Listen for when the selection changes.
-        tree.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
+        tree.addTreeSelectionListener(e1 -> {
 
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-                        tree.getLastSelectedPathComponent();
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+                    tree.getLastSelectedPathComponent();
 
-                if (node == null)
-                    return;
-                showPanel(node.getUserObject());
-            }
+            if (node == null)
+                return;
+            showPanel(node.getUserObject());
         });
 
 
@@ -171,7 +168,7 @@ public class SessionSettings extends JDialog {
 
         if (props.containsKey(prop)) {
             String p = (String) props.get(prop);
-            if (p.length() > 0)
+            if (!p.isEmpty())
                 return p;
             else
                 return defaultValue;
@@ -219,21 +216,18 @@ public class SessionSettings extends JDialog {
         });
 
         saOptionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-                    @Override
-                    public void propertyChange(PropertyChangeEvent e) {
-                        String prop = e.getPropertyName();
-                        if (isVisible()
-                                && (e.getSource() == saOptionPane)
-                                && (prop.equals(JOptionPane.VALUE_PROPERTY) ||
-                                prop.equals(JOptionPane.INPUT_VALUE_PROPERTY))) {
+                e -> {
+                    String prop = e.getPropertyName();
+                    if (isVisible()
+                            && (e.getSource() == saOptionPane)
+                            && (prop.equals(JOptionPane.VALUE_PROPERTY) ||
+                            prop.equals(JOptionPane.INPUT_VALUE_PROPERTY))) {
 
-                            saOptionPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        saOptionPane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-                            doOptionStuff(saOptionPane);
+                        doOptionStuff(saOptionPane);
 
-                            saOptionPane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                        }
+                        saOptionPane.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     }
                 });
 

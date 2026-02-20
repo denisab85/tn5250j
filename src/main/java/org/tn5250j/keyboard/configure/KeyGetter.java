@@ -38,7 +38,7 @@ public class KeyGetter extends KeyGetterInterface {
 
     private static final long serialVersionUID = 1691732474472874354L;
 
-    private static final transient TN5250jLogger LOG = TN5250jLogFactory.getLogger(KeyGetter.class);
+    private static final TN5250jLogger LOG = TN5250jLogFactory.getLogger(KeyGetter.class);
 
     public KeyGetter() {
         super();
@@ -107,7 +107,7 @@ public class KeyGetter extends KeyGetterInterface {
 
         modString = "modifiers = " + modifiers;
         tmpString = KeyEvent.getKeyModifiersText(modifiers);
-        if (tmpString.length() > 0) {
+        if (!tmpString.isEmpty()) {
             modString += " (" + tmpString + ")";
         } else {
             modString += " (no modifiers)";

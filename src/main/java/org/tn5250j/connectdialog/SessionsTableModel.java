@@ -43,7 +43,7 @@ class SessionsTableModel extends AbstractTableModel implements SortTableModel {
             LangTool.getString("conf.tableColB"),
             LangTool.getString("conf.tableColC")};
 
-    private List<SessionsDataModel> sortedItems = new ArrayList<SessionsDataModel>();
+    private final List<SessionsDataModel> sortedItems = new ArrayList<>();
 
     SessionsTableModel(Properties properties) {
         super();
@@ -76,17 +76,13 @@ class SessionsTableModel extends AbstractTableModel implements SortTableModel {
     }
 
     public void sortColumn(final int col, final boolean ascending) {
-        if (col == 0) Collections.sort(sortedItems, new Comparator<SessionsDataModel>() {
-            public int compare(SessionsDataModel sdm1, SessionsDataModel sdm2) {
-                if (ascending) return sdm1.name.compareToIgnoreCase(sdm2.name);
-                return sdm2.name.compareToIgnoreCase(sdm1.name);
-            }
+        if (col == 0) sortedItems.sort((sdm1, sdm2) -> {
+            if (ascending) return sdm1.name.compareToIgnoreCase(sdm2.name);
+            return sdm2.name.compareToIgnoreCase(sdm1.name);
         });
-        if (col == 1) Collections.sort(sortedItems, new Comparator<SessionsDataModel>() {
-            public int compare(SessionsDataModel sdm1, SessionsDataModel sdm2) {
-                if (ascending) return sdm1.host.compareToIgnoreCase(sdm2.host);
-                return sdm2.host.compareToIgnoreCase(sdm1.host);
-            }
+        if (col == 1) sortedItems.sort((sdm1, sdm2) -> {
+            if (ascending) return sdm1.host.compareToIgnoreCase(sdm2.host);
+            return sdm2.host.compareToIgnoreCase(sdm1.host);
         });
     }
 

@@ -41,5 +41,5 @@ public abstract class AbstractCodePage implements ICodePage {
         return encoding;
     }
 
-    protected String encoding;
+    protected final String encoding;
 }

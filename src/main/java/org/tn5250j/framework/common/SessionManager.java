@@ -42,7 +42,7 @@ public class SessionManager implements SessionManagerInterface {
     static private Sessions sessions;
     static private List<SessionConfig> configs;
 
-    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
     /**
      * A handle to the unique SessionManager class
      */
@@ -75,7 +75,7 @@ public class SessionManager implements SessionManagerInterface {
     private void initialize() {
         log.info("New session Manager initialized");
         sessions = new Sessions();
-        configs = new ArrayList<SessionConfig>();
+        configs = new ArrayList<>();
 
     }
 

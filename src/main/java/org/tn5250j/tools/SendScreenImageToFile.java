@@ -38,10 +38,10 @@ import org.tn5250j.gui.TN5250jFileChooser;
 
 public class SendScreenImageToFile {
 
-    SessionPanel session;
+    final SessionPanel session;
     //  Change sent by Luc - LDC to pass a parent frame like the other dialogs
-    Frame parent;
-    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+    final Frame parent;
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     public SendScreenImageToFile(Frame parent, SessionPanel ses) {
 

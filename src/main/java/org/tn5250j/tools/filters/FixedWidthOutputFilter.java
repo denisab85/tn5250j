@@ -27,7 +27,7 @@ import java.util.ArrayList;
 public class FixedWidthOutputFilter implements OutputFilterInterface {
 
     PrintStream fout = null;
-    StringBuffer sb = new StringBuffer();
+    final StringBuffer sb = new StringBuffer();
 
     // create instance of file for output
     public void createFileInstance(String fileName) throws
@@ -43,8 +43,8 @@ public class FixedWidthOutputFilter implements OutputFilterInterface {
         FileFieldDef f;
 
         // write out the html record information for each field that is selected
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             if (f.isWriteField()) {
 
 

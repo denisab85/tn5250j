@@ -46,7 +46,7 @@ public abstract class ConfigureFactory {
         return factory;
     }
 
-    private static final void setFactory() {
+    private static void setFactory() {
         if (factory == null) {
             try {
                 String className = System.getProperty(ConfigureFactory.class.getName());
@@ -58,7 +58,6 @@ public abstract class ConfigureFactory {
                     }
                 }
             } catch (Exception ex) {
-                ;
             }
             if (ConfigureFactory.factory == null) { //take the default
 //        ConfigureFactory.factory = new GlobalConfigureFactory();

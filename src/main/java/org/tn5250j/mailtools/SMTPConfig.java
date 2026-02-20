@@ -50,24 +50,24 @@ public class SMTPConfig extends JDialog {
 
     private static final long serialVersionUID = 1L;
 
-    JPanel mainPanel = new JPanel();
-    BorderLayout borderLayout1 = new BorderLayout();
-    JPanel configPanel = new JPanel(new GridBagLayout());
+    final JPanel mainPanel = new JPanel();
+    final BorderLayout borderLayout1 = new BorderLayout();
+    final JPanel configPanel = new JPanel(new GridBagLayout());
     GridBagConstraints gbc;
-    JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-    JLabel labelHost = new JLabel();
-    JTextField fieldHost = new JTextField();
-    JLabel labelPort = new JLabel();
-    JTextField fieldPort = new JTextField();
-    JLabel labelDefault = new JLabel();
-    JLabel labelName = new JLabel();
-    JTextField fieldName = new JTextField();
-    JLabel labelFrom = new JLabel();
-    JTextField fieldFrom = new JTextField();
-    JButton optDone = new JButton();
-    JButton optCancel = new JButton();
-    JLabel labelFileName = new JLabel();
-    JTextField fieldFileName = new JTextField();
+    final JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+    final JLabel labelHost = new JLabel();
+    final JTextField fieldHost = new JTextField();
+    final JLabel labelPort = new JLabel();
+    final JTextField fieldPort = new JTextField();
+    final JLabel labelDefault = new JLabel();
+    final JLabel labelName = new JLabel();
+    final JTextField fieldName = new JTextField();
+    final JLabel labelFrom = new JLabel();
+    final JTextField fieldFrom = new JTextField();
+    final JButton optDone = new JButton();
+    final JButton optCancel = new JButton();
+    final JLabel labelFileName = new JLabel();
+    final JTextField fieldFileName = new JTextField();
     Properties SMTPProperties;
     //   String fileName;
 
@@ -102,19 +102,11 @@ public class SMTPConfig extends JDialog {
         fieldFrom.setColumns(20);
         optDone.setPreferredSize(new Dimension(100, 27));
         optDone.setText(LangTool.getString("em.optDone"));
-        optDone.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                optDone_actionPerformed(e);
-            }
-        });
+        optDone.addActionListener(e -> optDone_actionPerformed(e));
 
         optCancel.setPreferredSize(new Dimension(100, 27));
         optCancel.setText(LangTool.getString("em.optCancelLabel"));
-        optCancel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                optCancel_actionPerformed(e);
-            }
-        });
+        optCancel.addActionListener(e -> optCancel_actionPerformed(e));
 
         labelFileName.setText(LangTool.getString("em.labelFileName"));
         fieldFileName.setText("tn5250j.txt");
@@ -257,7 +249,7 @@ public class SMTPConfig extends JDialog {
         SMTPProperties =
                 ConfigureFactory.getInstance().getProperties("smtp", smtpFileName);
 
-        if (SMTPProperties.size() > 0)
+        if (!SMTPProperties.isEmpty())
             return true;
         else
             return false;

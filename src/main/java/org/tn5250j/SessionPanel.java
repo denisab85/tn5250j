@@ -72,14 +72,14 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
     protected Session5250 session;
     private GuiGraphicBuffer guiGraBuf;
     protected TNRubberBand rubberband;
-    private KeypadPanel keypadPanel;
+    private final KeypadPanel keypadPanel;
     private String newMacName;
     private Vector<SessionJumpListener> sessionJumpListeners = null;
     private Vector<EmulatorActionListener> actionListeners = null;
     private boolean macroRunning;
     private boolean stopMacro;
     private boolean doubleClick;
-    protected SessionConfig sesConfig;
+    protected final SessionConfig sesConfig;
     protected KeyboardHandler keyHandler;
     private final SessionScroller scroller = new SessionScroller();
 
@@ -182,12 +182,9 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
         log.debug("Initializing macros");
         Macronizer.init();
 
-        keypadPanel.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                screen.sendKeys(((JButton) e.getSource()).getActionCommand());
-                getFocusForMe();
-            }
+        keypadPanel.addActionListener(e -> {
+            screen.sendKeys(((JButton) e.getSource()).getActionCommand());
+            getFocusForMe();
         });
         keypadPanel.setVisible(sesConfig.getConfig().isKeypadEnabled());
         this.add(keypadPanel, BorderLayout.SOUTH);
@@ -433,13 +430,7 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
             }
         } else {
             // lets set this puppy up to connect within its own thread
-            Runnable connectIt = new Runnable() {
-                @Override
-                public void run() {
-                    session.getVT().connect();
-                }
-
-            };
+            Runnable connectIt = () -> session.getVT().connect();
 
             // now lets set it to connect within its own daemon thread
             //    this seems to work better and is more responsive than using
@@ -572,7 +563,7 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
     }
 
     protected void stopRecordingMe() {
-        if (keyHandler.getRecordBuffer().length() > 0) {
+        if (!keyHandler.getRecordBuffer().isEmpty()) {
             Macronizer.setMacro(newMacName, keyHandler.getRecordBuffer());
             log.debug(keyHandler.getRecordBuffer());
         }
@@ -588,7 +579,7 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
                 JOptionPane.PLAIN_MESSAGE);
         if (macName != null) {
             macName = macName.trim();
-            if (macName.length() > 0) {
+            if (!macName.isEmpty()) {
                 log.info(macName);
                 newMacName = macName;
                 keyHandler.startRecording();
@@ -731,7 +722,7 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
     public synchronized void addSessionJumpListener(SessionJumpListener listener) {
 
         if (sessionJumpListeners == null) {
-            sessionJumpListeners = new java.util.Vector<SessionJumpListener>(3);
+            sessionJumpListeners = new java.util.Vector<>(3);
         }
         sessionJumpListeners.addElement(listener);
 
@@ -758,7 +749,7 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
     public synchronized void addEmulatorActionListener(EmulatorActionListener listener) {
 
         if (actionListeners == null) {
-            actionListeners = new java.util.Vector<EmulatorActionListener>(3);
+            actionListeners = new java.util.Vector<>(3);
         }
         actionListeners.addElement(listener);
 
@@ -1011,7 +1002,7 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
 
                 // check for on connect macro
                 String mac = sesConfig.getStringProperty("connectMacro");
-                if (mac.length() > 0)
+                if (!mac.isEmpty())
                     executeMacro(mac);
                 break;
             default:

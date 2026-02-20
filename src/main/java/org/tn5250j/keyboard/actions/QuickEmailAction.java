@@ -50,13 +50,8 @@ public class QuickEmailAction extends EmulatorAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        Runnable emailIt = new Runnable() {
-            public void run() {
-                new SendEMailDialog((JFrame) SwingUtilities.getRoot(session),
-                        session, false);
-            }
-
-        };
+        Runnable emailIt = () -> new SendEMailDialog((JFrame) SwingUtilities.getRoot(session),
+                session, false);
         SwingUtilities.invokeLater(emailIt);
     }
 }

@@ -23,7 +23,7 @@ import org.tn5250j.framework.tn5250.ScreenFields;
 
 public class Tn5250jEvent {
 
-    private Screen5250 screen;
+    private final Screen5250 screen;
     private char[] data;
     private ScreenFields fields;
 

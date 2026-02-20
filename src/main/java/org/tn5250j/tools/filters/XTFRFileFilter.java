@@ -55,8 +55,8 @@ import javax.swing.filechooser.*;
  */
 public class XTFRFileFilter extends FileFilter {
 
-    private static String TYPE_UNKNOWN = "Type Unknown";
-    private static String HIDDEN_FILE = "Hidden File";
+    private static final String TYPE_UNKNOWN = "Type Unknown";
+    private static final String HIDDEN_FILE = "Hidden File";
 
     private Hashtable filters = null;
     private String description = null;
@@ -125,9 +125,9 @@ public class XTFRFileFilter extends FileFilter {
      */
     public XTFRFileFilter(String[] filters, String description) {
         this();
-        for (int i = 0; i < filters.length; i++) {
+        for (String filter : filters) {
             // add filters one by one
-            addExtension(filters[i]);
+            addExtension(filter);
         }
         if (description != null)
             setDescription(description);
@@ -323,7 +323,7 @@ public class XTFRFileFilter extends FileFilter {
 
         try {
             if (o == null) {
-                Class c = Class.forName(outputFilterClassName);
+                Class<?> c = Class.forName(outputFilterClassName);
                 o = c.newInstance();
             }
         } catch (Exception e) {

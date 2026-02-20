@@ -46,7 +46,7 @@ public class Wizard extends JPanel {
     /**
      * layout used
      */
-    protected CardLayout cardLayout;
+    protected final CardLayout cardLayout;
     /**
      * list of wizard listeners registered with the bean
      */
@@ -345,7 +345,7 @@ public class Wizard extends JPanel {
      */
     public void addWizardListener(WizardListener l) {
         if (listeners == null)
-            listeners = new Vector<WizardListener>(3);
+            listeners = new Vector<>(3);
 
         listeners.add(l);
     }
@@ -375,11 +375,7 @@ public class Wizard extends JPanel {
      *
      * @see #next
      */
-    transient protected ActionListener nextListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            next();
-        }
-    };
+    final transient protected ActionListener nextListener = e -> next();
 
     /**
      * A listener on the "previous" button that is implemented as an anonymous
@@ -388,11 +384,7 @@ public class Wizard extends JPanel {
      *
      * @see #previous
      */
-    transient protected ActionListener previousListener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            previous();
-        }
-    };
+    final transient protected ActionListener previousListener = e -> previous();
 
     /**
      * A listener on the "finish" button that is implemented as an anonymous
@@ -401,11 +393,7 @@ public class Wizard extends JPanel {
      *
      * @see #finish
      */
-    transient protected ActionListener finishListener = new ActionListener() {
-        public void actionPerformed(ActionEvent ev) {
-            finish();
-        }
-    };
+    final transient protected ActionListener finishListener = ev -> finish();
 
     /**
      * A listener on the "cancel" button that is implemented as an anonymous
@@ -414,11 +402,7 @@ public class Wizard extends JPanel {
      *
      * @see #cancel
      */
-    transient protected ActionListener cancelListener = new ActionListener() {
-        public void actionPerformed(ActionEvent ev) {
-            cancel();
-        }
-    };
+    final transient protected ActionListener cancelListener = ev -> cancel();
 
     /**
      * A listener on the "help" button that is implemented as an anonymous
@@ -427,11 +411,7 @@ public class Wizard extends JPanel {
      *
      * @see #help
      */
-    transient protected ActionListener helpListener = new ActionListener() {
-        public void actionPerformed(ActionEvent ev) {
-            help();
-        }
-    };
+    final transient protected ActionListener helpListener = ev -> help();
 
 
     /**
@@ -439,7 +419,7 @@ public class Wizard extends JPanel {
      * listeners to the buttons of the children so that the container knows
      * when to post the proper "Wizard" events.
      */
-    transient protected ContainerListener containerListener
+    final transient protected ContainerListener containerListener
             = new ContainerListener() {
         public void componentAdded(ContainerEvent e) {
             if (e.getChild() instanceof WizardPage) {

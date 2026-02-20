@@ -50,7 +50,6 @@ public class DefaultSortTableModel extends DefaultTableModel
     }
 
     public void sortColumn(int col, boolean ascending) {
-        Collections.sort(getDataVector(),
-                new ColumnComparator(col, ascending));
+        getDataVector().sort(new ColumnComparator(col, ascending));
     }
 }

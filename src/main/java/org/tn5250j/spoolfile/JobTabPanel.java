@@ -55,11 +55,7 @@ public class JobTabPanel extends JPanel implements QueueFilterInterface {
         all.setSelected(true);
 
         select = new JRadioButton("Job Name");
-        select.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                select_itemStateChanged(e);
-            }
-        });
+        select.addItemListener(e -> select_itemStateChanged(e));
 
         jobName = new JTextField("*CURRENT", 10);
         jobUser = new JTextField(10);

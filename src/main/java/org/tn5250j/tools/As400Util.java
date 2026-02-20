@@ -36,9 +36,9 @@ public class As400Util {
     /**
      * Convert an as400 packed field to an integer
      */
-    public static final int packed2int(final byte[] cByte, final int startOffset, final int length) {
+    public static int packed2int(final byte[] cByte, final int startOffset, final int length) {
 
-        StringBuffer sb = new StringBuffer(length * 2);
+        StringBuilder sb = new StringBuilder(length * 2);
 
         int end = startOffset + length - 1;
 

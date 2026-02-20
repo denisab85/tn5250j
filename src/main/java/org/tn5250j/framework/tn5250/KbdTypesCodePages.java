@@ -94,7 +94,7 @@ public enum KbdTypesCodePages {
      * @param codepage
      * @param ccsid
      */
-    private KbdTypesCodePages(String description, String kbdType, String charset, String codepage, String ccsid) {
+    KbdTypesCodePages(String description, String kbdType, String charset, String codepage, String ccsid) {
         this.description = description;
         this.kbdType = kbdType;
         this.charset = charset;

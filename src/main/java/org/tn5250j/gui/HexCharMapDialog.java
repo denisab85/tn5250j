@@ -63,7 +63,7 @@ public class HexCharMapDialog {
         Collator collator = Collator.getInstance();
         CollationKey key = null;
 
-        Set<CollationKey> set = new TreeSet<CollationKey>();
+        Set<CollationKey> set = new TreeSet<>();
         StringBuilder sb = new StringBuilder();
         for (int x = 0; x < 256; x++) {
             char ac = codepage.ebcdic2uni(x);

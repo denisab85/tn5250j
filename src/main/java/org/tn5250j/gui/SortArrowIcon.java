@@ -23,9 +23,9 @@ public class SortArrowIcon implements Icon {
     public static final int DECENDING = 1;
     public static final int ASCENDING = 2;
 
-    protected int direction;
-    protected int width = 8;
-    protected int height = 8;
+    protected final int direction;
+    protected final int width = 8;
+    protected final int height = 8;
 
     public SortArrowIcon(int direction) {
         this.direction = direction;

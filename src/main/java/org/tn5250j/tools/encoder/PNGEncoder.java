@@ -151,7 +151,7 @@ public class PNGEncoder extends AbstractImageEncoder {
         }
 
         // IDAT
-        byte[] outarray = null;
+        byte[] outarray;
         if (pixels == 8)
             outarray = new byte[(pixelarray8.length) + height];
         else
@@ -268,7 +268,7 @@ public class PNGEncoder extends AbstractImageEncoder {
         }
     }
 
-    private long crc_table[] = null;
+    private long[] crc_table = null;
 
     private void make_crc_table() {
         crc_table = new long[256];
@@ -289,19 +289,19 @@ public class PNGEncoder extends AbstractImageEncoder {
         }
     }
 
-    private final static long start_crc() {
+    private static long start_crc() {
         return 0xffffffffL;
     }
 
-    private final static long end_crc(final long crc) {
+    private static long end_crc(final long crc) {
         return crc ^ 0xffffffffL;
     }
 
     private long update_crc(long crc, byte[] buf) {
 
         long c = crc;
-        for (int i = 0; i < buf.length; i++) {
-            c = update_crc(c, buf[i]);
+        for (byte b : buf) {
+            c = update_crc(c, b);
         }
 
         return c;

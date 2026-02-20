@@ -29,17 +29,17 @@ import org.tn5250j.framework.tn5250.ScreenOIA;
 
 public interface ScreenOIAListener {
 
-    public static final int OIA_CHANGED_INSERT_MODE = 0;
-    public static final int OIA_CHANGED_KEYS_BUFFERED = 1;
-    public static final int OIA_CHANGED_KEYBOARD_LOCKED = 2;
-    public static final int OIA_CHANGED_MESSAGELIGHT = 3;
-    public static final int OIA_CHANGED_SCRIPT = 4;
-    public static final int OIA_CHANGED_BELL = 5;
-    public static final int OIA_CHANGED_CLEAR_SCREEN = 6;
-    public static final int OIA_CHANGED_INPUTINHIBITED = 7;
-    public static final int OIA_CHANGED_CURSOR = 8;
+    int OIA_CHANGED_INSERT_MODE = 0;
+    int OIA_CHANGED_KEYS_BUFFERED = 1;
+    int OIA_CHANGED_KEYBOARD_LOCKED = 2;
+    int OIA_CHANGED_MESSAGELIGHT = 3;
+    int OIA_CHANGED_SCRIPT = 4;
+    int OIA_CHANGED_BELL = 5;
+    int OIA_CHANGED_CLEAR_SCREEN = 6;
+    int OIA_CHANGED_INPUTINHIBITED = 7;
+    int OIA_CHANGED_CURSOR = 8;
 
 
-    public void onOIAChanged(ScreenOIA oia, int change);
+    void onOIAChanged(ScreenOIA oia, int change);
 
 }

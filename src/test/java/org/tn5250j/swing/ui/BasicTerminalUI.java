@@ -37,7 +37,7 @@ import org.tn5250j.swing.JTerminal;
  * For testing purpose
  */
 public class BasicTerminalUI {
-    boolean graphicsDebugMode = false;
+    final boolean graphicsDebugMode = false;
 
     public static void paintSubComponent(Graphics g, BasicSubUI component) {
         Rectangle tr = new Rectangle();
@@ -568,10 +568,10 @@ public class BasicTerminalUI {
     //============================================================================
     //                             L i s t e n e r s
     //============================================================================
-    transient PropertyChangeListener propListener = new PropertyChangeHandler();
-    transient FocusListener focusListener = new FocusHandler();
-    transient SessionListener sessListener = new SessionHandler();
-    transient RepaintHandler repainter = new RepaintHandler();
+    final transient PropertyChangeListener propListener = new PropertyChangeHandler();
+    final transient FocusListener focusListener = new FocusHandler();
+    final transient SessionListener sessListener = new SessionHandler();
+    final transient RepaintHandler repainter = new RepaintHandler();
 //  transient MouseHandler           mouselistener= new MouseHandler();
 
     //============================================================================

@@ -43,7 +43,7 @@ public class BootStrapper extends Thread {
     public synchronized void addBootListener(BootListener listener) {
 
         if (listeners == null) {
-            listeners = new java.util.Vector<BootListener>(3);
+            listeners = new java.util.Vector<>(3);
         }
         listeners.addElement(listener);
 

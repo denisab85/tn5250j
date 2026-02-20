@@ -51,12 +51,12 @@ public class AS400Xtfr {
 
     private boolean loggedIn;
     private String hostName;
-    private int timeout = 50000;
+    private final int timeout = 50000;
     private boolean connected;
     private ArrayList ffd;
-    private tnvt vt;
+    private final tnvt vt;
     private Vector<FTPStatusListener> listeners;
-    private FTPStatusEvent status;
+    private final FTPStatusEvent status;
     private boolean aborted;
     private char decChar;
     private OutputFilterInterface ofi;
@@ -170,7 +170,7 @@ public class AS400Xtfr {
     public synchronized void addFTPStatusListener(FTPStatusListener listener) {
 
         if (listeners == null) {
-            listeners = new java.util.Vector<FTPStatusListener>(3);
+            listeners = new java.util.Vector<>(3);
         }
         listeners.addElement(listener);
 
@@ -271,8 +271,8 @@ public class AS400Xtfr {
     protected void selectAll() {
 
         FileFieldDef f;
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             f.setWriteField(true);
         }
 
@@ -284,8 +284,8 @@ public class AS400Xtfr {
      */
     protected void selectNone() {
         FileFieldDef f;
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             f.setWriteField(false);
         }
 
@@ -297,8 +297,8 @@ public class AS400Xtfr {
     public boolean isFieldsSelected() {
 
         FileFieldDef f;
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             if (f.isWriteField())
                 return true;
         }
@@ -352,149 +352,146 @@ public class AS400Xtfr {
         final boolean internal = useInternal;
 
 
-        Runnable getRun = new Runnable() {
+        // set the thread to run.
+        Runnable getRun = () -> {
+            try {
 
-            // set the thread to run.
-            public void run() {
-                try {
+                DatabaseMetaData dmd = connection.getMetaData();
 
-                    DatabaseMetaData dmd = connection.getMetaData();
+                // Execute the query.
+                Statement select = connection.createStatement();
 
-                    // Execute the query.
-                    Statement select = connection.createStatement();
+                ResultSet rs = select.executeQuery(query);
+                ResultSetMetaData rsmd = rs.getMetaData();
 
-                    ResultSet rs = select.executeQuery(query);
-                    ResultSetMetaData rsmd = rs.getMetaData();
-
-                    int numCols = rsmd.getColumnCount();
+                int numCols = rsmd.getColumnCount();
 
 
-                    ResultSet rsd = dmd.getColumns(null, "VISIONR", "CXREF", null);
+                ResultSet rsd = dmd.getColumns(null, "VISIONR", "CXREF", null);
 
-                    while (rsd.next()) {
+                while (rsd.next()) {
 
-                        System.out.println(rsd.getString(12));
-                    }
-
-                    if (ffd != null) {
-                        ffd.clear();
-                        ffd = null;
-                    }
-
-                    ffd = new ArrayList();
-
-                    printFTPInfo("Number of columns: " + rsmd.getColumnCount());
-
-                    for (int x = 1; x <= numCols; x++) {
-
-                        printFTPInfo("Column " + x + ": " + rsmd.getColumnLabel(x) +
-                                " " + rsmd.getColumnName(x) +
-                                " " + rsmd.getColumnType(x) +
-                                " " + rsmd.getColumnTypeName(x) +
-                                " " + rsmd.getPrecision(x) +
-                                " " + rsmd.getScale(x) +
-                                " cn " + rsmd.getCatalogName(x) +
-                                " tn " + rsmd.getTableName(x) +
-                                " sn " + rsmd.getSchemaName(x));
-
-                        FileFieldDef ffDesc = new FileFieldDef(vt, decChar);
-
-                        if (internal)
-                            // WHFLDI  Field name internal
-                            ffDesc.setFieldName(rsmd.getColumnName(x));
-                        else
-                            // WHFLD  Field name text description
-                            ffDesc.setFieldName(rsmd.getColumnLabel(x));
-
-                        ffDesc.setNeedsTranslation(false);
-                        // WHFOBO  Field starting offset
-                        ffDesc.setStartOffset("0");
-                        // WHFLDB  Field length
-                        ffDesc.setFieldLength(Integer.toString(rsmd.getColumnDisplaySize(x)));
-                        // WHFLDD  Number of digits
-                        ffDesc.setNumDigits(Integer.toString(rsmd.getPrecision(x)));
-                        // WHFLDP  Number of decimal positions
-                        ffDesc.setDecPositions(Integer.toString(rsmd.getScale(x)));
-                        // WHFLDT  Field type
-                        switch (rsmd.getColumnType(x)) {
-                            case 2:
-                                ffDesc.setFieldType("S");
-                                break;
-                            case 3:
-                                ffDesc.setFieldType("P");
-                                break;
-                            default:
-                                ffDesc.setFieldType(" ");
-                        }
-
-                        // WHFTXT  Text description
-                        ffDesc.setFieldText("");
-                        // set selected
-                        ffDesc.setWriteField(true);
-
-                        ffd.add(ffDesc);
-
-                    }
-
-                    writeHeader(localFileF);
-
-                    int processed = 0;
-                    // Iterate throught the rows in the result set and output
-                    // the columns for each row.
-                    StringBuffer rb = new StringBuffer();
-
-                    while (rs.next() && !aborted) {
-                        for (int x = 1; x <= numCols; x++) {
-                            ((FileFieldDef) ffd.get(x - 1)).setFieldData(rs.getString(x));
-                        }
-                        status.setCurrentRecord(processed++);
-                        status.setFileLength(processed + 1);
-                        rb.setLength(0);
-                        ofi.parseFields(null, ffd, rb);
-                        fireStatusEvent();
-//                     System.out.println(" record > " + processed);
-                    }
-
-                    printFTPInfo("Transfer Successful ");
-
-                    status.setCurrentRecord(processed);
-                    status.setFileLength(processed);
-                    fireStatusEvent();
-                    writeFooter();
-                } catch (SQLException sqle) {
-                    printFTPInfo("SQL Exception ! " + sqle.getMessage());
+                    System.out.println(rsd.getString(12));
                 }
+
+                if (ffd != null) {
+                    ffd.clear();
+                    ffd = null;
+                }
+
+                ffd = new ArrayList();
+
+                printFTPInfo("Number of columns: " + rsmd.getColumnCount());
+
+                for (int x = 1; x <= numCols; x++) {
+
+                    printFTPInfo("Column " + x + ": " + rsmd.getColumnLabel(x) +
+                            " " + rsmd.getColumnName(x) +
+                            " " + rsmd.getColumnType(x) +
+                            " " + rsmd.getColumnTypeName(x) +
+                            " " + rsmd.getPrecision(x) +
+                            " " + rsmd.getScale(x) +
+                            " cn " + rsmd.getCatalogName(x) +
+                            " tn " + rsmd.getTableName(x) +
+                            " sn " + rsmd.getSchemaName(x));
+
+                    FileFieldDef ffDesc = new FileFieldDef(vt, decChar);
+
+                    if (internal)
+                        // WHFLDI  Field name internal
+                        ffDesc.setFieldName(rsmd.getColumnName(x));
+                    else
+                        // WHFLD  Field name text description
+                        ffDesc.setFieldName(rsmd.getColumnLabel(x));
+
+                    ffDesc.setNeedsTranslation(false);
+                    // WHFOBO  Field starting offset
+                    ffDesc.setStartOffset("0");
+                    // WHFLDB  Field length
+                    ffDesc.setFieldLength(Integer.toString(rsmd.getColumnDisplaySize(x)));
+                    // WHFLDD  Number of digits
+                    ffDesc.setNumDigits(Integer.toString(rsmd.getPrecision(x)));
+                    // WHFLDP  Number of decimal positions
+                    ffDesc.setDecPositions(Integer.toString(rsmd.getScale(x)));
+                    // WHFLDT  Field type
+                    switch (rsmd.getColumnType(x)) {
+                        case 2:
+                            ffDesc.setFieldType("S");
+                            break;
+                        case 3:
+                            ffDesc.setFieldType("P");
+                            break;
+                        default:
+                            ffDesc.setFieldType(" ");
+                    }
+
+                    // WHFTXT  Text description
+                    ffDesc.setFieldText("");
+                    // set selected
+                    ffDesc.setWriteField(true);
+
+                    ffd.add(ffDesc);
+
+                }
+
+                writeHeader(localFileF);
+
+                int processed = 0;
+                // Iterate throught the rows in the result set and output
+                // the columns for each row.
+                StringBuffer rb = new StringBuffer();
+
+                while (rs.next() && !aborted) {
+                    for (int x = 1; x <= numCols; x++) {
+                        ((FileFieldDef) ffd.get(x - 1)).setFieldData(rs.getString(x));
+                    }
+                    status.setCurrentRecord(processed++);
+                    status.setFileLength(processed + 1);
+                    rb.setLength(0);
+                    ofi.parseFields(null, ffd, rb);
+                    fireStatusEvent();
+//                     System.out.println(" record > " + processed);
+                }
+
+                printFTPInfo("Transfer Successful ");
+
+                status.setCurrentRecord(processed);
+                status.setFileLength(processed);
+                fireStatusEvent();
+                writeFooter();
+            } catch (SQLException sqle) {
+                printFTPInfo("SQL Exception ! " + sqle.getMessage());
+            }
 //               catch(InterruptedException iioe) {
 //                  printFTPInfo("Interrupted! " + iioe.getMessage());
 //               }
-                catch (FileNotFoundException fnfe) {
-                    printFTPInfo("File Not found Exception ! " + fnfe.getMessage());
-                }
+            catch (FileNotFoundException fnfe) {
+                printFTPInfo("File Not found Exception ! " + fnfe.getMessage());
+            }
 
 //               catch(Exception _ex) {
 //                  printFTPInfo("Error! " + _ex);
 //                  System.out.println(_ex.printStackTrace());
 //               }
-                finally {
+            finally {
 
-                    // Clean up.
-                    try {
-                        if (connection != null)
-                            connection.close();
-                    } catch (SQLException e) {
-                        // Ignore.
-                    }
-
-                    if (ffd != null) {
-                        ffd.clear();
-                        ffd = null;
-                    }
-
-                    // Clean up the memory a little
-                    System.gc();
+                // Clean up.
+                try {
+                    if (connection != null)
+                        connection.close();
+                } catch (SQLException e) {
+                    // Ignore.
                 }
 
+                if (ffd != null) {
+                    ffd.clear();
+                    ffd = null;
+                }
+
+                // Clean up the memory a little
+                System.gc();
             }
+
         };
 
         getThread = new Thread(getRun);

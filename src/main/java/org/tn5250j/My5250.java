@@ -69,13 +69,13 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
     private String[] sessionArgs = null;
     private static Properties sessions = new Properties();
     private static BootStrapper strapper = null;
-    private SessionManager manager;
+    private final SessionManager manager;
     private static List<GUIViewInterface> frames;
-    private TN5250jSplashScreen splash;
+    private final TN5250jSplashScreen splash;
     private int step;
     private StringBuilder viewNamesForNextStartBuilder = null;
 
-    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     My5250() {
 
@@ -97,7 +97,7 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
         //    default and Multiple Document Interface.
 //		startFrameType();
 
-        frames = new ArrayList<GUIViewInterface>();
+        frames = new ArrayList<>();
 
         newView();
 
@@ -142,11 +142,11 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
             // parse args into a string to send to the other instance of
             //    tn5250j
             String opts = null;
-            for (int x = 0; x < args.length; x++) {
+            for (String arg : args) {
                 if (opts != null)
-                    opts += args[x] + " ";
+                    opts += arg + " ";
                 else
-                    opts = args[x] + " ";
+                    opts = arg + " ";
             }
             out.println(opts);
             out.flush();
@@ -187,46 +187,26 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
                     final String[] args2 = args;
                     final String sd2 = sd;
                     SwingUtilities.invokeLater(
-                            new Runnable() {
-                                public void run() {
-                                    newSession(sd2, args2);
-
-                                }
-                            }
+                            () -> newSession(sd2, args2)
                     );
                 }
             } else {
 
                 if (args[0].startsWith("-")) {
                     SwingUtilities.invokeLater(
-                            new Runnable() {
-                                public void run() {
-                                    startNewSession();
-
-                                }
-                            }
+                            () -> startNewSession()
                     );
                 } else {
                     final String[] args2 = args;
                     final String sd2 = args[0];
                     SwingUtilities.invokeLater(
-                            new Runnable() {
-                                public void run() {
-                                    newSession(sd2, args2);
-
-                                }
-                            }
+                            () -> newSession(sd2, args2)
                     );
                 }
             }
         } else {
             SwingUtilities.invokeLater(
-                    new Runnable() {
-                        public void run() {
-                            startNewSession();
-
-                        }
-                    }
+                    () -> startNewSession()
             );
         }
     }
@@ -305,12 +285,12 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
             LangTool.init();
         }
 
-        List<String> lastViewNames = new ArrayList<String>();
+        List<String> lastViewNames = new ArrayList<>();
         lastViewNames.addAll(loadLastSessionViewNames());
         lastViewNames.addAll(loadLastSessionViewNamesFrom(args));
         lastViewNames = filterExistingViewNames(lastViewNames);
 
-        if (lastViewNames.size() > 0) {
+        if (!lastViewNames.isEmpty()) {
             insertDefaultSessionIfConfigured(lastViewNames);
             startSessionsFromList(m, lastViewNames);
             if (sessions.containsKey("emul.showConnectDialog")) {
@@ -323,8 +303,7 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
     }
 
     private static void startSessionsFromList(My5250 m, List<String> lastViewNames) {
-        for (int i = 0; i < lastViewNames.size(); i++) {
-            String viewName = lastViewNames.get(i);
+        for (String viewName : lastViewNames) {
             if (!m.frame1.isVisible()) {
                 m.splash.updateProgress(++m.step);
                 m.splash.setVisible(false);
@@ -345,7 +324,7 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
     }
 
     static List<String> loadLastSessionViewNamesFrom(String[] commandLineArgs) {
-        List<String> sessionNames = new ArrayList<String>();
+        List<String> sessionNames = new ArrayList<>();
         boolean foundRightParam = false;
         for (String arg : commandLineArgs) {
             if (foundRightParam && !PARAM_START_SESSION.equals(arg)) {
@@ -357,21 +336,21 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
     }
 
     static List<String> loadLastSessionViewNames() {
-        List<String> sessionNames = new ArrayList<String>();
+        List<String> sessionNames = new ArrayList<>();
         if (sessions.containsKey("emul.startLastView")) {
             String emulview = sessions.getProperty("emul.view", "");
             int idxstart = 0;
             int idxend = emulview.indexOf(PARAM_START_SESSION, idxstart);
             for (; idxend > -1; idxend = emulview.indexOf(PARAM_START_SESSION, idxstart)) {
                 String sessname = emulview.substring(idxstart, idxend).trim();
-                if (sessname.length() > 0) {
+                if (!sessname.isEmpty()) {
                     sessionNames.add(sessname);
                 }
                 idxstart = idxend + PARAM_START_SESSION.length();
             }
             if (idxstart + PARAM_START_SESSION.length() < emulview.length()) {
                 String sessname = emulview.substring(idxstart + PARAM_START_SESSION.length() - 1).trim();
-                if (sessname.length() > 0) {
+                if (!sessname.isEmpty()) {
                     sessionNames.add(sessname);
                 }
             }
@@ -380,7 +359,7 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
     }
 
     static List<String> filterExistingViewNames(List<String> lastViewNames) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (String viewName : lastViewNames) {
             if (sessions.containsKey(viewName)) {
                 result.add(viewName);
@@ -424,9 +403,9 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
         if (args == null)
             return false;
 
-        for (int x = 0; x < args.length; x++) {
+        for (String arg : args) {
 
-            if (args[x] != null && args[x].equals(parm))
+            if (arg != null && arg.equals(parm))
                 return true;
 
         }
@@ -808,8 +787,8 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
 
         GUIViewInterface f = null;
 
-        for (int x = 0; x < frames.size(); x++) {
-            f = frames.get(x);
+        for (GUIViewInterface frame : frames) {
+            f = frame;
             if (f.containsSession(session))
                 return f;
         }
@@ -826,14 +805,10 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
 
         try {
             Class.forName("org.tn5250j.scripting.JPythonInterpreterDriver");
-        } catch (java.lang.NoClassDefFoundError ncdfe) {
+        } catch (NoClassDefFoundError | Exception ncdfe) {
             log.warn("Information Message: Can not find scripting support"
                     + " files, scripting will not be available: "
                     + "Failed to load interpreter drivers " + ncdfe);
-        } catch (Exception ex) {
-            log.warn("Information Message: Can not find scripting support"
-                    + " files, scripting will not be available: "
-                    + "Failed to load interpreter drivers " + ex);
         }
 
         splash.updateProgress(++step);

@@ -93,7 +93,7 @@ public abstract class BasicSubUI {
 
     protected transient Repainter repainter;
 
-    public static interface Repainter {
-        public void addDirtyRectangle(BasicSubUI origin, int x, int y, int width, int height);
+    public interface Repainter {
+        void addDirtyRectangle(BasicSubUI origin, int x, int y, int width, int height);
     }
 }

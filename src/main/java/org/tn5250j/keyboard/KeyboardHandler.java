@@ -45,13 +45,13 @@ import org.tn5250j.tools.system.OperatingSystem;
  */
 public abstract class KeyboardHandler extends KeyAdapter implements KeyChangeListener {
 
-    protected Session5250 session;
-    protected SessionPanel sessionGui;
-    protected Screen5250 screen;
-    protected boolean isLinux;
+    protected final Session5250 session;
+    protected final SessionPanel sessionGui;
+    protected final Screen5250 screen;
+    protected final boolean isLinux;
     protected boolean isAltGr;
     protected boolean keyProcessed = false;
-    protected KeyMapper keyMap;
+    protected final KeyMapper keyMap;
     protected String lastKeyStroke = null;
     protected StringBuffer recordBuffer;
     protected boolean recording;

@@ -50,9 +50,9 @@ public class SqlWizard extends JFrame {
     private AS400 system;
     private SQLQueryBuilderPane queryBuilder;
     private SQLResultSetTablePane tablePane;
-    private String name;
-    private String password;
-    private String host;
+    private final String name;
+    private final String password;
+    private final String host;
     private String queryText;
     private JTextArea queryTextArea;
 
@@ -100,12 +100,7 @@ public class SqlWizard extends JFrame {
             queryBuilder.load();
 
             JButton done = new JButton(LangTool.getString("xtfr.tableDone"));
-            done.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    fillQueryTextArea();
-
-                }
-            });
+            done.addActionListener(e -> fillQueryTextArea());
             JPanel panel = new JPanel();
             panel.add(done);
             getContentPane().add(queryBuilder, BorderLayout.CENTER);

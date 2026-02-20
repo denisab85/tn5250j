@@ -49,8 +49,8 @@ public class DelimitedOutputFilter implements OutputFilterInterface {
 
         // write out the html record information for each field that is selected
 
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             if (f.isWriteField()) {
 
 
@@ -79,11 +79,11 @@ public class DelimitedOutputFilter implements OutputFilterInterface {
                             ArrayList ffd, char decChar) {
 
         FileFieldDef f;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         //  loop through each of the fields and write out the field name for
         //    each selected field
-        for (int x = 0; x < ffd.size(); x++) {
-            f = (FileFieldDef) ffd.get(x);
+        for (Object o : ffd) {
+            f = (FileFieldDef) o;
             if (f.isWriteField()) {
                 sb.append(f.getFieldName() + delimiter);
             }
@@ -112,7 +112,7 @@ public class DelimitedOutputFilter implements OutputFilterInterface {
         new DelimitedDialog(new JFrame());
     }
 
-    class DelimitedDialog {
+    static class DelimitedDialog {
 
         public DelimitedDialog(JFrame parent) {
 
@@ -133,7 +133,7 @@ public class DelimitedOutputFilter implements OutputFilterInterface {
             fd.addItem(LangTool.getString("delm.labelSpace"));
             fd.addItem(LangTool.getString("delm.labelNone"));
 
-            if (delimiter.length() > 0)
+            if (!delimiter.isEmpty())
                 if (delimiter.equals("\t"))
                     fd.setSelectedItem(LangTool.getString("delm.labelTab"));
                 else if (delimiter.equals(" "))
@@ -157,7 +157,7 @@ public class DelimitedOutputFilter implements OutputFilterInterface {
             td.addItem("'");
             td.addItem(LangTool.getString("delm.labelNone"));
 
-            if (stringQualifier.length() > 0) {
+            if (!stringQualifier.isEmpty()) {
                 if (!stringQualifier.equals("'") && !stringQualifier.equals("\""))
                     td.addItem(stringQualifier);
                 td.setSelectedItem(stringQualifier);

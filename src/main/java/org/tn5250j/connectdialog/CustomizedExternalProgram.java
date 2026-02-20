@@ -22,6 +22,8 @@
  */
 package org.tn5250j.connectdialog;
 
+import java.util.Objects;
+
 class CustomizedExternalProgram implements Comparable<CustomizedExternalProgram> {
     private final String name;
     private final String wCommand;
@@ -64,7 +66,7 @@ class CustomizedExternalProgram implements Comparable<CustomizedExternalProgram>
 
         CustomizedExternalProgram that = (CustomizedExternalProgram) o;
 
-        return name != null ? name.equals(that.name) : that.name == null;
+        return Objects.equals(name, that.name);
     }
 
     @Override

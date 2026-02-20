@@ -67,11 +67,11 @@ class MultiSelectListComponent extends JComponent {
     private SelectionButton deselectItemButton = null;
     private SelectionButton deselectAllButton = null;
     private JPanel buttonPanel = null;
-    private EventHandler eventHandler = new EventHandler();
-    private Dimension defaultListSize = new Dimension(100, 200);
+    private final EventHandler eventHandler = new EventHandler();
+    private final Dimension defaultListSize = new Dimension(100, 200);
     private FontMetrics lastFontMetrics = null;
-    private JPanel sourcePanel;
-    private JPanel selectionPanel;
+    private final JPanel sourcePanel;
+    private final JPanel selectionPanel;
 
     /**
      * Constructs a <code>MultiSelectListComponent</code> that displays the elements in the specified non-null model.
@@ -711,14 +711,14 @@ class MultiSelectListComponent extends JComponent {
         int[] indices = mainList.getSelectedIndices();
         Object[] values = sourceList.getSelectedValues();
 
-        int newIndices[] = new int[indices.length + values.length];
+        int[] newIndices = new int[indices.length + values.length];
         System.arraycopy(indices, 0, newIndices, 0, indices.length);
 
         ListModel mainModel = mainList.getModel();
         for (int i = 0, last = indices.length; i < mainModel.getSize(); i++) {
             Object value = mainModel.getElementAt(i);
-            for (int j = 0; j < values.length; j++) {
-                if (value == values[j]) {
+            for (Object o : values) {
+                if (value == o) {
                     newIndices[last++] = i;
                 }
             }
@@ -743,14 +743,14 @@ class MultiSelectListComponent extends JComponent {
         int[] indices = mainList.getSelectedIndices();
         Object[] values = selectionList.getSelectedValues();
 
-        int newIndices[] = new int[indices.length - values.length];
+        int[] newIndices = new int[indices.length - values.length];
 
         ListModel mainModel = mainList.getModel();
         for (int i = 0, last = 0; i < indices.length; i++) {
             Object value = mainModel.getElementAt(indices[i]);
             boolean found = false;
-            for (int j = 0; j < values.length; j++) {
-                if (value == values[j]) {
+            for (Object o : values) {
+                if (value == o) {
                     found = true;
                     break;
                 }
@@ -772,7 +772,7 @@ class MultiSelectListComponent extends JComponent {
      * @param values     the selected values
      * @param newIndices the indeces of the selected items
      */
-    private void doUpdate(JList list, Object values[], int newIndices[]) {
+    private void doUpdate(JList list, Object[] values, int[] newIndices) {
         if (values != null && values.length > 0) {
             // Order is important. This must come before the updateView since
             // it recreates the selection/source lists.

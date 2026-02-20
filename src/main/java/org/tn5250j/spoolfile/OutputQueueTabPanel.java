@@ -57,11 +57,7 @@ public class OutputQueueTabPanel extends JPanel implements QueueFilterInterface,
         all.setSelected(true);
 
         select = new JRadioButton("Select Output Queue");
-        select.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                select_itemStateChanged(e);
-            }
-        });
+        select.addItemListener(e -> select_itemStateChanged(e));
 
         library = new JTextField(10);
         ToggleDocument td1 = new ToggleDocument();

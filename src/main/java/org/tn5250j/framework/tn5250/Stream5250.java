@@ -33,9 +33,9 @@ public class Stream5250 {
     public int opCode;
     public int dataStart;
     public int pos;
-    public byte buffer[];
+    public byte[] buffer;
 
-    public Stream5250(byte abyte0[]) {
+    public Stream5250(byte[] abyte0) {
         buffer = abyte0;
         // size without end of record 0xFF 0xEF
         streamSize = (abyte0[0] & 0xff) << 8 | abyte0[1] & 0xff;
@@ -58,7 +58,7 @@ public class Stream5250 {
      *
      * @param abyte0
      */
-    public void initialize(byte abyte0[]) {
+    public void initialize(byte[] abyte0) {
 
         buffer = abyte0;
         // size without end of record 0xFF 0xEF

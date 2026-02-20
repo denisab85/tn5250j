@@ -58,11 +58,7 @@ public class UserDataTabPanel extends JPanel implements QueueFilterInterface,
 
         select = new JRadioButton("User Data");
         select.setSelected(false);
-        select.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                select_itemStateChanged(e);
-            }
-        });
+        select.addItemListener(e -> select_itemStateChanged(e));
 
         userData = new JTextField(15);
 //      userData.setEnabled(false);

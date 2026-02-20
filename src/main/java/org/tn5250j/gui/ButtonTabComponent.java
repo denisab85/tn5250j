@@ -97,14 +97,11 @@ public final class ButtonTabComponent extends JPanel implements SessionListener 
         // add more space to the top of the component
         setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
 
-        pane.addPropertyChangeListener(new PropertyChangeListener() {
-            // triggers repaint, so size is recalculated, when title text changes
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if ("indexForTitle".equals(evt.getPropertyName())) {
-                    label.revalidate();
-                    label.repaint();
-                }
+        // triggers repaint, so size is recalculated, when title text changes
+        pane.addPropertyChangeListener(evt -> {
+            if ("indexForTitle".equals(evt.getPropertyName())) {
+                label.revalidate();
+                label.repaint();
             }
         });
     }
@@ -129,7 +126,7 @@ public final class ButtonTabComponent extends JPanel implements SessionListener 
      */
     public synchronized void addTabCloseListener(TabClosedListener listener) {
         if (closeListeners == null) {
-            closeListeners = new ArrayList<TabClosedListener>(3);
+            closeListeners = new ArrayList<>(3);
         }
         closeListeners.add(listener);
     }
@@ -154,8 +151,7 @@ public final class ButtonTabComponent extends JPanel implements SessionListener 
     protected void fireTabClosed(int tabToClose) {
         if (closeListeners != null) {
             int size = closeListeners.size();
-            for (int i = 0; i < size; i++) {
-                TabClosedListener target = closeListeners.get(i);
+            for (TabClosedListener target : closeListeners) {
                 target.onTabClosed(tabToClose);
             }
         }

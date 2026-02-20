@@ -241,7 +241,6 @@ public class SessionBean extends SessionPanel {
                         try {
                             Thread.sleep(100);
                         } catch (InterruptedException ex) {
-                            ;
                         }
                         SwingUtilities.invokeLater(this);
                     } else {
@@ -440,7 +439,7 @@ public class SessionBean extends SessionPanel {
 
     private Dimension preferredSize;
     private Rectangle prevRect;
-    private Properties sessionProperties;
+    private final Properties sessionProperties;
 
     private boolean embeddedSignon;
     private String user;
@@ -456,7 +455,7 @@ public class SessionBean extends SessionPanel {
     //                    U t i l i t y   M e t h o d s
     //============================================================================
     private static boolean isSignificant(String param) {
-        if ((param != null) && (param.length() != 0))
+        if ((param != null) && (!param.isEmpty()))
             return true;
 
         return false;

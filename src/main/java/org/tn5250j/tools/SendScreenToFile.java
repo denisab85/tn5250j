@@ -48,7 +48,7 @@ public class SendScreenToFile {
      * @param parent
      * @param screen
      */
-    public static final void showDialog(Component parent, Screen5250 screen) {
+    public static void showDialog(Component parent, Screen5250 screen) {
         String workingDir = System.getProperty("user.dir");
         TN5250jFileChooser fileChooser = new TN5250jFileChooser(workingDir);
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -62,10 +62,10 @@ public class SendScreenToFile {
             File file = fileChooser.getSelectedFile();
             final String fname = file.getName();
             if (fname.lastIndexOf('.') < 0) {
-                file = new File(file.toString() + ".txt");
+                file = new File(file + ".txt");
             }
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             char[] s = screen.getScreenAsChars();
             int c = screen.getColumns();
             int l = screen.getRows() * c;
@@ -83,7 +83,7 @@ public class SendScreenToFile {
         }
     }
 
-    private static final void writeToFile(String sc, File file) {
+    private static void writeToFile(String sc, File file) {
 
         FileOutputStream out = null;
         try {

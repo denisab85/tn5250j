@@ -55,5 +55,5 @@ public enum ColumnSeparator {
     /**
      * default Line
      */
-    public static ColumnSeparator DEFAULT = Hide;
+    public static final ColumnSeparator DEFAULT = Hide;
 }

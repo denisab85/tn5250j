@@ -25,9 +25,9 @@ import org.tn5250j.SessionPanel;
 import org.tn5250j.framework.tn5250.tnvt;
 
 public class Tn5250jSession {
-    private Screen5250 sessionScreen;
-    private tnvt SessionTNVT;
-    private SessionPanel session;
+    private final Screen5250 sessionScreen;
+    private final tnvt SessionTNVT;
+    private final SessionPanel session;
 
     protected Tn5250jSession(Screen5250 screen, tnvt vt, SessionPanel ses) {
         sessionScreen = screen;

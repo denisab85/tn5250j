@@ -54,8 +54,8 @@ public class GlobalConfigure extends ConfigureFactory {
      */
     static private Properties settings;
 
-    static private Hashtable registry = new Hashtable();
-    static private Hashtable headers = new Hashtable();  //LUC GORRENS
+    static private final Hashtable registry = new Hashtable();
+    static private final Hashtable headers = new Hashtable();  //LUC GORRENS
 
     // Moved to ConfigureFactory
     //   static final public String SESSIONS = "sessions";
@@ -300,7 +300,6 @@ public class GlobalConfigure extends ConfigureFactory {
         try {
             FileOutputStream out = new FileOutputStream(settingsDirectory() + settingsFile);
             settings.store(out, "----------------- tn5250j Global Settings --------------");
-        } catch (FileNotFoundException fnfe) {
         } catch (IOException ioe) {
         }
     }

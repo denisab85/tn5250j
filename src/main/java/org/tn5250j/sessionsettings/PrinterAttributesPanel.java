@@ -82,12 +82,12 @@ class PrinterAttributesPanel extends AttributesPanel {
         pappyLand = pf.getPaper();
 
         // Portrait paper parameters
-        if (getStringProperty("print.portWidth").length() != 0 &&
-                getStringProperty("print.portHeight").length() != 0 &&
-                getStringProperty("print.portImageWidth").length() != 0 &&
-                getStringProperty("print.portImageHeight").length() != 0 &&
-                getStringProperty("print.portImage.X").length() != 0 &&
-                getStringProperty("print.portImage.Y").length() != 0) {
+        if (!getStringProperty("print.portWidth").isEmpty() &&
+                !getStringProperty("print.portHeight").isEmpty() &&
+                !getStringProperty("print.portImageWidth").isEmpty() &&
+                !getStringProperty("print.portImageHeight").isEmpty() &&
+                !getStringProperty("print.portImage.X").isEmpty() &&
+                !getStringProperty("print.portImage.Y").isEmpty()) {
 
             pappyPort.setSize(Double.parseDouble(getStringProperty("print.portWidth")),
                     Double.parseDouble(getStringProperty("print.portHeight")));
@@ -99,12 +99,12 @@ class PrinterAttributesPanel extends AttributesPanel {
         }
 
         // Landscape paper parameters
-        if (getStringProperty("print.landWidth").length() != 0 &&
-                getStringProperty("print.landHeight").length() != 0 &&
-                getStringProperty("print.landImageWidth").length() != 0 &&
-                getStringProperty("print.landImageHeight").length() != 0 &&
-                getStringProperty("print.landImage.X").length() != 0 &&
-                getStringProperty("print.landImage.Y").length() != 0) {
+        if (!getStringProperty("print.landWidth").isEmpty() &&
+                !getStringProperty("print.landHeight").isEmpty() &&
+                !getStringProperty("print.landImageWidth").isEmpty() &&
+                !getStringProperty("print.landImageHeight").isEmpty() &&
+                !getStringProperty("print.landImage.X").isEmpty() &&
+                !getStringProperty("print.landImage.Y").isEmpty()) {
 
             pappyLand.setSize(Double.parseDouble(getStringProperty("print.landWidth")),
                     Double.parseDouble(getStringProperty("print.landHeight")));
@@ -123,19 +123,11 @@ class PrinterAttributesPanel extends AttributesPanel {
         page.setLayout(new BorderLayout());
         JButton setPortAttributes = new JButton(LangTool.getString("sa.columns24"));
 
-        setPortAttributes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                getPortraitAttributes();
-            }
-        });
+        setPortAttributes.addActionListener(e -> getPortraitAttributes());
 
         JButton setLandAttributes = new JButton(LangTool.getString("sa.columns132"));
 
-        setLandAttributes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                getLandscapeAttributes();
-            }
-        });
+        setLandAttributes.addActionListener(e -> getLandscapeAttributes());
 
         // now create page dialog holder panel
         JPanel pagePage = new JPanel();
@@ -149,7 +141,7 @@ class PrinterAttributesPanel extends AttributesPanel {
         JPanel pageFont = new JPanel();
         fs = new TN5250jFontsSelection();
 
-        if (getStringProperty("print.font").length() != 0) {
+        if (!getStringProperty("print.font").isEmpty()) {
             fs.setSelectedItem(getStringProperty("print.font"));
         }
 

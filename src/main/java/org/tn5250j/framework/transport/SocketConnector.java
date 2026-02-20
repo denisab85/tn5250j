@@ -32,7 +32,7 @@ public class SocketConnector {
 
     String sslType = null;
 
-    TN5250jLogger logger;
+    final TN5250jLogger logger;
 
     /**
      * Creates a new instance that creates a plain socket by default.
@@ -65,7 +65,7 @@ public class SocketConnector {
         Socket socket = null;
         Exception ex = null;
 
-        if (sslType == null || sslType.trim().length() == 0 ||
+        if (sslType == null || sslType.trim().isEmpty() ||
                 sslType.toUpperCase().equals(TN5250jConstants.SSL_TYPE_NONE)) {
             logger.info("Creating Plain Socket");
             try {

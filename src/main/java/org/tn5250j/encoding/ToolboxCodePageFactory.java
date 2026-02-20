@@ -101,7 +101,7 @@ import org.tn5250j.tools.logging.TN5250jLogger;
         }
     }
 
-    private static final ClassLoader getClassLoader() {
+    private static ClassLoader getClassLoader() {
         ClassLoader loader = ToolboxCodePageFactory.class.getClassLoader();
         if (loader == null) {
             loader = ClassLoader.getSystemClassLoader();

@@ -55,7 +55,7 @@ public class KeyMapper {
         if (mappedKeys != null)
             return;
 
-        mappedKeys = new HashMap<KeyStroker, String>(60);
+        mappedKeys = new HashMap<>(60);
         workStroke = new KeyStroker(0, false, false, false, false, KeyStroker.KEY_LOCATION_STANDARD);
 
         Properties keys = ConfigureFactory.getInstance().getProperties(
@@ -156,7 +156,7 @@ public class KeyMapper {
 
     private static boolean containsProperties(Properties keystrokes) {
 
-        if (keystrokes != null && keystrokes.size() > 0)
+        if (keystrokes != null && !keystrokes.isEmpty())
             return true;
         else
             return false;
@@ -226,11 +226,11 @@ public class KeyMapper {
 
     }
 
-    public final static boolean isEqualLast(KeyEvent ke) {
+    public static boolean isEqualLast(KeyEvent ke) {
         return workStroke.equals(ke);
     }
 
-    public final static void saveKeyMap() {
+    public static void saveKeyMap() {
 
         Properties map = ConfigureFactory.getInstance().getProperties(ConfigureFactory.KEYMAP);
 
@@ -250,11 +250,11 @@ public class KeyMapper {
                 "------ Key Map key=keycode,isShiftDown,isControlDown,isAltDown,isAltGrDown,location --------");
     }
 
-    public final static String getKeyStrokeText(KeyEvent ke) {
+    public static String getKeyStrokeText(KeyEvent ke) {
         return getKeyStrokeText(ke, false);
     }
 
-    public final static String getKeyStrokeText(KeyEvent ke, boolean isAltGr) {
+    public static String getKeyStrokeText(KeyEvent ke, boolean isAltGr) {
         if (!workStroke.equals(ke, isAltGr)) {
             workStroke.setAttributes(ke, isAltGr);
             lastKeyMnemonic = mappedKeys.get(workStroke);
@@ -271,11 +271,11 @@ public class KeyMapper {
 
     }
 
-    public final static String getKeyStrokeMnemonic(KeyEvent ke) {
+    public static String getKeyStrokeMnemonic(KeyEvent ke) {
         return getKeyStrokeMnemonic(ke, false);
     }
 
-    public final static String getKeyStrokeMnemonic(KeyEvent ke, boolean isAltGr) {
+    public static String getKeyStrokeMnemonic(KeyEvent ke, boolean isAltGr) {
 
         workStroke.setAttributes(ke, isAltGr);
         String keyMnemonic = mappedKeys.get(workStroke);
@@ -291,11 +291,11 @@ public class KeyMapper {
 
     }
 
-    public final static int getKeyStrokeCode() {
+    public static int getKeyStrokeCode() {
         return workStroke.hashCode();
     }
 
-    public final static String getKeyStrokeDesc(String which) {
+    public static String getKeyStrokeDesc(String which) {
 
         Collection<String> v = mappedKeys.values();
         Set<KeyStroker> o = mappedKeys.keySet();
@@ -311,7 +311,7 @@ public class KeyMapper {
         return LangTool.getString("key.dead");
     }
 
-    public final static KeyStroker getKeyStroker(String which) {
+    public static KeyStroker getKeyStroker(String which) {
 
         Collection<String> v = mappedKeys.values();
         Set<KeyStroker> o = mappedKeys.keySet();
@@ -327,7 +327,7 @@ public class KeyMapper {
         return null;
     }
 
-    public final static boolean isKeyStrokeDefined(String which) {
+    public static boolean isKeyStrokeDefined(String which) {
 
         Collection<String> v = mappedKeys.values();
         Set<KeyStroker> o = mappedKeys.keySet();
@@ -343,18 +343,18 @@ public class KeyMapper {
         return false;
     }
 
-    public final static boolean isKeyStrokeDefined(KeyEvent ke) {
+    public static boolean isKeyStrokeDefined(KeyEvent ke) {
         return isKeyStrokeDefined(ke, false);
     }
 
-    public final static boolean isKeyStrokeDefined(KeyEvent ke, boolean isAltGr) {
+    public static boolean isKeyStrokeDefined(KeyEvent ke, boolean isAltGr) {
 
         workStroke.setAttributes(ke, isAltGr);
         return (null != mappedKeys.get(workStroke));
 
     }
 
-    public final static KeyStroke getKeyStroke(String which) {
+    public static KeyStroke getKeyStroke(String which) {
 
         Collection<String> v = mappedKeys.values();
         Set<KeyStroker> o = mappedKeys.keySet();
@@ -382,7 +382,7 @@ public class KeyMapper {
         return KeyStroke.getKeyStroke(0, 0);
     }
 
-    public final static void removeKeyStroke(String which) {
+    public static void removeKeyStroke(String which) {
 
         Collection<String> v = mappedKeys.values();
         Set<KeyStroker> o = mappedKeys.keySet();
@@ -399,7 +399,7 @@ public class KeyMapper {
 
     }
 
-    public final static void setKeyStroke(String which, KeyEvent ke) {
+    public static void setKeyStroke(String which, KeyEvent ke) {
 
         if (ke == null)
             return;
@@ -422,7 +422,7 @@ public class KeyMapper {
 
     }
 
-    public final static void setKeyStroke(String which, KeyEvent ke, boolean isAltGr) {
+    public static void setKeyStroke(String which, KeyEvent ke, boolean isAltGr) {
 
         if (ke == null)
             return;
@@ -445,7 +445,7 @@ public class KeyMapper {
 
     }
 
-    public final static HashMap<KeyStroker, String> getKeyMap() {
+    public static HashMap<KeyStroker, String> getKeyMap() {
         return mappedKeys;
     }
 
@@ -457,7 +457,7 @@ public class KeyMapper {
     public static synchronized void addKeyChangeListener(KeyChangeListener listener) {
 
         if (listeners == null) {
-            listeners = new java.util.Vector<KeyChangeListener>(3);
+            listeners = new java.util.Vector<>(3);
         }
         listeners.addElement(listener);
 

@@ -29,14 +29,14 @@ import org.tn5250j.tools.logging.TN5250jLogger;
 
 public class ExternalProgramConfig {
 
-    private static TN5250jLogger log =
+    private static final TN5250jLogger log =
             TN5250jLogFactory.getLogger("org.tn5250j.ExternalProgramConfig");
 
     private static ExternalProgramConfig etnConfig;
     public static final String EXTERNAL_PROGRAM_REGISTRY_KEY = "etnPgmProps";
     public static final String EXTERNAL_PROGRAM_PROPERTIES_FILE_NAME = "tn5250jExternalProgram.properties";
     public static final String EXTERNAL_PROGRAM_HEADER = "External Program Settings";
-    private Properties etnPgmProps;
+    private final Properties etnPgmProps;
 
     private static Properties props = null;
     private static JTextField name = null;
@@ -61,7 +61,7 @@ public class ExternalProgramConfig {
         return this.etnPgmProps;
     }
 
-    private final Properties loadExternalProgramSettings() {
+    private Properties loadExternalProgramSettings() {
         Properties etnProps = null;
         try {
             etnProps = ConfigureFactory.getInstance().getProperties(
@@ -69,7 +69,7 @@ public class ExternalProgramConfig {
                     EXTERNAL_PROGRAM_PROPERTIES_FILE_NAME, false,
                     "Default Settings");
             log.info("begin loading external program settings");
-            if (etnProps.size() == 0) {
+            if (etnProps.isEmpty()) {
                 Properties defaultProps = new Properties();
                 java.net.URL file = null;
                 ClassLoader cl = this.getClass().getClassLoader();
@@ -79,7 +79,7 @@ public class ExternalProgramConfig {
                 defaultProps.load(file.openStream());
 
                 // we will now load the default settings
-                for (Enumeration e = defaultProps.keys(); e.hasMoreElements(); ) {
+                for (Enumeration<Object> e = defaultProps.keys(); e.hasMoreElements(); ) {
                     String key = (String) e.nextElement();
                     etnProps.setProperty(key, defaultProps.getProperty(key));
 
@@ -89,10 +89,8 @@ public class ExternalProgramConfig {
                         EXTERNAL_PROGRAM_HEADER);
             }
 
-        } catch (IOException ioe) {
+        } catch (IOException | SecurityException ioe) {
             log.error(ioe.getMessage());
-        } catch (SecurityException se) {
-            log.error(se.getMessage());
         }
 
         return etnProps;
@@ -104,7 +102,7 @@ public class ExternalProgramConfig {
         wCommand = new JTextField(40);
         uCommand = new JTextField(40);
         if (propKey != null) {
-            for (Enumeration e = props.keys(); e.hasMoreElements(); ) {
+            for (Enumeration<Object> e = props.keys(); e.hasMoreElements(); ) {
                 String key = (String) e.nextElement();
                 if (propKey.equals(props.getProperty(key))) {
                     String subKey = key.substring(8);
@@ -239,13 +237,13 @@ public class ExternalProgramConfig {
                 throws BadLocationException {
 
             super.insertString(offs, str, a);
-            if (getText(0, getLength()).length() > 0)
+            if (!getText(0, getLength()).isEmpty())
                 doSomethingEntered();
         }
 
         public void remove(int offs, int len) throws BadLocationException {
             super.remove(offs, len);
-            if (getText(0, getLength()).length() == 0)
+            if (getText(0, getLength()).isEmpty())
                 doNothingEntered();
         }
     }

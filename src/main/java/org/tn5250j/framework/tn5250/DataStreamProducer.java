@@ -16,16 +16,16 @@ public class DataStreamProducer implements Runnable {
 
     private static final int MINIMAL_PARTIAL_STREAM_LEN = 2;
 
-    private BufferedInputStream bin;
-    private ByteArrayOutputStream baosin;
+    private final BufferedInputStream bin;
+    private final ByteArrayOutputStream baosin;
     private byte[] saveStream;
     private final BlockingQueue<Object> dsq;
-    private tnvt vt;
-    private byte[] dataStream;
+    private final tnvt vt;
+    private final byte[] dataStream;
 
-    private DataStreamDumper dataStreamDumper = new DataStreamDumper();
+    private final DataStreamDumper dataStreamDumper = new DataStreamDumper();
 
-    private TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
+    private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
 
     public DataStreamProducer(tnvt vt, BufferedInputStream in, BlockingQueue<Object> queue, byte[] init) {
         bin = in;
@@ -72,12 +72,6 @@ public class DataStreamProducer implements Runnable {
             } catch (SocketException se) {
                 log.warn("   DataStreamProducer thread interrupted and stopping " + se.getMessage());
                 done = true;
-            } catch (IOException ioe) {
-
-                log.warn(ioe.getMessage());
-                if (me.isInterrupted())
-                    done = true;
-
             } catch (Exception ex) {
 
                 log.warn(ex.getMessage());
@@ -88,7 +82,7 @@ public class DataStreamProducer implements Runnable {
         }
     }
 
-    private void loadStream(byte streamBuffer[], int offset) {
+    private void loadStream(byte[] streamBuffer, int offset) {
 
         int partialLen = (streamBuffer[offset] & 0xff) << 8 | streamBuffer[offset + 1] & 0xff;
         int bufferLen = streamBuffer.length;

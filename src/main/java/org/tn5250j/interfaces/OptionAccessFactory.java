@@ -22,8 +22,6 @@
  */
 package org.tn5250j.interfaces;
 
-import java.util.Vector;
-
 /**
  * An interface defining objects that can create OptionAccess
  * instances.
@@ -40,7 +38,7 @@ public abstract class OptionAccessFactory {
         return factory;
     }
 
-    private static final void setFactory() {
+    private static void setFactory() {
         if (factory == null) {
             try {
                 String className = System.getProperty(OptionAccessFactory.class.getName());
@@ -52,7 +50,6 @@ public abstract class OptionAccessFactory {
                     }
                 }
             } catch (Exception ex) {
-                ;
             }
             if (OptionAccessFactory.factory == null) { //take the default
                 OptionAccessFactory.factory = new org.tn5250j.OptionAccess();

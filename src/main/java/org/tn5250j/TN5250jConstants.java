@@ -27,9 +27,9 @@ public interface TN5250jConstants {
     String VERSION_INFO = "0.8.0-beta2";
 
     // STATE
-    static final int STATE_DISCONNECTED = 0;
-    static final int STATE_CONNECTED = 1;
-    static final int STATE_REMOVE = 2;
+    int STATE_DISCONNECTED = 0;
+    int STATE_CONNECTED = 1;
+    int STATE_REMOVE = 2;
 
     // SESSION Level key value pairs
     String SESSION_HOST = "SESSION_HOST";
@@ -71,8 +71,8 @@ public interface TN5250jConstants {
             SSL_TYPE_TLS};
 
     // Session JUMP Directions
-    static final int JUMP_PREVIOUS = 0;
-    static final int JUMP_NEXT = 1;
+    int JUMP_PREVIOUS = 0;
+    int JUMP_NEXT = 1;
 
 //   // OS_OHIO_SESSION_TYPE type of sessions
 //    String OS_OHIO_SESSION_TYPE_5250_STR   = "2";
