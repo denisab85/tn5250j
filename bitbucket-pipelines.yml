@@ -1,0 +1,23 @@
+pipelines:
+  branches:
+    develop/**:
+      import: pipeline-templates:master:lib-deploy-snapshot
+    '{release/**,hotfix/**,master,support/**}':
+      import: pipeline-templates:master:lib-deploy-release
+
+  pull-requests:
+    '{feature/**,bugfix/**}':
+      import: pipeline-templates:master:lib-build-test
+
+  tags:
+    '*-SNAPSHOT':
+      import: pipeline-templates:master:tag-snapshot
+    '*.*.*':
+      import: pipeline-templates:master:tag-release
+
+  custom:
+    build-and-test-only:
+      import: pipeline-templates:master:lib-build-test
+
+    'Run Snyk Tests':
+      import: pipeline-templates:snyk:test-all
