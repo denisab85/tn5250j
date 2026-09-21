@@ -24,6 +24,8 @@ package org.tn5250j.framework.transport;
 
 import java.net.Socket;
 
+import org.tn5250j.interfaces.SessionUiHooks;
+
 public interface SSLInterface {
 
     /**
@@ -34,6 +36,16 @@ public interface SSLInterface {
      * @see org.tn5250j.framework.transport.SSLConstants
      */
     void init(String sslType);
+
+    /**
+     * Supplies the UI callback used when the peer certificate is not trusted.
+     * The default ignores the hooks. {@code SSLImplementation} prompts or
+     * rejects through them.
+     *
+     * @param hooks session UI hooks, or null to reject untrusted certificates
+     */
+    default void setTrustHooks(SessionUiHooks hooks) {
+    }
 
     /**
      * Create a new socket

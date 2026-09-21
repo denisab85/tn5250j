@@ -20,7 +20,6 @@
  */
 package org.tn5250j;
 
-import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -30,11 +29,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.tn5250j.event.SessionChangeEvent;
 import org.tn5250j.event.SessionListener;
 import org.tn5250j.framework.common.SessionManager;
+import org.tn5250j.framework.tn5250.InlineVtEventDispatcher;
 import org.tn5250j.framework.tn5250.Screen5250;
+import org.tn5250j.framework.tn5250.VtEventDispatcher;
 import org.tn5250j.framework.tn5250.tnvt;
-import org.tn5250j.gui.SystemRequestDialog;
+import org.tn5250j.interfaces.HeadlessSessionUiHooks;
 import org.tn5250j.interfaces.ScanListener;
 import org.tn5250j.interfaces.SessionInterface;
+import org.tn5250j.interfaces.SessionUiHooks;
 
 /**
  * A host session
@@ -51,6 +53,8 @@ public class Session5250 implements SessionInterface {
     private tnvt vt;
     private final Screen5250 screen;
     private SessionPanel guiComponent;
+    private SessionUiHooks uiHooks = HeadlessSessionUiHooks.INSTANCE;
+    private VtEventDispatcher eventDispatcher = InlineVtEventDispatcher.INSTANCE;
 
     private List<SessionListener> sessionListeners = null;
     private final ReadWriteLock sessionListenerLock = new ReentrantReadWriteLock();
@@ -147,10 +151,34 @@ public class Session5250 implements SessionInterface {
 
     public void setGUI(SessionPanel gui) {
         guiComponent = gui;
+        setEventDispatcher(gui == null
+                ? InlineVtEventDispatcher.INSTANCE
+                : SwingEdtDispatcher.INSTANCE);
     }
 
     public SessionPanel getGUI() {
         return guiComponent;
+    }
+
+    @Override
+    public void setUiHooks(SessionUiHooks hooks) {
+        uiHooks = hooks == null ? HeadlessSessionUiHooks.INSTANCE : hooks;
+    }
+
+    @Override
+    public SessionUiHooks getUiHooks() {
+        return uiHooks;
+    }
+
+    /**
+     * Chooses where virtual-terminal screen updates run. A GUI attachment
+     * selects the Swing event dispatch thread; headless sessions stay inline.
+     */
+    public void setEventDispatcher(VtEventDispatcher dispatcher) {
+        eventDispatcher = dispatcher == null ? InlineVtEventDispatcher.INSTANCE : dispatcher;
+        if (vt != null) {
+            vt.setEventDispatcher(eventDispatcher);
+        }
     }
 
     @Override
@@ -159,6 +187,11 @@ public class Session5250 implements SessionInterface {
     }
 
     public String getAllocDeviceName() {
+        return getAllocatedDeviceName();
+    }
+
+    @Override
+    public String getAllocatedDeviceName() {
         if (vt != null) {
             return vt.getAllocatedDeviceName();
         }
@@ -172,28 +205,34 @@ public class Session5250 implements SessionInterface {
 
     }
 
+    @Override
     public String getHostName() {
-        return vt.getHostName();
+        if (vt == null) {
+            return null;
+        }
+        String host = vt.getHostName();
+        if (host == null || host.isEmpty()) {
+            return null;
+        }
+        return host;
     }
 
+    @Override
     public Screen5250 getScreen() {
 
         return screen;
 
     }
 
-    @Override
     public void signalBell() {
-        Toolkit.getDefaultToolkit().beep();
+        uiHooks.signalBell();
     }
 
-    /* (non-Javadoc)
-     * @see org.tn5250j.interfaces.SessionInterface#displaySystemRequest()
+    /**
+     * @return null if the UI cancels the prompt, otherwise the user's SysReq input
      */
-    @Override
     public String showSystemRequest() {
-        final SystemRequestDialog sysreqdlg = new SystemRequestDialog(this.guiComponent);
-        return sysreqdlg.show();
+        return uiHooks.promptSystemRequest();
     }
 
     @Override
@@ -261,15 +300,19 @@ public class Session5250 implements SessionInterface {
 
     @Override
     public void disconnect() {
-        vt.disconnect();
+        if (vt != null) {
+            vt.disconnect();
+        }
     }
 
     // WVL - LDC : TR.000300 : Callback scenario from 5250
     protected void setVT(tnvt v) {
         vt = v;
         screen.setVT(vt);
-        if (vt != null)
+        if (vt != null) {
             vt.setScanningEnabled(this.scan);
+            vt.setEventDispatcher(eventDispatcher);
+        }
     }
 
     public tnvt getVT() {

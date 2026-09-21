@@ -30,7 +30,8 @@ import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import javax.swing.JOptionPane;
+import org.tn5250j.interfaces.HeadlessSessionUiHooks;
+import org.tn5250j.interfaces.SessionUiHooks;
 
 /**
  * This class is used to trust certificates exchanged during an SSL socket
@@ -45,11 +46,22 @@ public class X509CertificateTrustManager implements X509TrustManager {
 
     KeyStore ks = null;
     final TrustManager[] trustManagers;
+    private SessionUiHooks trustHooks = HeadlessSessionUiHooks.INSTANCE;
     //X509TrustManager trustManager = null;
 
     public X509CertificateTrustManager(TrustManager[] managers, KeyStore keyStore) {
         trustManagers = managers;
         ks = keyStore;
+    }
+
+    /**
+     * Replaces the default reject-untrusted behavior. With no hooks installed,
+     * untrusted certificates are rejected and no dialog is shown.
+     *
+     * @param hooks UI callback, or null to reject untrusted certificates
+     */
+    public void setTrustHooks(SessionUiHooks hooks) {
+        trustHooks = hooks == null ? HeadlessSessionUiHooks.INSTANCE : hooks;
     }
 
     public void checkClientTrusted(X509Certificate[] chain, String type) throws CertificateException {
@@ -81,9 +93,7 @@ public class X509CertificateTrustManager implements X509TrustManager {
             certInfo = certInfo.concat("Subject DN: " + cert.getSubjectDN().getName() + "\n");
             certInfo = certInfo.concat("Public Key: " + cert.getPublicKey().getFormat() + "\n");
 
-            int accept = JOptionPane.showConfirmDialog(null, certInfo,
-                    "Accept Certificate", javax.swing.JOptionPane.YES_NO_OPTION);
-            if (accept != JOptionPane.YES_OPTION) {
+            if (!trustHooks.acceptUntrustedCertificate(certInfo)) {
                 throw new java.security.cert.CertificateException("Certificate Not Accepted");
             }
         }

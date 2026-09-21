@@ -25,12 +25,14 @@ package org.tn5250j.framework.transport;
 import java.net.Socket;
 
 import org.tn5250j.TN5250jConstants;
+import org.tn5250j.interfaces.SessionUiHooks;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
 
 public class SocketConnector {
 
     String sslType = null;
+    private SessionUiHooks trustHooks;
 
     final TN5250jLogger logger;
 
@@ -49,6 +51,16 @@ public class SocketConnector {
      */
     public void setSSLType(String type) {
         sslType = type;
+    }
+
+    /**
+     * Callback consulted when an SSL peer certificate is not in the trust store.
+     * When unset, untrusted certificates are rejected and no dialog is shown.
+     *
+     * @param hooks session UI hooks
+     */
+    public void setTrustHooks(SessionUiHooks hooks) {
+        trustHooks = hooks;
     }
 
     /**
@@ -91,6 +103,7 @@ public class SocketConnector {
             }
 
             if (sslIf != null) {
+                sslIf.setTrustHooks(trustHooks);
                 sslIf.init(sslType);
                 socket = sslIf.createSSLSocket(destination, port);
             }

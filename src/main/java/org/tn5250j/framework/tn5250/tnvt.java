@@ -32,7 +32,6 @@ import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
 
 import javax.net.ssl.SSLSocket;
-import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
@@ -99,6 +98,7 @@ public final class tnvt implements Runnable {
     private int readType;
     private boolean enhanced = true;
     private final Session5250 controller;
+    private VtEventDispatcher eventDispatcher = InlineVtEventDispatcher.INSTANCE;
     private boolean cursorOn = false;
     private String session = "";
     private int port = 23;
@@ -170,6 +170,14 @@ public final class tnvt implements Runnable {
     public String getHostName() {
 
         return session;
+    }
+
+    public void setEventDispatcher(VtEventDispatcher dispatcher) {
+        eventDispatcher = dispatcher == null ? InlineVtEventDispatcher.INSTANCE : dispatcher;
+    }
+
+    private void dispatchUi(Runnable action) {
+        eventDispatcher.dispatch(action);
     }
 
 
@@ -251,7 +259,7 @@ public final class tnvt implements Runnable {
             this.port = port;
 
             try {
-                SwingUtilities.invokeAndWait((Runnable) () -> screen52.getOIA().setInputInhibited(ScreenOIA.INPUTINHIBITED_SYSTEM_WAIT,
+                dispatchUi(() -> screen52.getOIA().setInputInhibited(ScreenOIA.INPUTINHIBITED_SYSTEM_WAIT,
                         ScreenOIA.OIA_LEVEL_INPUT_INHIBITED, "X - Connecting"));
 
             } catch (Exception exc) {
@@ -264,6 +272,7 @@ public final class tnvt implements Runnable {
             SocketConnector sc = new SocketConnector();
             if (sslType != null)
                 sc.setSSLType(sslType);
+            sc.setTrustHooks(controller.getUiHooks());
             sock = sc.createSocket(s, port);
 
             if (sock == null) {
@@ -298,7 +307,7 @@ public final class tnvt implements Runnable {
             pthread.start();
 
             try {
-                SwingUtilities.invokeAndWait((Runnable) () -> screen52.getOIA().setInputInhibited(ScreenOIA.INPUTINHIBITED_NOTINHIBITED,
+                dispatchUi(() -> screen52.getOIA().setInputInhibited(ScreenOIA.INPUTINHIBITED_NOTINHIBITED,
                         ScreenOIA.OIA_LEVEL_INPUT_INHIBITED));
 
             } catch (Exception exc) {

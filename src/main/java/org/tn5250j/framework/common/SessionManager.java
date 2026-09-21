@@ -86,10 +86,22 @@ public class SessionManager implements SessionManagerInterface {
 
     @Override
     public void closeSession(SessionPanel sesspanel) {
+        if (sesspanel == null) {
+            return;
+        }
+        closeSession(sesspanel.getSession());
+    }
 
-        sesspanel.closeDown();
-        sessions.removeSession((sesspanel).getSession());
-
+    @Override
+    public void closeSession(Session5250 session) {
+        if (session == null) {
+            return;
+        }
+        SessionPanel gui = session.getGUI();
+        if (gui != null) {
+            gui.closeDown();
+        }
+        sessions.removeSession(session);
     }
 
     @Override

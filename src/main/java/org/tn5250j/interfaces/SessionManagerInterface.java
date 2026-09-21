@@ -39,6 +39,14 @@ public interface SessionManagerInterface {
     void closeSession(SessionPanel sessionObject);
 
     /**
+     * Closes a session without requiring a Swing view. When a GUI is attached,
+     * it is shut down the same way as {@link #closeSession(SessionPanel)}.
+     *
+     * @param session the session to close
+     */
+    void closeSession(Session5250 session);
+
+    /**
      * @param props
      * @param configurationResource
      * @param sessionName

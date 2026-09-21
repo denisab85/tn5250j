@@ -20,20 +20,24 @@
  */
 package org.tn5250j.framework.common;
 
-import java.util.*;
-import java.awt.event.*;
-import javax.swing.Timer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.tn5250j.Session5250;
-import org.tn5250j.tools.logging.*;
 import org.tn5250j.interfaces.SessionsInterface;
+import org.tn5250j.tools.logging.TN5250jLogFactory;
+import org.tn5250j.tools.logging.TN5250jLogger;
 
 
 /**
  * Contains a collection of Session objects. This list is a static snapshot
  * of the list of Session objects available at the time of the snapshot.
  */
-public class Sessions implements SessionsInterface, ActionListener {
+public class Sessions implements SessionsInterface {
+
+    private static final long HEART_BEAT_INTERVAL_MS = 15000L;
 
     private List<Session5250> sessions = null;
     private int count = 0;
@@ -46,12 +50,14 @@ public class Sessions implements SessionsInterface, ActionListener {
         sessions = new ArrayList<>();
     }
 
-    public void actionPerformed(ActionEvent e) {
+    private void sendHeartBeats() {
+        List<Session5250> snapshot;
+        synchronized (sessions) {
+            snapshot = new ArrayList<>(sessions);
+        }
 
-        Session5250 ses;
-        for (Session5250 session : sessions) {
+        for (Session5250 ses : snapshot) {
             try {
-                ses = session;
                 if (ses.isConnected() && ses.isSendKeepAlive()) {
                     ses.getVT().sendHeartBeat();
                     if (log.isDebugEnabled()) {
@@ -65,16 +71,42 @@ public class Sessions implements SessionsInterface, ActionListener {
 
     }
 
-    protected void addSession(Session5250 newSession) {
-        sessions.add(newSession);
-        log.debug("adding Session: " + newSession.getSessionName());
-        if (newSession.isSendKeepAlive() && heartBeater == null) {
-            heartBeater = new Timer(15000, this);
-//         heartBeater = new Timer(3000,this);
-            heartBeater.start();
-
+    /** Caller must hold {@code sessions}. */
+    private void startHeartBeater() {
+        if (heartBeater != null) {
+            return;
         }
-        ++count;
+        heartBeater = new Timer("tn5250j-keepalive", true);
+        heartBeater.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                sendHeartBeats();
+            }
+        }, HEART_BEAT_INTERVAL_MS, HEART_BEAT_INTERVAL_MS);
+    }
+
+    /** Caller must hold {@code sessions}. */
+    private void cancelHeartBeaterIfIdle() {
+        for (Session5250 session : sessions) {
+            if (session.isSendKeepAlive()) {
+                return;
+            }
+        }
+        if (heartBeater != null) {
+            heartBeater.cancel();
+            heartBeater = null;
+        }
+    }
+
+    protected void addSession(Session5250 newSession) {
+        log.debug("adding Session: " + newSession.getSessionName());
+        synchronized (sessions) {
+            sessions.add(newSession);
+            ++count;
+            if (newSession.isSendKeepAlive()) {
+                startHeartBeater();
+            }
+        }
     }
 
     protected void removeSession(Session5250 session) {
@@ -82,8 +114,11 @@ public class Sessions implements SessionsInterface, ActionListener {
             log.debug("Removing session: " + session.getSessionName());
             if (session.isConnected())
                 session.disconnect();
-            sessions.remove(session);
-            --count;
+            synchronized (sessions) {
+                sessions.remove(session);
+                --count;
+                cancelHeartBeaterIfIdle();
+            }
         }
     }
 
@@ -100,58 +135,61 @@ public class Sessions implements SessionsInterface, ActionListener {
     }
 
     public int getCount() {
-
-        return count;
+        synchronized (sessions) {
+            return count;
+        }
     }
 
     public Session5250 item(int index) {
-
-        return sessions.get(index);
-
+        synchronized (sessions) {
+            return sessions.get(index);
+        }
     }
 
     public Session5250 item(String sessionName) {
+        synchronized (sessions) {
+            Session5250 s = null;
+            int x = 0;
 
-        Session5250 s = null;
-        int x = 0;
+            while (x < sessions.size()) {
 
-        while (x < sessions.size()) {
+                s = sessions.get(x);
 
-            s = sessions.get(x);
+                if (s.getSessionName().equals(sessionName))
+                    return s;
 
-            if (s.getSessionName().equals(sessionName))
-                return s;
+                x++;
+            }
 
-            x++;
+            return null;
         }
-
-        return null;
-
     }
 
     public Session5250 item(Session5250 sessionObject) {
+        synchronized (sessions) {
+            Session5250 s = null;
+            int x = 0;
 
-        Session5250 s = null;
-        int x = 0;
+            while (x < sessions.size()) {
 
-        while (x < sessions.size()) {
+                s = sessions.get(x);
 
-            s = sessions.get(x);
+                if (s.equals(sessionObject))
+                    return s;
 
-            if (s.equals(sessionObject))
-                return s;
+                x++;
+            }
 
-            x++;
+            return null;
         }
-
-        return null;
-
     }
 
     public ArrayList<Session5250> getSessionsList() {
-        ArrayList<Session5250> newS = new ArrayList<>(sessions.size());
-        for (Session5250 session : sessions) newS.add(session);
-        return newS;
+        synchronized (sessions) {
+            ArrayList<Session5250> newS = new ArrayList<>(sessions.size());
+            for (Session5250 session : sessions) newS.add(session);
+            return newS;
+        }
     }
 
     public void refresh() {

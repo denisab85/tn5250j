@@ -21,36 +21,14 @@ package org.tn5250j.interfaces;
  *
  */
 
-import org.tn5250j.event.SessionListener;
-
-public interface SessionInterface {
+/**
+ * Session contract used by the desktop shell. Lifecycle, screen access, and
+ * UI hooks live on {@link SessionController}. Configuration accessors stay here.
+ */
+public interface SessionInterface extends SessionController {
 
     String getConfigurationResource();
 
-    boolean isConnected();
-
-    String getSessionName();
-
     int getSessionType();
-
-    void connect();
-
-    void disconnect();
-
-    void addSessionListener(SessionListener listener);
-
-    void removeSessionListener(SessionListener listener);
-
-    /**
-     * Popups a dialog to ask the user for entering a SysReq value.
-     *
-     * @return null if nothing to do, else a String containing the users input.
-     */
-    String showSystemRequest();
-
-    /**
-     * Signals the user a sound (or maybe a light flash).
-     */
-    void signalBell();
 
 }

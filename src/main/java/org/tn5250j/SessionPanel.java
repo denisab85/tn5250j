@@ -45,6 +45,7 @@ import org.tn5250j.framework.tn5250.Rect;
 import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.framework.tn5250.tnvt;
 import org.tn5250j.gui.ConfirmTabCloseDialog;
+import org.tn5250j.gui.SwingSessionUiHooks;
 import org.tn5250j.keyboard.KeyboardHandler;
 import org.tn5250j.keyboard.KeyMnemonicSerializer;
 import org.tn5250j.mailtools.SendEMailDialog;
@@ -105,6 +106,7 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
     private void jbInit() throws Exception {
         this.setLayout(new BorderLayout());
         session.setGUI(this);
+        session.setUiHooks(new SwingSessionUiHooks(this));
         screen = session.getScreen();
 
         this.addComponentListener(new ComponentAdapter() {

@@ -8,6 +8,7 @@ import org.tn5250j.TN5250jConstants;
 import org.tn5250j.event.ScreenOIAListener;
 import org.tn5250j.event.SessionChangeEvent;
 import org.tn5250j.event.SessionListener;
+import org.tn5250j.gui.SwingSessionUiHooks;
 import org.tn5250j.tools.LangTool;
 
 import javax.swing.SwingUtilities;
@@ -48,6 +49,7 @@ public class SessionEventFanoutTest {
 
         assertTrue(hasListener(screenListeners(), GuiGraphicBuffer.class));
         assertTrue(hasListener(oiaListeners(), GuiGraphicBuffer.class));
+        assertTrue(harness.session().getUiHooks() instanceof SwingSessionUiHooks);
 
         harness.process(harness.outputOnly(TN5250jConstants.CMD_CLEAR_UNIT_ALTERNATE, (byte) 0));
         drainEventQueue();
