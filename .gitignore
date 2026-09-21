@@ -1,4 +1,4 @@
-/target
+target/
 *.iml
 .idea
 .classpath
@@ -7,3 +7,7 @@
 .pydevproject
 .DS_Store
 .vscode/
+.flattened-pom.xml
+**/.flattened-pom.xml
+dependency-reduced-pom.xml
+**/dependency-reduced-pom.xml

@@ -5,13 +5,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>ca.denisab85</groupId>
-  <artifactId>tn5250j</artifactId>
+  <artifactId>tn5250j-parent</artifactId>
   <!-- CI sets -Drevision=X.Y.Z from a git tag; local/default builds use 0-SNAPSHOT -->
   <version>${revision}</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
-  <name>Tn5250j</name>
-  <description>A 5250 terminal emulator for the IBM i (AS/400) written in Java.</description>
+  <name>Tn5250j Parent</name>
+  <description>Parent aggregator for the tn5250j 5250 terminal emulator.</description>
   <url>https://github.com/denisab85/tn5250j</url>
 
   <licenses>
@@ -38,6 +38,12 @@
     <tag>HEAD</tag>
   </scm>
 
+  <modules>
+    <module>tn5250j-core</module>
+    <module>tn5250j-swing</module>
+    <module>tn5250j</module>
+  </modules>
+
   <properties>
     <revision>0-SNAPSHOT</revision>
     <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
@@ -47,192 +53,159 @@
     <mainClass>org.tn5250j.My5250</mainClass>
   </properties>
 
-  <dependencies>
-    <!-- Logging -->
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-    </dependency>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>ca.denisab85</groupId>
+        <artifactId>tn5250j-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ca.denisab85</groupId>
+        <artifactId>tn5250j-core</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>ca.denisab85</groupId>
+        <artifactId>tn5250j-swing</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
-    <!-- JavaMail / Activation (needed on newer JDKs, used by mailtools) -->
-    <dependency>
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>1.6.2</version>
-      <exclusions>
-        <!-- Use a single activation implementation (below) -->
-        <exclusion>
-          <groupId>javax.activation</groupId>
-          <artifactId>activation</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.activation</groupId>
-      <artifactId>javax.activation</artifactId>
-      <version>1.2.0</version>
-    </dependency>
-
-    <!-- IBM Toolbox for Java (JT400 / JTOpen) -->
-    <dependency>
-      <groupId>net.sf.jt400</groupId>
-      <artifactId>jt400</artifactId>
-      <version>10.6</version>
-    </dependency>
-
-    <!-- iText 2 (com.lowagie.*) — optional: spool→PDF export -->
-    <dependency>
-      <groupId>com.lowagie</groupId>
-      <artifactId>itext</artifactId>
-      <version>2.1.7</version>
-      <optional>true</optional>
-      <exclusions>
-        <!-- Avoid duplicate/overlapping BouncyCastle classes during shading -->
-        <exclusion>
-          <groupId>bouncycastle</groupId>
-          <artifactId>bcprov-jdk14</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>bouncycastle</groupId>
-          <artifactId>bcmail-jdk14</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <!-- iText 2 transitively relies on these older BouncyCastle coordinates (optional with iText) -->
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk14</artifactId>
-      <version>1.38</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcmail-jdk14</artifactId>
-      <version>1.38</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bctsp-jdk14</artifactId>
-      <version>1.38</version>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- Jython (org.python.*) — optional: macros/scripting -->
-    <dependency>
-      <groupId>org.python</groupId>
-      <artifactId>jython-standalone</artifactId>
-      <version>2.7.3</version>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- Optional Swing L&F shipped by the Ant dist -->
-    <dependency>
-      <groupId>com.incors</groupId>
-      <artifactId>kunstoff-laf</artifactId>
-      <version>2.0.2</version>
-      <scope>runtime</scope>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- Tests -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.2</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.17</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.mail</groupId>
+        <artifactId>javax.mail</artifactId>
+        <version>1.6.2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.activation</groupId>
+        <artifactId>javax.activation</artifactId>
+        <version>1.2.0</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.jt400</groupId>
+        <artifactId>jt400</artifactId>
+        <version>10.6</version>
+      </dependency>
+      <dependency>
+        <groupId>com.lowagie</groupId>
+        <artifactId>itext</artifactId>
+        <version>2.1.7</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk14</artifactId>
+        <version>1.38</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcmail-jdk14</artifactId>
+        <version>1.38</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bctsp-jdk14</artifactId>
+        <version>1.38</version>
+      </dependency>
+      <dependency>
+        <groupId>org.python</groupId>
+        <artifactId>jython-standalone</artifactId>
+        <version>2.7.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.incors</groupId>
+        <artifactId>kunstoff-laf</artifactId>
+        <version>2.0.2</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.13.0</version>
+          <configuration>
+            <release>${maven.compiler.release}</release>
+            <source>${maven.compiler.source}</source>
+            <target>${maven.compiler.target}</target>
+            <encoding>${project.build.sourceEncoding}</encoding>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.5.2</version>
+          <configuration>
+            <includes>
+              <include>**/*Test*.java</include>
+            </includes>
+            <excludes>
+              <exclude>**/AllTests.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.4.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.12.0</version>
+          <configuration>
+            <source>${maven.compiler.source}</source>
+            <encoding>${project.build.sourceEncoding}</encoding>
+            <docencoding>${project.build.sourceEncoding}</docencoding>
+            <charset>${project.build.sourceEncoding}</charset>
+            <doclint>none</doclint>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.4.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>3.6.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>1.7.0</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
-        <configuration>
-          <release>${maven.compiler.release}</release>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-          <encoding>${project.build.sourceEncoding}</encoding>
-        </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.5.2</version>
-        <configuration>
-          <includes>
-            <include>**/*Test*.java</include>
-          </includes>
-          <excludes>
-            <exclude>**/AllTests.java</exclude>
-          </excludes>
-        </configuration>
       </plugin>
-
-      <!-- Thin library JAR (default). Main-Class is set for convenience when deps are on the classpath. -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.4.2</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>${mainClass}</mainClass>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-
-      <!-- Attach a javadoc JAR so `mvn install` installs it too -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.12.0</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <encoding>${project.build.sourceEncoding}</encoding>
-          <docencoding>${project.build.sourceEncoding}</docencoding>
-          <charset>${project.build.sourceEncoding}</charset>
-          <doclint>none</doclint>
-        </configuration>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Attach a sources JAR so `mvn install` installs it too -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>3.4.0</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Resolve ${revision} in the published/installed POM -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>flatten-maven-plugin</artifactId>
-        <version>1.7.0</version>
         <configuration>
           <updatePomFile>true</updatePomFile>
           <flattenMode>resolveCiFriendliesOnly</flattenMode>
@@ -256,154 +229,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <!-- Lean fat JAR for local/desktop use (default shade): excludes macros/PDF/L&amp;F extras.
-         mvn -Pshaded package -->
-    <profile>
-      <id>shaded</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>3.6.0</version>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>shade</goal>
-                </goals>
-                <configuration>
-                  <createDependencyReducedPom>false</createDependencyReducedPom>
-                  <artifactSet>
-                    <excludes>
-                      <exclude>org.python:jython-standalone</exclude>
-                      <exclude>com.lowagie:itext</exclude>
-                      <exclude>org.bouncycastle:bcprov-jdk14</exclude>
-                      <exclude>org.bouncycastle:bcmail-jdk14</exclude>
-                      <exclude>org.bouncycastle:bctsp-jdk14</exclude>
-                      <exclude>com.incors:kunstoff-laf</exclude>
-                    </excludes>
-                  </artifactSet>
-                  <transformers>
-                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                      <mainClass>${mainClass}</mainClass>
-                    </transformer>
-                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                  </transformers>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!-- Full fat JAR including optional macros/PDF/L&amp;F deps: mvn -Pshaded-full package -->
-    <profile>
-      <id>shaded-full</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>3.6.0</version>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>shade</goal>
-                </goals>
-                <configuration>
-                  <createDependencyReducedPom>false</createDependencyReducedPom>
-                  <transformers>
-                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                      <mainClass>${mainClass}</mainClass>
-                    </transformer>
-                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                  </transformers>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!-- Signed publish to Maven Central (used by the release workflow).
-         Same lean shade as -Pshaded: main artifact excludes macros/PDF/L&amp;F.
-         Dependency-reduced POM drops shaded-in deps; optional feature deps stay optional.
-         mvn -Prelease deploy -->
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>3.6.0</version>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>shade</goal>
-                </goals>
-                <configuration>
-                  <createDependencyReducedPom>true</createDependencyReducedPom>
-                  <artifactSet>
-                    <excludes>
-                      <exclude>org.python:jython-standalone</exclude>
-                      <exclude>com.lowagie:itext</exclude>
-                      <exclude>org.bouncycastle:bcprov-jdk14</exclude>
-                      <exclude>org.bouncycastle:bcmail-jdk14</exclude>
-                      <exclude>org.bouncycastle:bctsp-jdk14</exclude>
-                      <exclude>com.incors:kunstoff-laf</exclude>
-                    </excludes>
-                  </artifactSet>
-                  <transformers>
-                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                      <mainClass>${mainClass}</mainClass>
-                    </transformer>
-                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                  </transformers>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.2.7</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-                <configuration>
-                  <gpgArguments>
-                    <arg>--pinentry-mode</arg>
-                    <arg>loopback</arg>
-                  </gpgArguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.sonatype.central</groupId>
-            <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>0.11.0</version>
-            <extensions>true</extensions>
-            <configuration>
-              <publishingServerId>central</publishingServerId>
-              <autoPublish>true</autoPublish>
-              <waitUntil>published</waitUntil>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
