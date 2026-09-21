@@ -219,10 +219,11 @@ public class SessionPanelInputTest {
     }
 
     private SessionScroller scrollerForScreen() throws Exception {
+        SessionPanel panel = headlessPanel();
         SessionScroller scroller = new SessionScroller();
         Field screenField = SessionScroller.class.getDeclaredField("screen");
         screenField.setAccessible(true);
-        screenField.set(scroller, screen);
+        screenField.set(scroller, panel.getScreen());
         return scroller;
     }
 

@@ -57,6 +57,10 @@ import org.tn5250j.framework.common.Sessions;
 import org.tn5250j.gui.TN5250jSplashScreen;
 import org.tn5250j.interfaces.ConfigureFactory;
 import org.tn5250j.interfaces.GUIViewInterface;
+import org.tn5250j.session.api.ConnectionProfile;
+import org.tn5250j.session.api.SessionClient;
+import org.tn5250j.session.client.SessionClientFactory;
+import org.tn5250j.session.server.SessionServerMain;
 import org.tn5250j.tools.LangTool;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
@@ -212,6 +216,15 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
     }
 
     static public void main(String[] args) {
+
+        if (isSpecified("-server", args)) {
+            try {
+                SessionServerMain.main(filterServerArgs(args));
+            } catch (Exception ex) {
+                System.err.println("Failed to start session server: " + ex.getMessage());
+            }
+            return;
+        }
 
         if (!isSpecified("-nc", args)) {
 
@@ -398,6 +411,17 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
         return null;
     }
 
+    private static String[] filterServerArgs(String[] args) {
+        java.util.List<String> filtered = new java.util.ArrayList<>();
+        for (int i = 0; i < args.length; i++) {
+            if ("-server".equals(args[i])) {
+                continue;
+            }
+            filtered.add(args[i]);
+        }
+        return filtered.toArray(new String[0]);
+    }
+
     private static boolean isSpecified(String parm, String[] args) {
 
         if (args == null)
@@ -569,8 +593,23 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
 
         int sessionCount = manager.getSessions().getCount();
 
-        Session5250 s2 = manager.openSession(sesProps, propFileName, sel);
-        SessionPanel s = new SessionPanel(s2);
+        SessionPanel s;
+        if (isSpecified("-remote", args)) {
+            java.util.Map<String, String> props = new java.util.HashMap<>();
+            for (String name : sesProps.stringPropertyNames()) {
+                props.put(name, sesProps.getProperty(name));
+            }
+            ConnectionProfile profile = ConnectionProfile.remote(
+                    getParm("-remote", args),
+                    isSpecified("-remoteToken", args) ? getParm("-remoteToken", args) : "",
+                    sel,
+                    props);
+            SessionClient client = SessionClientFactory.create(profile);
+            s = new SessionPanel(client);
+        } else {
+            Session5250 s2 = manager.openSession(sesProps, propFileName, sel);
+            s = new SessionPanel(s2);
+        }
 
 
         if (!frame1.isVisible()) {

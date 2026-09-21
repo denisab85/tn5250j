@@ -112,7 +112,8 @@ public class SendEMailDialog extends GenericTn5250JFrame implements Runnable {
         } else {
 
             this.session = session;
-            Screen5250 screen = session.getScreen();
+            Screen5250 screen = session.getSession() != null
+                    ? session.getSession().getScreen() : null;
             this.sendScreen = sendScreen;
 
             Object[] message = new Object[1];

@@ -8,7 +8,11 @@ import org.tn5250j.TN5250jConstants;
 import org.tn5250j.event.ScreenOIAListener;
 import org.tn5250j.event.SessionChangeEvent;
 import org.tn5250j.event.SessionListener;
-import org.tn5250j.gui.SwingSessionUiHooks;
+import org.tn5250j.interfaces.HeadlessSessionUiHooks;
+import org.tn5250j.session.api.OiaModel;
+import org.tn5250j.session.api.ScreenModel;
+import org.tn5250j.session.client.local.LocalOiaModel;
+import org.tn5250j.session.client.local.LocalScreenModel;
 import org.tn5250j.tools.LangTool;
 
 import javax.swing.SwingUtilities;
@@ -47,9 +51,10 @@ public class SessionEventFanoutTest {
         SessionPanel panel = new SessionPanel(harness.session());
         drainEventQueue();
 
-        assertTrue(hasListener(screenListeners(), GuiGraphicBuffer.class));
-        assertTrue(hasListener(oiaListeners(), GuiGraphicBuffer.class));
-        assertTrue(harness.session().getUiHooks() instanceof SwingSessionUiHooks);
+        GuiGraphicBuffer buffer = guiGraphicBuffer(panel);
+        assertTrue(hasListener(screenModelListeners(panel), buffer));
+        assertTrue(hasListener(oiaModelListeners(panel), buffer));
+        assertFalse(harness.session().getUiHooks() instanceof HeadlessSessionUiHooks);
 
         harness.process(harness.outputOnly(TN5250jConstants.CMD_CLEAR_UNIT_ALTERNATE, (byte) 0));
         drainEventQueue();
@@ -101,28 +106,28 @@ public class SessionEventFanoutTest {
         assertTrue(listener.states.contains(TN5250jConstants.STATE_REMOVE));
     }
 
-    private Vector<?> screenListeners() throws Exception {
-        Field listeners = Screen5250.class.getDeclaredField("screenListeners");
-        listeners.setAccessible(true);
-        return (Vector<?>) listeners.get(screen);
+    private GuiGraphicBuffer guiGraphicBuffer(SessionPanel panel) throws Exception {
+        Field field = SessionPanel.class.getDeclaredField("guiGraBuf");
+        field.setAccessible(true);
+        return (GuiGraphicBuffer) field.get(panel);
     }
 
-    private Vector<?> oiaListeners() throws Exception {
-        Field listeners = ScreenOIA.class.getDeclaredField("listeners");
+    private List<?> screenModelListeners(SessionPanel panel) throws Exception {
+        ScreenModel model = panel.getScreen();
+        Field listeners = LocalScreenModel.class.getDeclaredField("listeners");
         listeners.setAccessible(true);
-        return (Vector<?>) listeners.get(screen.getOIA());
+        return (List<?>) listeners.get(model);
     }
 
-    private boolean hasListener(Vector<?> listeners, Class<?> listenerType) {
-        if (listeners == null) {
-            return false;
-        }
-        for (Object listener : listeners) {
-            if (listenerType.isInstance(listener)) {
-                return true;
-            }
-        }
-        return false;
+    private List<?> oiaModelListeners(SessionPanel panel) throws Exception {
+        OiaModel oia = panel.getScreen().getOia();
+        Field listeners = LocalOiaModel.class.getDeclaredField("listeners");
+        listeners.setAccessible(true);
+        return (List<?>) listeners.get(oia);
+    }
+
+    private boolean hasListener(List<?> listeners, Object target) {
+        return listeners != null && listeners.contains(target);
     }
 
     private void drainEventQueue() throws Exception {

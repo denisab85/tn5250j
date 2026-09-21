@@ -27,6 +27,7 @@ package org.tn5250j.keyboard.actions;
 
 import org.tn5250j.SessionPanel;
 import org.tn5250j.keyboard.KeyMapper;
+import org.tn5250j.session.api.TerminalOps;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -49,6 +50,11 @@ public class DispMsgsAction extends EmulatorAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        session.getVT().systemRequest('4');
+        TerminalOps ops = session.getClient().extension(TerminalOps.class);
+        if (ops != null && ops.isSupported()) {
+            ops.systemRequest('4');
+        } else if (session.getVT() != null) {
+            session.getVT().systemRequest('4');
+        }
     }
 }

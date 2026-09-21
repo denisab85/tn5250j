@@ -45,18 +45,20 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.SwingUtilities;
 
-import org.tn5250j.event.ScreenListener;
-import org.tn5250j.event.ScreenOIAListener;
+import org.tn5250j.session.api.ScreenListener;
 import org.tn5250j.event.SessionConfigEvent;
 import org.tn5250j.event.SessionConfigListener;
-import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.framework.tn5250.ScreenOIA;
+import org.tn5250j.session.api.OiaLevelConstants;
+import org.tn5250j.session.api.OiaModel;
+import org.tn5250j.session.api.OiaModelListener;
+import org.tn5250j.session.api.ScreenModel;
 import org.tn5250j.sessionsettings.ColumnSeparator;
 import org.tn5250j.tools.GUIGraphicsUtils;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
 
-public class GuiGraphicBuffer implements ScreenOIAListener,
+public class GuiGraphicBuffer implements OiaModelListener,
         ScreenListener,
         PropertyChangeListener,
         SessionConfigListener,
@@ -86,7 +88,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
     private int offLeft = 0;  // offset from left
     private boolean antialiased = true;
     private Graphics2D gg2d;
-    private final Screen5250 screen;
+    private final ScreenModel screen;
     private Data updateRect;
     protected int columnWidth;
     protected int rowHeight;
@@ -137,7 +139,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
 
     private final TN5250jLogger log = TN5250jLogFactory.getLogger("GFX");
 
-    public GuiGraphicBuffer(Screen5250 screen, SessionPanel gui, SessionConfig config) {
+    public GuiGraphicBuffer(ScreenModel screen, SessionPanel gui, SessionConfig config) {
 
         this.screen = screen;
         this.config = config;
@@ -177,7 +179,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
         rowHeight = (int) (font.getStringBounds("g", frc).getHeight()
                 + lm.getDescent() + lm.getLeading());
 
-        screen.getOIA().addOIAListener(this);
+        screen.getOia().addOIAListener(this);
         screen.addScreenListener(this);
         tArea = new Rectangle2D.Float();
         cArea = new Rectangle2D.Float();
@@ -1021,7 +1023,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
     public void drawCursor(int row, int col) {
 
         int botOffset = cursorBottOffset;
-        boolean insertMode = screen.getOIA().isInsertMode();
+        boolean insertMode = screen.getOia().isInsertMode();
 
         Graphics2D g2 = getDrawingArea();
 
@@ -1351,7 +1353,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
         this.antialiased = antialiased;
     }
 
-    private void setStatus(ScreenOIA oia) {
+    private void setStatus(OiaModel oia) {
 
         int attr = oia.getLevel();
         int value = oia.getInputInhibited();
@@ -1369,7 +1371,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
 
             switch (attr) {
 
-                case ScreenOIA.OIA_LEVEL_INPUT_INHIBITED:
+                case OiaLevelConstants.OIA_LEVEL_INPUT_INHIBITED:
                     if (value == ScreenOIA.INPUTINHIBITED_SYSTEM_WAIT) {
                         g2d.setColor(colorWhite);
 
@@ -1379,7 +1381,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
                             g2d.drawString(xSystem, (float) sArea.getX(), Y);
                     }
                     break;
-                case ScreenOIA.OIA_LEVEL_INPUT_ERROR:
+                case OiaLevelConstants.OIA_LEVEL_INPUT_ERROR:
                     if (value == ScreenOIA.INPUTINHIBITED_SYSTEM_WAIT) {
                         g2d.setColor(colorRed);
 
@@ -1805,11 +1807,11 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
         updateImage(clipper);
     }
 
-    public void onOIAChanged(ScreenOIA changedOIA, int change) {
+    public void onOIAChanged(OiaModel changedOIA, int change) {
 
         switch (changedOIA.getLevel()) {
 
-            case ScreenOIA.OIA_LEVEL_KEYS_BUFFERED:
+            case OiaLevelConstants.OIA_LEVEL_KEYS_BUFFERED:
                 if (changedOIA.isKeysBuffered()) {
                     Graphics2D g2d = getWritingArea(font);
                     float Y = (rowHeight * (screen.getRows() + 2))
@@ -1827,7 +1829,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
                     g2d.dispose();
                 }
                 break;
-            case ScreenOIA.OIA_LEVEL_MESSAGE_LIGHT_OFF:
+            case OiaLevelConstants.OIA_LEVEL_MESSAGE_LIGHT_OFF:
                 Graphics2D g2d = getWritingArea(font);
 
                 g2d.setColor(colorBg);
@@ -1835,7 +1837,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
                 updateImage(mArea.getBounds());
                 g2d.dispose();
                 break;
-            case ScreenOIA.OIA_LEVEL_MESSAGE_LIGHT_ON:
+            case OiaLevelConstants.OIA_LEVEL_MESSAGE_LIGHT_ON:
                 g2d = getWritingArea(font);
                 float Y = (rowHeight * (screen.getRows() + 2))
                         - (lm.getLeading() + lm.getDescent());
@@ -1844,7 +1846,7 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
                 updateImage(mArea.getBounds());
                 g2d.dispose();
                 break;
-            case ScreenOIA.OIA_LEVEL_SCRIPT:
+            case OiaLevelConstants.OIA_LEVEL_SCRIPT:
                 if (changedOIA.isScriptActive()) {
                     drawScriptRunning(colorGreen);
                     updateImage(scriptArea.getBounds());
@@ -1854,12 +1856,12 @@ public class GuiGraphicBuffer implements ScreenOIAListener,
 
                 }
                 break;
-            case ScreenOIA.OIA_LEVEL_INPUT_INHIBITED:
-            case ScreenOIA.OIA_LEVEL_NOT_INHIBITED:
-            case ScreenOIA.OIA_LEVEL_INPUT_ERROR:
+            case OiaLevelConstants.OIA_LEVEL_INPUT_INHIBITED:
+            case OiaLevelConstants.OIA_LEVEL_NOT_INHIBITED:
+            case OiaLevelConstants.OIA_LEVEL_INPUT_ERROR:
                 setStatus(changedOIA);
                 break;
-            case ScreenOIA.OIA_LEVEL_INSERT_MODE:
+            case OiaLevelConstants.OIA_LEVEL_INSERT_MODE:
                 if (changedOIA.isInsertMode()) {
                     g2d = getWritingArea(font);
                     Y = (rowHeight * (screen.getRows() + 2))

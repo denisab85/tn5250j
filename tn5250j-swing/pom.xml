@@ -19,6 +19,14 @@
       <groupId>ca.denisab85</groupId>
       <artifactId>tn5250j-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>ca.denisab85</groupId>
+      <artifactId>tn5250j-session-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ca.denisab85</groupId>
+      <artifactId>tn5250j-session-server</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.sun.mail</groupId>

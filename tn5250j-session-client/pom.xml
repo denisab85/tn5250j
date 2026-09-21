@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>ca.denisab85</groupId>
+    <artifactId>tn5250j-parent</artifactId>
+    <version>${revision}</version>
+  </parent>
+
+  <artifactId>tn5250j-session-client</artifactId>
+  <name>Tn5250j Session Client</name>
+  <description>Local and remote session client implementations.</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>ca.denisab85</groupId>
+      <artifactId>tn5250j-session-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ca.denisab85</groupId>
+      <artifactId>tn5250j-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.java-websocket</groupId>
+      <artifactId>Java-WebSocket</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ca.denisab85</groupId>
+      <artifactId>tn5250j-core</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

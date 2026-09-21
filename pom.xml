@@ -40,6 +40,9 @@
 
   <modules>
     <module>tn5250j-core</module>
+    <module>tn5250j-session-api</module>
+    <module>tn5250j-session-server</module>
+    <module>tn5250j-session-client</module>
     <module>tn5250j-swing</module>
     <module>tn5250j</module>
   </modules>
@@ -71,6 +74,31 @@
         <groupId>ca.denisab85</groupId>
         <artifactId>tn5250j-swing</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ca.denisab85</groupId>
+        <artifactId>tn5250j-session-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ca.denisab85</groupId>
+        <artifactId>tn5250j-session-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ca.denisab85</groupId>
+        <artifactId>tn5250j-session-server</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.11.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.java-websocket</groupId>
+        <artifactId>Java-WebSocket</artifactId>
+        <version>1.5.7</version>
       </dependency>
 
       <dependency>

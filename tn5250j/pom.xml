@@ -23,6 +23,10 @@
       <groupId>ca.denisab85</groupId>
       <artifactId>tn5250j-swing</artifactId>
     </dependency>
+    <dependency>
+      <groupId>ca.denisab85</groupId>
+      <artifactId>tn5250j-session-server</artifactId>
+    </dependency>
 
     <!-- Declared here so shade profiles can include/exclude optional desktop features. -->
     <dependency>
@@ -109,6 +113,9 @@
                 <includes>
                   <include>ca.denisab85:tn5250j-core</include>
                   <include>ca.denisab85:tn5250j-swing</include>
+                  <include>ca.denisab85:tn5250j-session-api</include>
+                  <include>ca.denisab85:tn5250j-session-client</include>
+                  <include>ca.denisab85:tn5250j-session-server</include>
                 </includes>
               </artifactSet>
               <transformers>

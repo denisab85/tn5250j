@@ -25,7 +25,7 @@
  */
 package org.tn5250j;
 
-import org.tn5250j.framework.tn5250.Screen5250;
+import org.tn5250j.session.api.ScreenModel;
 import org.tn5250j.framework.tn5250.tnvt;
 import org.tn5250j.gui.HexCharMapDialog;
 import org.tn5250j.interfaces.OptionAccessFactory;
@@ -55,7 +55,7 @@ import static org.tn5250j.keyboard.KeyMnemonic.*;
  */
 public class SessionPopup {
 
-    private final Screen5250 screen;
+    private final ScreenModel screen;
     private final SessionPanel sessiongui;
     private final tnvt vt;
     private final TN5250jLogger log = TN5250jLogFactory.getLogger(this.getClass());
@@ -66,7 +66,7 @@ public class SessionPopup {
         Action action;
         JPopupMenu popup = new JPopupMenu();
         this.sessiongui = ses;
-        vt = sessiongui.getSession().getVT();
+        vt = sessiongui.getSession() != null ? sessiongui.getSession().getVT() : null;
         screen = sessiongui.getScreen();
 
         final int pos = sessiongui.getPosFromView(me.getX(), me.getY());
@@ -238,7 +238,7 @@ public class SessionPopup {
 
             createKeyboardItem(kbMenu, SYSREQ);
 
-            if (screen.getOIA().isMessageWait() &&
+            if (screen.getOia().isMessageWait() &&
                     OptionAccessFactory.getInstance().isValidOption(DISP_MESSAGES.mnemonic)) {
 
                 action = new AbstractAction(LangTool.getString("popup.displayMessages")) {
@@ -281,7 +281,7 @@ public class SessionPopup {
 
             createShortCutItems(kbMenu);
 
-            if (screen.getOIA().isMessageWait() &&
+            if (screen.getOia().isMessageWait() &&
                     OptionAccessFactory.getInstance().isValidOption(DISP_MESSAGES.mnemonic)) {
 
                 action = new AbstractAction(LangTool.getString("popup.displayMessages")) {

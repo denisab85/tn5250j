@@ -51,6 +51,9 @@ public class TransferAction extends EmulatorAction {
     }
 
     public void actionPerformed(ActionEvent e) {
+        if (session.getVT() == null) {
+            return;
+        }
         new XTFRFile((Frame) SwingUtilities.getRoot(session),
                 session.getVT(), session);
     }

@@ -25,7 +25,7 @@
  */
 package org.tn5250j;
 
-import org.tn5250j.framework.tn5250.Screen5250;
+import org.tn5250j.session.api.ScreenModel;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -39,7 +39,7 @@ import static org.tn5250j.keyboard.KeyMnemonic.PAGE_UP;
  */
 public class SessionScroller implements MouseWheelListener {
 
-    private Screen5250 screen = null;
+    private ScreenModel screen = null;
 
     public void addMouseWheelListener(SessionPanel ses) {
         this.screen = ses.getScreen();
@@ -56,9 +56,9 @@ public class SessionScroller implements MouseWheelListener {
         if (this.screen != null) {
             int notches = e.getWheelRotation();
             if (notches < 0) {
-                screen.sendKeys(PAGE_UP);
+                screen.sendKeys(PAGE_UP.mnemonic);
             } else {
-                screen.sendKeys(PAGE_DOWN);
+                screen.sendKeys(PAGE_DOWN.mnemonic);
             }
         }
     }
