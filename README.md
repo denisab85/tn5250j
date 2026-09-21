@@ -11,13 +11,34 @@ Requirements:
 - Java 8+
 - Maven
 
-Build a runnable shaded JAR:
+Default `mvn package` produces a **thin** library JAR. Optional feature dependencies are marked optional so library consumers do not pull them transitively.
+
+Maven Central (`-Prelease`) publishes the **lean** shaded JAR (core deps only — no Jython, iText, BouncyCastle, or Kunststoff).
+
+### Optional feature dependencies
+
+Add these on the classpath (or as Maven dependencies) only if you need the feature:
+
+| Feature | Dependency |
+| --- | --- |
+| Macros / scripting | `org.python:jython-standalone:2.7.3` |
+| Spool → PDF export | `com.lowagie:itext:2.1.7` (plus BouncyCastle `bcprov-jdk14` / `bcmail-jdk14` / `bctsp-jdk14` 1.38 if required by your iText setup) |
+
+### Shaded desktop JARs
+
+Lean fat JAR (usable desktop run without macros/PDF/L&F extras) — same layout as the Central release artifact:
 
 ```bash
-mvn clean package
+mvn -Pshaded package
 ```
 
-Run it:
+Full fat JAR (includes Jython, iText, BouncyCastle, and Kunststoff L&F):
+
+```bash
+mvn -Pshaded-full package
+```
+
+Run either shaded JAR:
 
 ```bash
 java -jar target/tn5250j-*.jar

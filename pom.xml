@@ -81,11 +81,12 @@
       <version>10.6</version>
     </dependency>
 
-    <!-- iText 2 (com.lowagie.*) -->
+    <!-- iText 2 (com.lowagie.*) — optional: spool→PDF export -->
     <dependency>
       <groupId>com.lowagie</groupId>
       <artifactId>itext</artifactId>
       <version>2.1.7</version>
+      <optional>true</optional>
       <exclusions>
         <!-- Avoid duplicate/overlapping BouncyCastle classes during shading -->
         <exclusion>
@@ -99,28 +100,32 @@
       </exclusions>
     </dependency>
 
-    <!-- iText 2 transitively relies on these older BouncyCastle coordinates -->
+    <!-- iText 2 transitively relies on these older BouncyCastle coordinates (optional with iText) -->
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk14</artifactId>
       <version>1.38</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcmail-jdk14</artifactId>
       <version>1.38</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bctsp-jdk14</artifactId>
       <version>1.38</version>
+      <optional>true</optional>
     </dependency>
 
-    <!-- Jython (org.python.*) -->
+    <!-- Jython (org.python.*) — optional: macros/scripting -->
     <dependency>
       <groupId>org.python</groupId>
       <artifactId>jython-standalone</artifactId>
       <version>2.7.3</version>
+      <optional>true</optional>
     </dependency>
 
     <!-- Optional Swing L&F shipped by the Ant dist -->
@@ -129,6 +134,7 @@
       <artifactId>kunstoff-laf</artifactId>
       <version>2.0.2</version>
       <scope>runtime</scope>
+      <optional>true</optional>
     </dependency>
 
     <!-- Tests -->
@@ -252,9 +258,51 @@
   </build>
 
   <profiles>
-    <!-- Optional fat JAR for local/desktop use: mvn -Pshaded package -->
+    <!-- Lean fat JAR for local/desktop use (default shade): excludes macros/PDF/L&amp;F extras.
+         mvn -Pshaded package -->
     <profile>
       <id>shaded</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>3.6.0</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
+                <configuration>
+                  <createDependencyReducedPom>false</createDependencyReducedPom>
+                  <artifactSet>
+                    <excludes>
+                      <exclude>org.python:jython-standalone</exclude>
+                      <exclude>com.lowagie:itext</exclude>
+                      <exclude>org.bouncycastle:bcprov-jdk14</exclude>
+                      <exclude>org.bouncycastle:bcmail-jdk14</exclude>
+                      <exclude>org.bouncycastle:bctsp-jdk14</exclude>
+                      <exclude>com.incors:kunstoff-laf</exclude>
+                    </excludes>
+                  </artifactSet>
+                  <transformers>
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                      <mainClass>${mainClass}</mainClass>
+                    </transformer>
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                  </transformers>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Full fat JAR including optional macros/PDF/L&amp;F deps: mvn -Pshaded-full package -->
+    <profile>
+      <id>shaded-full</id>
       <build>
         <plugins>
           <plugin>
@@ -283,11 +331,46 @@
       </build>
     </profile>
 
-    <!-- Signed publish to Maven Central (used by the release workflow) -->
+    <!-- Signed publish to Maven Central (used by the release workflow).
+         Same lean shade as -Pshaded: main artifact excludes macros/PDF/L&amp;F.
+         Dependency-reduced POM drops shaded-in deps; optional feature deps stay optional.
+         mvn -Prelease deploy -->
     <profile>
       <id>release</id>
       <build>
         <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>3.6.0</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
+                <configuration>
+                  <createDependencyReducedPom>true</createDependencyReducedPom>
+                  <artifactSet>
+                    <excludes>
+                      <exclude>org.python:jython-standalone</exclude>
+                      <exclude>com.lowagie:itext</exclude>
+                      <exclude>org.bouncycastle:bcprov-jdk14</exclude>
+                      <exclude>org.bouncycastle:bcmail-jdk14</exclude>
+                      <exclude>org.bouncycastle:bctsp-jdk14</exclude>
+                      <exclude>com.incors:kunstoff-laf</exclude>
+                    </excludes>
+                  </artifactSet>
+                  <transformers>
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                      <mainClass>${mainClass}</mainClass>
+                    </transformer>
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                  </transformers>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
