@@ -467,9 +467,10 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
             Sessions sess = manager.getSessions();
             for (int x = 0; x < sess.getCount(); x++) {
 
-                if ((sess.item(x).getGUI()).isVisible()) {
+                if ((SessionPanel.of(sess.item(x)) != null)
+                        && SessionPanel.of(sess.item(x)).isVisible()) {
 
-                    ses = sess.item(x).getGUI();
+                    ses = SessionPanel.of(sess.item(x));
                     break;
                 }
             }
@@ -721,7 +722,7 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
         Sessions sessions = manager.getSessions();
         if ((sessions.item(sesspanel.getSession())) != null) {
             f.removeSessionView(sesspanel);
-            manager.closeSession(sesspanel);
+            manager.closeSession(sesspanel.getSession());
         }
         if (manager.getSessions().getCount() < 1) {
             closingDown(f);
@@ -755,7 +756,11 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
     public void onSessionChanged(SessionChangeEvent changeEvent) {
 
         Session5250 ses5250 = (Session5250) changeEvent.getSource();
-        SessionPanel ses = ses5250.getGUI();
+        SessionPanel ses = SessionPanel.of(ses5250);
+        if (ses == null) {
+            manager.closeSession(ses5250);
+            return;
+        }
 
         switch (changeEvent.getState()) {
             case TN5250jConstants.STATE_REMOVE:

@@ -39,4 +39,14 @@ public interface SessionController {
 
     SessionUiHooks getUiHooks();
 
+    /**
+     * Attach or clear an optional view. Core never depends on a concrete GUI type.
+     */
+    void setView(SessionView view);
+
+    /**
+     * @return the attached view, or null when running headless
+     */
+    SessionView getView();
+
 }

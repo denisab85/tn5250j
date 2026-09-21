@@ -23,7 +23,6 @@ package org.tn5250j.interfaces;
 import java.util.Properties;
 
 import org.tn5250j.Session5250;
-import org.tn5250j.SessionPanel;
 import org.tn5250j.framework.common.Sessions;
 
 public interface SessionManagerInterface {
@@ -34,13 +33,8 @@ public interface SessionManagerInterface {
     Sessions getSessions();
 
     /**
-     * @param sessionObject
-     */
-    void closeSession(SessionPanel sessionObject);
-
-    /**
-     * Closes a session without requiring a Swing view. When a GUI is attached,
-     * it is shut down the same way as {@link #closeSession(SessionPanel)}.
+     * Closes a session without requiring a Swing view. When a view is attached,
+     * {@link SessionView#closeDown()} is invoked before the session is removed.
      *
      * @param session the session to close
      */

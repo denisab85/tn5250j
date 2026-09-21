@@ -1,29 +1,4 @@
-/*
- * @(#)ConfigureFactory.java
- * @author  Kenneth J. Pouncey
- * Modified by LDC Luc
- *
- * Copyright:    Copyright (c) 2001, 2002, 2003
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this software; see the file COPYING.  If not, write to
- * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307 USA
- *
- */
 package org.tn5250j.interfaces;
-
-import org.tn5250j.GlobalConfigure;
 
 import java.util.Properties;
 
@@ -37,6 +12,14 @@ public abstract class ConfigureFactory {
     static final public String MACROS = "macros";
     static final public String KEYMAP = "keymap";
     private static ConfigureFactory factory;
+
+    /**
+     * Default concrete factory used when no system property override is set.
+     * Loaded by name so this type does not hard-depend on the Swing desktop
+     * configuration implementation.
+     */
+    private static final String DEFAULT_FACTORY =
+            "org.tn5250j.GlobalConfigure";
 
     /**
      * @return An instance of the Configure.
@@ -58,10 +41,19 @@ public abstract class ConfigureFactory {
                     }
                 }
             } catch (Exception ex) {
+                // fall through to default
             }
-            if (ConfigureFactory.factory == null) { //take the default
-//        ConfigureFactory.factory = new GlobalConfigureFactory();
-                ConfigureFactory.factory = new GlobalConfigure();
+            if (ConfigureFactory.factory == null) {
+                try {
+                    Class<?> classObject = Class.forName(DEFAULT_FACTORY);
+                    Object object = classObject.newInstance();
+                    if (object instanceof ConfigureFactory) {
+                        ConfigureFactory.factory = (ConfigureFactory) object;
+                    }
+                } catch (Exception ex) {
+                    throw new IllegalStateException(
+                            "Unable to load configure factory " + DEFAULT_FACTORY, ex);
+                }
             }
         }
     }

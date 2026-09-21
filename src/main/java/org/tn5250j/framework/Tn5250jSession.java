@@ -19,26 +19,29 @@
  */
 package org.tn5250j.framework;
 
+import org.tn5250j.Session5250;
 import org.tn5250j.framework.tn5250.Screen5250;
-//import org.tn5250j.Screen5250;
-import org.tn5250j.SessionPanel;
 import org.tn5250j.framework.tn5250.tnvt;
 
+/**
+ * Plugin-facing session handle. Exposes the core session and screen model
+ * without requiring a Swing view.
+ */
 public class Tn5250jSession {
     private final Screen5250 sessionScreen;
     private final tnvt SessionTNVT;
-    private final SessionPanel session;
+    private final Session5250 session;
 
-    protected Tn5250jSession(Screen5250 screen, tnvt vt, SessionPanel ses) {
+    protected Tn5250jSession(Screen5250 screen, tnvt vt, Session5250 ses) {
         sessionScreen = screen;
         SessionTNVT = vt;
         session = ses;
     }
 
     /**
-     * @return
+     * @return the core session (view may be attached via {@link Session5250#getView()})
      */
-    public SessionPanel getSession() {
+    public Session5250 getSession() {
         return session;
     }
 

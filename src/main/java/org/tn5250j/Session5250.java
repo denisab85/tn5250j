@@ -37,6 +37,7 @@ import org.tn5250j.interfaces.HeadlessSessionUiHooks;
 import org.tn5250j.interfaces.ScanListener;
 import org.tn5250j.interfaces.SessionInterface;
 import org.tn5250j.interfaces.SessionUiHooks;
+import org.tn5250j.interfaces.SessionView;
 
 /**
  * A host session
@@ -52,7 +53,7 @@ public class Session5250 implements SessionInterface {
     private final SessionConfig sesConfig;
     private tnvt vt;
     private final Screen5250 screen;
-    private SessionPanel guiComponent;
+    private SessionView view;
     private SessionUiHooks uiHooks = HeadlessSessionUiHooks.INSTANCE;
     private VtEventDispatcher eventDispatcher = InlineVtEventDispatcher.INSTANCE;
 
@@ -149,15 +150,14 @@ public class Session5250 implements SessionInterface {
         return sesProps;
     }
 
-    public void setGUI(SessionPanel gui) {
-        guiComponent = gui;
-        setEventDispatcher(gui == null
-                ? InlineVtEventDispatcher.INSTANCE
-                : SwingEdtDispatcher.INSTANCE);
+    @Override
+    public void setView(SessionView view) {
+        this.view = view;
     }
 
-    public SessionPanel getGUI() {
-        return guiComponent;
+    @Override
+    public SessionView getView() {
+        return view;
     }
 
     @Override
@@ -171,8 +171,8 @@ public class Session5250 implements SessionInterface {
     }
 
     /**
-     * Chooses where virtual-terminal screen updates run. A GUI attachment
-     * selects the Swing event dispatch thread; headless sessions stay inline.
+     * Chooses where virtual-terminal screen updates run. Desktop clients
+     * typically install a Swing EDT dispatcher; headless sessions stay inline.
      */
     public void setEventDispatcher(VtEventDispatcher dispatcher) {
         eventDispatcher = dispatcher == null ? InlineVtEventDispatcher.INSTANCE : dispatcher;

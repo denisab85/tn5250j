@@ -23,13 +23,14 @@ package org.tn5250j;
 import org.tn5250j.event.SessionConfigEvent;
 import org.tn5250j.event.SessionConfigListener;
 import org.tn5250j.interfaces.ConfigureFactory;
+import org.tn5250j.interfaces.HeadlessSessionUiHooks;
+import org.tn5250j.interfaces.SessionUiHooks;
 import org.tn5250j.keyboard.KeyMnemonic;
 import org.tn5250j.keyboard.KeyMnemonicSerializer;
-import org.tn5250j.tools.GUIGraphicsUtils;
 import org.tn5250j.tools.LangTool;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -124,7 +125,11 @@ public class SessionConfig {
         sesProps.setProperty("saveme", "");
     }
 
-    public void saveSessionProps(java.awt.Container parent) {
+    /**
+     * If settings were marked dirty, ask {@code hooks} whether to persist them.
+     * Headless default hooks decline so this never blocks without a UI.
+     */
+    public void saveSessionProps(SessionUiHooks hooks) {
 
         if (sesProps.containsKey("saveme")) {
 
@@ -135,9 +140,10 @@ public class SessionConfig {
                     LangTool.getString("messages.saveSettings"),
                     args);
 
-            int result = JOptionPane.showConfirmDialog(parent, message);
-
-            if (result == JOptionPane.OK_OPTION) {
+            SessionUiHooks prompt = hooks == null
+                    ? HeadlessSessionUiHooks.INSTANCE
+                    : hooks;
+            if (prompt.confirmSaveSettings(message)) {
                 saveSessionProps();
             }
         }
@@ -213,7 +219,8 @@ public class SessionConfig {
                 sesProps.setProperty("colorBlue", colorSchemaDefaults.getProperty(prefix + ".colorBlue"));
                 sesProps.setProperty("colorSep", colorSchemaDefaults.getProperty(prefix + ".colorSep"));
                 sesProps.setProperty("colorHexAttr", colorSchemaDefaults.getProperty(prefix + ".colorHexAttr"));
-                sesProps.setProperty("font", GUIGraphicsUtils.getDefaultFont());
+                // Monospaced is always available; desktop UI may refine later.
+                sesProps.setProperty("font", "Monospaced");
 
                 configureFactory.saveSettings("dfltSessionProps", getConfigurationResource(), "");
             }

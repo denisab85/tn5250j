@@ -64,7 +64,7 @@ public abstract class KeyboardHandler extends KeyAdapter implements KeyChangeLis
 
         this.session = session;
         this.screen = session.getScreen();
-        sessionGui = session.getGUI();
+        sessionGui = SessionPanel.of(session);
 
 //      String os = System.getProperty("os.name");
 //      if (os.toLowerCase().indexOf("linux") != -1) {

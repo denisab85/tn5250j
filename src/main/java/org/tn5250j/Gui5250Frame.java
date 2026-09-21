@@ -414,7 +414,10 @@ public class Gui5250Frame extends GUIViewInterface implements
     public void onSessionChanged(SessionChangeEvent changeEvent) {
 
         Session5250 ses5250 = (Session5250) changeEvent.getSource();
-        final SessionPanel sesgui = ses5250.getGUI();
+        final SessionPanel sesgui = SessionPanel.of(ses5250);
+        if (sesgui == null) {
+            return;
+        }
         final int tabidx = sessTabbedPane.indexOfComponent(sesgui);
         // be aware, when the first tab is not shown
         if (tabidx >= 0 && tabidx < sessTabbedPane.getTabCount()) {

@@ -45,6 +45,7 @@ import org.tn5250j.framework.tn5250.Rect;
 import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.framework.tn5250.tnvt;
 import org.tn5250j.gui.ConfirmTabCloseDialog;
+import org.tn5250j.interfaces.SessionView;
 import org.tn5250j.gui.SwingSessionUiHooks;
 import org.tn5250j.keyboard.KeyboardHandler;
 import org.tn5250j.keyboard.KeyMnemonicSerializer;
@@ -62,7 +63,8 @@ import static org.tn5250j.keyboard.KeyMnemonic.ENTER;
  * A host GUI session
  * (Hint: old name was SessionGUI)
  */
-public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionConfigListener, SessionListener {
+public class SessionPanel extends JPanel implements RubberBandCanvasIF,
+        SessionConfigListener, SessionListener, SessionView {
 
     private static final long serialVersionUID = 1L;
 
@@ -102,11 +104,23 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
         session.addSessionListener(this);
     }
 
+    /**
+     * Resolve the Swing view attached to a session, if any.
+     */
+    public static SessionPanel of(Session5250 session) {
+        if (session == null) {
+            return null;
+        }
+        SessionView view = session.getView();
+        return view instanceof SessionPanel ? (SessionPanel) view : null;
+    }
+
     //Component initialization
     private void jbInit() throws Exception {
         this.setLayout(new BorderLayout());
-        session.setGUI(this);
+        session.setView(this);
         session.setUiHooks(new SwingSessionUiHooks(this));
+        session.setEventDispatcher(SwingEdtDispatcher.INSTANCE);
         screen = session.getScreen();
 
         this.addComponentListener(new ComponentAdapter() {
@@ -519,7 +533,7 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF, SessionC
 
     public void closeDown() {
 
-        sesConfig.saveSessionProps(getParent());
+        sesConfig.saveSessionProps(session.getUiHooks());
         if (session.getVT() != null) session.getVT().disconnect();
         // Added by Luc to fix a memory leak. The keyHandler was still receiving
         //   events even though nothing was really attached.

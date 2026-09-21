@@ -132,10 +132,10 @@ class DefaultKeyboardHandler extends KeyboardHandler {
      */
     void initKeyBindings() {
 
-        if (session.getGUI() == null)
+        if (SessionPanel.of(session) == null)
             return;
 
-        SessionPanel sessionGui = session.getGUI();
+        SessionPanel sessionGui = SessionPanel.of(session);
 
         new NewSessionAction(sessionGui, keyMap);
         new ToggleConnectionAction(sessionGui, keyMap);
@@ -224,14 +224,14 @@ class DefaultKeyboardHandler extends KeyboardHandler {
                 if (recording)
                     recordBuffer.append(lastKeyStroke);
             } else {
-                session.getGUI().executeMacro(lastKeyStroke);
+                SessionPanel.of(session).executeMacro(lastKeyStroke);
             }
             if (lastKeyStroke.startsWith("[mark")) {
                 if (lastKeyStroke.equals("[markleft]") ||
                         lastKeyStroke.equals("[markright]") ||
                         lastKeyStroke.equals("[markup]") ||
                         lastKeyStroke.equals("[markdown]")) {
-                    session.getGUI().doKeyBoundArea(e, lastKeyStroke);
+                    SessionPanel.of(session).doKeyBoundArea(e, lastKeyStroke);
                 }
             }
         } else
@@ -293,7 +293,7 @@ class DefaultKeyboardHandler extends KeyboardHandler {
                 if (recording)
                     recordBuffer.append(s);
             } else
-                session.getGUI().executeMacro(s);
+                SessionPanel.of(session).executeMacro(s);
 
         } else
             keyProcessed = false;

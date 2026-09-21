@@ -31,4 +31,15 @@ public interface SessionUiHooks {
         return false;
     }
 
+    /**
+     * Confirm whether modified session settings should be written to disk.
+     * The default declines so headless clients never block on a dialog.
+     *
+     * @param message localized prompt text
+     * @return true to save
+     */
+    default boolean confirmSaveSettings(String message) {
+        return false;
+    }
+
 }

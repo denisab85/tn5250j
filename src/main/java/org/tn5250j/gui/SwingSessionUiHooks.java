@@ -44,4 +44,10 @@ public final class SwingSessionUiHooks implements SessionUiHooks {
         return save == JOptionPane.YES_OPTION;
     }
 
+    @Override
+    public boolean confirmSaveSettings(String message) {
+        int result = JOptionPane.showConfirmDialog(parent, message);
+        return result == JOptionPane.OK_OPTION;
+    }
+
 }

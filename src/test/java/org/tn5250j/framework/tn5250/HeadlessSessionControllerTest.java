@@ -46,7 +46,7 @@ public class HeadlessSessionControllerTest {
         Tn5250TestHarness fresh = Tn5250TestHarness.create();
         SessionController controller = fresh.session();
 
-        assertNull(fresh.session().getGUI());
+        assertNull(fresh.session().getView());
         assertSame(HeadlessSessionUiHooks.INSTANCE, controller.getUiHooks());
         assertFalse(controller.isConnected());
         assertNull(controller.getHostName());
