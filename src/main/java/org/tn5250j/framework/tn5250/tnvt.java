@@ -957,148 +957,158 @@ public final class tnvt implements Runnable {
         while (keepTrucking) {
 
             try {
-                bk.initialize((byte[]) dsq.take());
+                processDataStream((byte[]) dsq.take());
             } catch (InterruptedException ie) {
                 log.warn("   vt thread interrupted and stopping ");
                 keepTrucking = false;
-                continue;
-            }
-
-            // lets play nicely with the others on the playground
-            //         me.yield();
-
-            Thread.yield();
-
-            screen52.setCursorActive(false);
-
-            if (bk == null)
-                continue;
-
-            switch (bk.getOpCode()) {
-                case 0:
-                    log.debug("No operation");
-                    break;
-                case 1:
-                    log.debug("Invite Operation");
-                    parseIncoming();
-                    //               screen52.setKeyboardLocked(false);
-                    pendingUnlock = true;
-                    cursorOn = true;
-                    setInvited();
-                    break;
-                case 2:
-                    log.debug("Output Only");
-                    parseIncoming();
-                    screen52.updateDirty();
-
-                    //            invited = true;
-
-                    break;
-                case 3:
-                    log.debug("Put/Get Operation");
-                    parseIncoming();
-                    //               inviteIt =true;
-                    setInvited();
-                    if (!firstScreen) {
-                        firstScreen = true;
-                        controller.fireSessionChanged(TN5250jConstants.STATE_CONNECTED);
-                    }
-                    break;
-                case 4:
-                    log.debug("Save Screen Operation");
-                    parseIncoming();
-                    break;
-
-                case 5:
-                    log.debug("Restore Screen Operation");
-                    parseIncoming();
-                    break;
-                case 6:
-                    log.debug("Read Immediate");
-                    sendAidKey(0);
-                    break;
-                case 7:
-                    log.debug("Reserved");
-                    break;
-                case 8:
-                    log.debug("Read Screen Operation");
-                    try {
-                        readScreen();
-                    } catch (IOException ex) {
-                        log.warn(ex.getMessage());
-                    }
-                    break;
-
-                case 9:
-                    log.debug("Reserved");
-                    break;
-
-                case 10:
-                    log.debug("Cancel Invite Operation");
-                    cancelInvite();
-                    break;
-
-                case 11:
-                    log.debug("Turn on message light");
-                    screen52.getOIA().setMessageLightOn();
-                    screen52.setCursorActive(true);
-
-                    break;
-                case 12:
-                    log.debug("Turn off Message light");
-                    screen52.getOIA().setMessageLightOff();
-                    screen52.setCursorActive(true);
-
-                    break;
-                default:
-                    break;
-            }
-
-            if (screen52.isUsingGuiInterface())
-                screen52.drawFields();
-
-            //      if (screen52.screen[0][1].getChar() == '#' &&
-            //         screen52.screen[0][2].getChar() == '!')
-            //         execCmd();
-            //      else {
-
-            //			if (screen52.isHotSpots()) {
-            //				screen52.checkHotSpots();
-            //			}
-
-            try {
-                if (!strpccmd) {
-                    //               SwingUtilities.invokeAndWait(
-                    //                  new Runnable () {
-                    //                     public void run() {
-                    //                        screen52.updateDirty();
-                    //                     }
-                    //                  }
-                    //               );
-                    screen52.updateDirty();
-                    //				controller.validate();
-                    //				log.debug("update dirty");
-                } else {
-                    strpccmd();
-                }
-            } catch (RuntimeException e) {
-                log.warn("tnvt.run: ", e);
-            }
-
-            if (pendingUnlock && !screen52.isStatusErrorCode()) {
-                screen52.getOIA().setKeyBoardLocked(false);
-                pendingUnlock = false;
-            }
-
-            if (cursorOn && !screen52.getOIA().isKeyBoardLocked()) {
-                screen52.setCursorActive(true);
-                cursorOn = false;
             }
 
             // lets play nicely with the others on the playground
             //me.yield();
             Thread.yield();
 
+        }
+    }
+
+    void processDataStream(byte[] dataStream) {
+
+        if (enhanced && sfParser == null)
+            sfParser = new WTDSFParser(this);
+
+        if (bk == null)
+            bk = new Stream5250();
+
+        bk.initialize(dataStream);
+
+        // lets play nicely with the others on the playground
+        //         me.yield();
+
+        Thread.yield();
+
+        screen52.setCursorActive(false);
+
+        if (bk == null)
+            return;
+
+        switch (bk.getOpCode()) {
+            case 0:
+                log.debug("No operation");
+                break;
+            case 1:
+                log.debug("Invite Operation");
+                parseIncoming();
+                //               screen52.setKeyboardLocked(false);
+                pendingUnlock = true;
+                cursorOn = true;
+                setInvited();
+                break;
+            case 2:
+                log.debug("Output Only");
+                parseIncoming();
+                screen52.updateDirty();
+
+                //            invited = true;
+
+                break;
+            case 3:
+                log.debug("Put/Get Operation");
+                parseIncoming();
+                //               inviteIt =true;
+                setInvited();
+                if (!firstScreen) {
+                    firstScreen = true;
+                    controller.fireSessionChanged(TN5250jConstants.STATE_CONNECTED);
+                }
+                break;
+            case 4:
+                log.debug("Save Screen Operation");
+                parseIncoming();
+                break;
+
+            case 5:
+                log.debug("Restore Screen Operation");
+                parseIncoming();
+                break;
+            case 6:
+                log.debug("Read Immediate");
+                sendAidKey(0);
+                break;
+            case 7:
+                log.debug("Reserved");
+                break;
+            case 8:
+                log.debug("Read Screen Operation");
+                try {
+                    readScreen();
+                } catch (IOException ex) {
+                    log.warn(ex.getMessage());
+                }
+                break;
+
+            case 9:
+                log.debug("Reserved");
+                break;
+
+            case 10:
+                log.debug("Cancel Invite Operation");
+                cancelInvite();
+                break;
+
+            case 11:
+                log.debug("Turn on message light");
+                screen52.getOIA().setMessageLightOn();
+                screen52.setCursorActive(true);
+
+                break;
+            case 12:
+                log.debug("Turn off Message light");
+                screen52.getOIA().setMessageLightOff();
+                screen52.setCursorActive(true);
+
+                break;
+            default:
+                break;
+        }
+
+        if (screen52.isUsingGuiInterface())
+            screen52.drawFields();
+
+        //      if (screen52.screen[0][1].getChar() == '#' &&
+        //         screen52.screen[0][2].getChar() == '!')
+        //         execCmd();
+        //      else {
+
+        //			if (screen52.isHotSpots()) {
+        //				screen52.checkHotSpots();
+        //			}
+
+        try {
+            if (!strpccmd) {
+                //               SwingUtilities.invokeAndWait(
+                //                  new Runnable () {
+                //                     public void run() {
+                //                        screen52.updateDirty();
+                //                     }
+                //                  }
+                //               );
+                screen52.updateDirty();
+                //				controller.validate();
+                //				log.debug("update dirty");
+            } else {
+                strpccmd();
+            }
+        } catch (RuntimeException e) {
+            log.warn("tnvt.run: ", e);
+        }
+
+        if (pendingUnlock && !screen52.isStatusErrorCode()) {
+            screen52.getOIA().setKeyBoardLocked(false);
+            pendingUnlock = false;
+        }
+
+        if (cursorOn && !screen52.getOIA().isKeyBoardLocked()) {
+            screen52.setCursorActive(true);
+            cursorOn = false;
         }
     }
 
