@@ -4,14 +4,42 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.tn5250j</groupId>
+  <groupId>ca.denisab85</groupId>
   <artifactId>tn5250j</artifactId>
-  <version>0.8.0-beta2</version>
-  <name>Tn5250j</name>
-  <description>A 5250 terminal emulator for the IBM i (AS/400) written in Java.</description>
+  <!-- CI sets -Drevision=X.Y.Z from a git tag; local/default builds use 0-SNAPSHOT -->
+  <version>${revision}</version>
   <packaging>jar</packaging>
 
+  <name>Tn5250j</name>
+  <description>A 5250 terminal emulator for the IBM i (AS/400) written in Java.</description>
+  <url>https://github.com/denisab85/tn5250j</url>
+
+  <licenses>
+    <license>
+      <name>GNU General Public License, Version 2</name>
+      <url>https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Denis Abakumov</name>
+      <email>denisab85@gmail.com</email>
+      <organization>denisab85</organization>
+      <organizationUrl>https://github.com/denisab85</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/denisab85/tn5250j.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/denisab85/tn5250j.git</developerConnection>
+    <url>https://github.com/denisab85/tn5250j</url>
+    <tag>HEAD</tag>
+  </scm>
+
   <properties>
+    <revision>0-SNAPSHOT</revision>
     <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
     <maven.compiler.release>8</maven.compiler.release>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -140,28 +168,19 @@
         </configuration>
       </plugin>
 
-      <!-- Produce a single runnable jar (java -jar target/tn5250j-*.jar) -->
+      <!-- Thin library JAR (default). Main-Class is set for convenience when deps are on the classpath. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.6.0</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>${mainClass}</mainClass>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.4.2</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>${mainClass}</mainClass>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+          </archive>
+        </configuration>
       </plugin>
 
       <!-- Attach a javadoc JAR so `mvn install` installs it too -->
@@ -202,7 +221,106 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- Resolve ${revision} in the published/installed POM -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+        <version>1.7.0</version>
+        <configuration>
+          <updatePomFile>true</updatePomFile>
+          <flattenMode>resolveCiFriendliesOnly</flattenMode>
+        </configuration>
+        <executions>
+          <execution>
+            <id>flatten</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>flatten-clean</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-</project>
 
+  <profiles>
+    <!-- Optional fat JAR for local/desktop use: mvn -Pshaded package -->
+    <profile>
+      <id>shaded</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>3.6.0</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
+                <configuration>
+                  <createDependencyReducedPom>false</createDependencyReducedPom>
+                  <transformers>
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                      <mainClass>${mainClass}</mainClass>
+                    </transformer>
+                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                  </transformers>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Signed publish to Maven Central (used by the release workflow) -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.2.7</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.11.0</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>true</autoPublish>
+              <waitUntil>published</waitUntil>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
