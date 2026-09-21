@@ -11,7 +11,7 @@ Requirements:
 - Java 8+
 - Maven
 
-Default `mvn package` produces a **thin** library JAR. Optional feature dependencies are marked optional so library consumers do not pull them transitively.
+Default `mvn package` builds three modules (`tn5250j-core`, `tn5250j-swing`, and the `tn5250j` assembly). The **thin** library artifact for consumers is `tn5250j-core/target/tn5250j-core-*.jar`. Optional feature dependencies are marked optional so library consumers do not pull them transitively.
 
 Maven Central (`-Prelease`) publishes the **lean** shaded JAR (core deps only — no Jython, iText, BouncyCastle, or Kunststoff).
 
@@ -41,7 +41,7 @@ mvn -Pshaded-full package
 Run either shaded JAR:
 
 ```bash
-java -jar target/tn5250j-*.jar
+java -jar tn5250j/target/tn5250j-*.jar
 ```
 
 ## History
