@@ -19,7 +19,7 @@ final class RemoteScreenModel implements ScreenModel {
     private final Consumer<String> sendKeysFn;
     private final Consumer<Integer> moveCursorFn;
     private final Consumer<Integer> sendAidFn;
-    private final Runnable repaintFn;
+    private Runnable repaintFn;
 
     RemoteScreenModel(Consumer<String> sendKeysFn, Consumer<Integer> moveCursorFn,
                       Consumer<Integer> sendAidFn, Runnable repaintFn) {
@@ -32,6 +32,22 @@ final class RemoteScreenModel implements ScreenModel {
     void applySnapshot(ScreenSnapshotDto snapshot) {
         buffer.applySnapshot(snapshot);
         oiaModel.apply(snapshot.getOia());
+        notifyFullScreen(1);
+    }
+
+    void setRepaintFn(Runnable repaintFn) {
+        this.repaintFn = repaintFn != null ? repaintFn : () -> { };
+    }
+
+    private void notifyFullScreen(int inUpdate) {
+        if (listeners.isEmpty()) {
+            return;
+        }
+        int endRow = Math.max(buffer.getRows() - 1, 0);
+        int endCol = Math.max(buffer.getCols() - 1, 0);
+        for (ScreenListener listener : new ArrayList<>(listeners)) {
+            listener.onScreenChanged(inUpdate, 0, 0, endRow, endCol);
+        }
     }
 
     void applyRegion(int inUpdate, int startRow, int startCol, int endRow, int endCol,

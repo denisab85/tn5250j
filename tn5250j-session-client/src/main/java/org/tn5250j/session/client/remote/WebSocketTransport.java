@@ -71,6 +71,10 @@ public final class WebSocketTransport implements SessionTransport {
     @Override
     public CompletableFuture<WsEnvelope> send(WsEnvelope envelope) {
         CompletableFuture<WsEnvelope> future = new CompletableFuture<>();
+        if (client == null || !client.isOpen()) {
+            future.completeExceptionally(new IllegalStateException("WebSocket is not connected"));
+            return future;
+        }
         pending.put(envelope.getId(), future);
         client.send(WsMessageCodec.encode(envelope));
         return future;
