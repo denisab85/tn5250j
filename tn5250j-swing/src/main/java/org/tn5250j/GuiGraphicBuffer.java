@@ -1766,11 +1766,24 @@ public class GuiGraphicBuffer implements OiaModelListener,
     }
 
     public void onScreenSizeChanged(int rows, int cols) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> onScreenSizeChanged(rows, cols));
+            return;
+        }
         log.info("screen size change");
         gui.resizeMe();
     }
 
     public void onScreenChanged(int which, int sr, int sc, int er, int ec) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            final int update = which;
+            final int startRow = sr;
+            final int startCol = sc;
+            final int endRow = er;
+            final int endCol = ec;
+            SwingUtilities.invokeLater(() -> onScreenChanged(update, startRow, startCol, endRow, endCol));
+            return;
+        }
         if (which == 3 || which == 4) {
             drawCursor(sr, sc);
             return;
@@ -1808,6 +1821,10 @@ public class GuiGraphicBuffer implements OiaModelListener,
     }
 
     public void onOIAChanged(OiaModel changedOIA, int change) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> onOIAChanged(changedOIA, change));
+            return;
+        }
 
         switch (changedOIA.getLevel()) {
 

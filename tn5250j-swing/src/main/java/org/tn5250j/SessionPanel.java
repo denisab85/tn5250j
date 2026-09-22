@@ -53,6 +53,7 @@ import org.tn5250j.session.api.SessionClient;
 import org.tn5250j.session.api.TerminalOps;
 import org.tn5250j.session.client.SessionClientFactory;
 import org.tn5250j.session.client.local.LocalSessionClient;
+import org.tn5250j.session.client.remote.RemoteSessionClient;
 import org.tn5250j.keyboard.KeyboardHandler;
 import org.tn5250j.keyboard.KeyMnemonicSerializer;
 import org.tn5250j.mailtools.SendEMailDialog;
@@ -154,6 +155,9 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF,
     private void jbInit() throws Exception {
         this.setLayout(new BorderLayout());
         client.setUiHooks(new SwingApiUiHooks(this));
+        if (client instanceof RemoteSessionClient) {
+            ((RemoteSessionClient) client).setRepaintCallback(this::repaint);
+        }
         if (session != null) {
             session.setView(this);
             session.setEventDispatcher(SwingEdtDispatcher.INSTANCE);
@@ -171,8 +175,8 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF,
 
         setRubberBand(new TNRubberBand(this));
         keyHandler = session != null
-                ? KeyboardHandler.getKeyboardHandlerInstance(session)
-                : null;
+                ? KeyboardHandler.getKeyboardHandlerInstance(session, screen)
+                : KeyboardHandler.forRemote(this, client);
 
         if (!sesConfig.isPropertyExists("width") ||
                 !sesConfig.isPropertyExists("height"))
@@ -261,8 +265,9 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF,
 
     @Override
     public void processKeyEvent(KeyEvent evt) {
-
-        keyHandler.processKeyEvent(evt);
+        if (keyHandler != null) {
+            keyHandler.processKeyEvent(evt);
+        }
 
         if (!evt.isConsumed())
             super.processKeyEvent(evt);
@@ -572,8 +577,10 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF,
         client.disconnect();
         // Added by Luc to fix a memory leak. The keyHandler was still receiving
         //   events even though nothing was really attached.
-        keyHandler.sessionClosed(this);
-        keyHandler = null;
+        if (keyHandler != null) {
+            keyHandler.sessionClosed(this);
+            keyHandler = null;
+        }
 
     }
 

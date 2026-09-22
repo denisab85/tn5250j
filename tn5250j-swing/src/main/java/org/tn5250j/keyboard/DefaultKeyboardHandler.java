@@ -29,6 +29,8 @@ package org.tn5250j.keyboard;
 import org.tn5250j.Session5250;
 import org.tn5250j.SessionPanel;
 import org.tn5250j.keyboard.actions.*;
+import org.tn5250j.session.api.ScreenModel;
+import org.tn5250j.session.api.SessionClient;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -43,8 +45,13 @@ class DefaultKeyboardHandler extends KeyboardHandler {
      *
      * @param session The session to which the keys should be sent
      */
-    DefaultKeyboardHandler(Session5250 session) {
-        super(session);
+    DefaultKeyboardHandler(Session5250 session, ScreenModel screen) {
+        super(SessionPanel.of(session), screen, session, null);
+    }
+
+    DefaultKeyboardHandler(SessionPanel sessionGui, ScreenModel screen, Session5250 session,
+                           SessionClient client) {
+        super(sessionGui, screen, session, client);
     }
 
     public boolean isKeyStrokeDefined(String accelKey) {
@@ -132,10 +139,8 @@ class DefaultKeyboardHandler extends KeyboardHandler {
      */
     void initKeyBindings() {
 
-        if (SessionPanel.of(session) == null)
+        if (sessionGui == null)
             return;
-
-        SessionPanel sessionGui = SessionPanel.of(session);
 
         new NewSessionAction(sessionGui, keyMap);
         new ToggleConnectionAction(sessionGui, keyMap);
@@ -224,14 +229,14 @@ class DefaultKeyboardHandler extends KeyboardHandler {
                 if (recording)
                     recordBuffer.append(lastKeyStroke);
             } else {
-                SessionPanel.of(session).executeMacro(lastKeyStroke);
+                sessionGui.executeMacro(lastKeyStroke);
             }
             if (lastKeyStroke.startsWith("[mark")) {
                 if (lastKeyStroke.equals("[markleft]") ||
                         lastKeyStroke.equals("[markright]") ||
                         lastKeyStroke.equals("[markup]") ||
                         lastKeyStroke.equals("[markdown]")) {
-                    SessionPanel.of(session).doKeyBoundArea(e, lastKeyStroke);
+                    sessionGui.doKeyBoundArea(e, lastKeyStroke);
                 }
             }
         } else
@@ -264,7 +269,7 @@ class DefaultKeyboardHandler extends KeyboardHandler {
                 return;
             }
         }
-        if (!session.isConnected())
+        if (!isSessionConnected())
             return;
         screen.sendKeys(Character.toString(kc));
         if (recording)
@@ -293,7 +298,7 @@ class DefaultKeyboardHandler extends KeyboardHandler {
                 if (recording)
                     recordBuffer.append(s);
             } else
-                SessionPanel.of(session).executeMacro(s);
+                sessionGui.executeMacro(s);
 
         } else
             keyProcessed = false;

@@ -45,6 +45,10 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
         this.terminalOps = new RemoteTerminalOps(null, this::sendEnvelope);
     }
 
+    public void setRepaintCallback(Runnable repaint) {
+        screenModel.setRepaintFn(repaint);
+    }
+
     public void open() throws Exception {
         transport.connect(this);
         JsonObject hello = new JsonObject();

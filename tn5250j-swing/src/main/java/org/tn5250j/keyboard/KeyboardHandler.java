@@ -37,7 +37,8 @@ import javax.swing.KeyStroke;
 import org.tn5250j.Session5250;
 import org.tn5250j.SessionPanel;
 import org.tn5250j.event.KeyChangeListener;
-import org.tn5250j.framework.tn5250.Screen5250;
+import org.tn5250j.session.api.ScreenModel;
+import org.tn5250j.session.api.SessionClient;
 import org.tn5250j.tools.system.OperatingSystem;
 
 /**
@@ -46,8 +47,9 @@ import org.tn5250j.tools.system.OperatingSystem;
 public abstract class KeyboardHandler extends KeyAdapter implements KeyChangeListener {
 
     protected final Session5250 session;
+    protected final SessionClient client;
     protected final SessionPanel sessionGui;
-    protected final Screen5250 screen;
+    protected final ScreenModel screen;
     protected final boolean isLinux;
     protected boolean isAltGr;
     protected boolean keyProcessed = false;
@@ -60,11 +62,16 @@ public abstract class KeyboardHandler extends KeyAdapter implements KeyChangeLis
      * Creates a new keyboard handler.
      * @param session The session that will be sent the keys
      */
-    public KeyboardHandler(Session5250 session) {
+    public KeyboardHandler(Session5250 session, ScreenModel screen) {
+        this(SessionPanel.of(session), screen, session, null);
+    }
 
+    protected KeyboardHandler(SessionPanel sessionGui, ScreenModel screen, Session5250 session,
+                              SessionClient client) {
         this.session = session;
-        this.screen = session.getScreen();
-        sessionGui = SessionPanel.of(session);
+        this.client = client;
+        this.screen = screen;
+        this.sessionGui = sessionGui;
 
 //      String os = System.getProperty("os.name");
 //      if (os.toLowerCase().indexOf("linux") != -1) {
@@ -85,9 +92,19 @@ public abstract class KeyboardHandler extends KeyAdapter implements KeyChangeLis
 
     }
 
-    public static KeyboardHandler getKeyboardHandlerInstance(Session5250 session) {
+    public static KeyboardHandler getKeyboardHandlerInstance(Session5250 session, ScreenModel screen) {
+        return new DefaultKeyboardHandler(session, screen);
+    }
 
-        return new DefaultKeyboardHandler(session);
+    public static KeyboardHandler forRemote(SessionPanel sessionGui, SessionClient client) {
+        return new DefaultKeyboardHandler(sessionGui, client.getScreen(), null, client);
+    }
+
+    protected boolean isSessionConnected() {
+        if (session != null) {
+            return session.isConnected();
+        }
+        return client != null && client.isConnected();
     }
 
     abstract void initKeyBindings();

@@ -72,7 +72,8 @@ public class JTerminal extends JComponent {
 
     protected void installInputMap() {
         enableEvents(AWTEvent.KEY_EVENT_MASK);
-        keyHandler = KeyboardHandler.getKeyboardHandlerInstance(session);
+        keyHandler = KeyboardHandler.getKeyboardHandlerInstance(session,
+                new org.tn5250j.session.client.local.LocalScreenModel(session.getScreen()));
 //    InputMap map = this.getInputMap(JComponent.WHEN_FOCUSED);
 //    map.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), OhioConstants.OS_OHIO_MNEMONIC_ENTER);
 //
