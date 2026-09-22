@@ -29,6 +29,7 @@ final class ScreenFrameBuffer {
         currentCol = snapshot.getCurrentCol();
         cursorActive = snapshot.isCursorActive();
         usingGuiInterface = snapshot.isUsingGuiInterface();
+        resize(rows, cols);
         applyPlanes(snapshot.getPlanes(), 0, 0, rows - 1, cols - 1);
     }
 
