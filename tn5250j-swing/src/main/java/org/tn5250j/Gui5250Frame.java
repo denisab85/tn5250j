@@ -239,17 +239,13 @@ public class Gui5250Frame extends GUIViewInterface implements
      */
     private String determineTabName(final SessionPanel sessiongui) {
         assert sessiongui != null;
-        final String name;
-        if (sessiongui.getSession().isUseSystemName()) {
-            name = sessiongui.getSessionName();
-        } else {
-            if (sessiongui.getAllocDeviceName() != null) {
-                name = sessiongui.getAllocDeviceName();
-            } else {
-                name = sessiongui.getHostName();
-            }
+        if (sessiongui.isUseSystemName()) {
+            return sessiongui.getSessionName();
         }
-        return name;
+        if (sessiongui.getAllocDeviceName() != null) {
+            return sessiongui.getAllocDeviceName();
+        }
+        return sessiongui.getHostName();
     }
 
     /**

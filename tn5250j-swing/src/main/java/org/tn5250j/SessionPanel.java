@@ -1021,6 +1021,13 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF,
         return client.getSessionName();
     }
 
+    public boolean isUseSystemName() {
+        if (session != null) {
+            return session.isUseSystemName();
+        }
+        return sesConfig.isPropertyExists(TN5250jConstants.SESSION_TERM_NAME_SYSTEM);
+    }
+
     public String getAllocDeviceName() {
         return client.getAllocatedDeviceName();
     }
