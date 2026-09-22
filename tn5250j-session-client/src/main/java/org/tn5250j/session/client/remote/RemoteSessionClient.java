@@ -1,9 +1,11 @@
 package org.tn5250j.session.client.remote;
 
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import org.tn5250j.session.api.ConnectionProfile;
 import org.tn5250j.session.api.HeadlessSessionUiHooks;
 import org.tn5250j.session.api.ScreenModel;
+import org.tn5250j.session.api.SessionStateConstants;
 import org.tn5250j.session.api.SessionClient;
 import org.tn5250j.session.api.SessionListener;
 import org.tn5250j.session.api.SessionUiHooks;
@@ -77,6 +79,18 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
         screenModel.applySnapshot(snapshot);
     }
 
+    private void refreshSnapshot() {
+        if (sessionId == null) {
+            return;
+        }
+        transport.send(WsEnvelope.command(WsMessageType.GET_SNAPSHOT, sessionId, new JsonObject()))
+                .thenAccept(reply -> {
+                    if (reply.getPayload() != null) {
+                        applySnapshot(reply.getPayload());
+                    }
+                });
+    }
+
     @Override
     public void connect() {
         try {
@@ -85,6 +99,7 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
             }
             transport.send(WsEnvelope.command(WsMessageType.CONNECT, sessionId, new JsonObject())).get();
             connected = true;
+            refreshSnapshot();
         } catch (Exception ex) {
             throw new IllegalStateException("Remote connect failed", ex);
         }
@@ -206,7 +221,7 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
         if (WsMessageType.SCREEN_REGION_UPDATED.equals(type)) {
             JsonObject payload = envelope.getPayload();
             Map<String, String> planes = WsMessageCodec.gson().fromJson(payload.get("planes"),
-                    Map.class);
+                    new TypeToken<Map<String, String>>() { }.getType());
             screenModel.applyRegion(
                     payload.get("inUpdate").getAsInt(),
                     payload.get("startRow").getAsInt(),
@@ -226,9 +241,13 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
             screenModel.getRemoteOiaModel().apply(oia);
             screenModel.getRemoteOiaModel().fireChanged(payload.get("change").getAsInt());
         } else if (WsMessageType.SESSION_STATE_CHANGED.equals(type)) {
+            int state = envelope.getPayload().get("state").getAsInt();
+            if (state == SessionStateConstants.STATE_CONNECTED) {
+                refreshSnapshot();
+            }
             org.tn5250j.session.api.SessionChangeEvent event =
                     new org.tn5250j.session.api.SessionChangeEvent(this);
-            event.setState(envelope.getPayload().get("state").getAsInt());
+            event.setState(state);
             for (SessionListener listener : new ArrayList<>(listeners)) {
                 listener.onSessionChanged(event);
             }
