@@ -55,7 +55,8 @@ public final class ScreenPlaneEncoder {
     private static String encodeRegionPlane(Screen5250 screen, int size, int startRow, int startCol,
                                             int endRow, int endCol, int plane) {
         char[] buffer = new char[size];
-        screen.GetScreenRect(buffer, size, startRow, startCol, endRow, endCol, plane);
+        // ScreenListener coordinates are 0-based; Screen5250.GetScreenRect is 1-based.
+        screen.GetScreenRect(buffer, size, startRow + 1, startCol + 1, endRow + 1, endCol + 1, plane);
         return ScreenPlaneCodec.encodeChars(buffer);
     }
 }
