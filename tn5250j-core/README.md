@@ -63,10 +63,24 @@ The Swing module now prefers [`SessionClient`](../tn5250j-session-api/README.md)
 
 ## Dependencies
 
-- `log4j` — logging
+- `slf4j-api` + `logback-classic` — logging
+- `jul-to-slf4j` — routes `java.util.logging` (e.g. Java-WebSocket) through SLF4J
 - `jt400` — IBM i toolbox (encoding helpers)
 
 No Swing, Gson, or WebSocket libraries.
+
+## Logging
+
+Application code uses the legacy [`TN5250jLogger`](src/main/java/org/tn5250j/tools/logging/TN5250jLogger.java) facade; the default backend is **SLF4J + Logback** ([`Slf4jLogger`](src/main/java/org/tn5250j/tools/logging/Slf4jLogger.java)). If no SLF4J binding is present, [`ConsoleLogger`](src/main/java/org/tn5250j/tools/logging/ConsoleLogger.java) writes to stdout/stderr.
+
+| Mechanism | Purpose |
+|-----------|---------|
+| [`logback.xml`](src/main/resources/logback.xml) | Default appenders and root level (console + `tn5250j.log`) |
+| `emul.logLevel` session property | Runtime level via Connect dialog or config |
+| `-Dlogback.configurationFile=…` | Override Logback config at launch |
+| `-Dorg.tn5250j.tools.logging.TN5250jLogFactory=…` | Plug in a custom `TN5250jLogger` implementation |
+
+Session debug tracing (`--debug`, `--debug-planes-full`) uses [`SessionDebugLog`](src/main/java/org/tn5250j/tools/logging/SessionDebugLog.java) and requires DEBUG level.
 
 ## Build
 

@@ -22,9 +22,13 @@
  */
 package org.tn5250j.tools.logging;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
-import org.tn5250j.tools.logging.TN5250jLogger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.tn5250j.interfaces.ConfigureFactory;
 
 import static java.lang.Integer.parseInt;
@@ -42,7 +46,7 @@ public final class TN5250jLogFactory {
 
     // map of TN5250jLogger instances, with classes as keys
     private static final Map<String, TN5250jLogger> _loggers = new HashMap<>();
-    private static boolean log4j;
+    private static boolean slf4j;
     private static String customLogger;
     private static int level = INFO;
 
@@ -50,10 +54,20 @@ public final class TN5250jLogFactory {
      * Here we try to do a little more work up front.
      */
     static {
+        installJulBridge();
         try {
             initOrResetLogger();
         } catch (Exception ignore) {
             // ignore
+        }
+    }
+
+    private static void installJulBridge() {
+        try {
+            SLF4JBridgeHandler.removeHandlersForRootLogger();
+            SLF4JBridgeHandler.install();
+        } catch (Throwable ignore) {
+            // jul-to-slf4j not on classpath
         }
     }
 
@@ -64,8 +78,9 @@ public final class TN5250jLogFactory {
         customLogger = System.getProperty(TN5250jLogFactory.class.getName());
         if (customLogger == null) {
             try {
-                Class.forName("org.apache.log4j.Logger");
-                log4j = true;
+                Class.forName("org.slf4j.Logger");
+                LoggerFactory.getLogger(TN5250jLogFactory.class);
+                slf4j = true;
             } catch (Exception ignore) {
                 // ignore
             }
@@ -108,8 +123,8 @@ public final class TN5250jLogFactory {
                     // ignore
                 }
             } else {
-                if (log4j) {
-                    logger = new Log4jLogger();
+                if (slf4j) {
+                    logger = new Slf4jLogger();
                 } else {
                     // take the default logger.
                     logger = new ConsoleLogger();
@@ -122,8 +137,16 @@ public final class TN5250jLogFactory {
         return logger;
     }
 
+    /**
+     * @deprecated Use {@link #isSlf4j()} instead.
+     */
+    @Deprecated
     public static boolean isLog4j() {
-        return log4j;
+        return slf4j;
+    }
+
+    public static boolean isSlf4j() {
+        return slf4j;
     }
 
     public static void setLogLevels(int newLevel) {

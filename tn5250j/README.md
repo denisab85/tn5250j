@@ -23,7 +23,7 @@ After `mvn package`:
 | Output | Description |
 |--------|-------------|
 | `tn5250j/target/tn5250j-0-SNAPSHOT.jar` | Default **thin shaded** JAR — all project modules, minimal third-party bundling |
-| `-Pshaded` | **Lean fat JAR** — runtime deps (log4j, jt400, gson, websocket, mail, picocli); excludes optional features |
+| `-Pshaded` | **Lean fat JAR** — runtime deps (logback, jt400, gson, websocket, mail, picocli); excludes optional features |
 | `-Pshaded-full` | **Full fat JAR** — includes Jython, iText, BouncyCastle, Kunststoff |
 | `-Prelease` | Lean fat JAR + GPG sign + Maven Central publish |
 
@@ -37,7 +37,7 @@ tn5250j-session-client
 tn5250j-session-server
 ```
 
-Third-party libraries (log4j, jt400, Java-WebSocket, Gson, JavaMail, picocli) are **not** included in the default thin shaded JAR — add them to the classpath or use `-Pshaded`.
+Third-party libraries (logback, jt400, Java-WebSocket, Gson, JavaMail, picocli) are **not** included in the default thin shaded JAR — add them to the classpath or use `-Pshaded`.
 
 ## Run
 

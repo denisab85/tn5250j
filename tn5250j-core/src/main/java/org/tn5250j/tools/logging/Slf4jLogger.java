@@ -1,6 +1,5 @@
 /*
- * @(#)Log4jLogger.java
- * @author  Kenneth J. Pouncey
+ * @(#)Slf4jLogger.java
  *
  * Copyright:    Copyright (c) 2001, 2002, 2003
  *
@@ -22,138 +21,145 @@
  */
 package org.tn5250j.tools.logging;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * An implementation of the TN5250jLogger to provide log4j logger instances.
+ * SLF4J/Logback implementation of {@link TN5250jLogger}.
  */
-public final class Log4jLogger implements TN5250jLogger {
+public final class Slf4jLogger implements TN5250jLogger {
 
-    private Logger log = null;
+    private Logger log;
 
-    /*
-     * Package level access only
-     */
-    Log4jLogger() {
-
+    Slf4jLogger() {
     }
 
+    @Override
     public void initialize(final String clazz) {
-        log = Logger.getLogger(clazz);
+        log = (Logger) LoggerFactory.getLogger(clazz);
     }
 
+    @Override
     public void debug(Object message) {
-        log.debug(message);
+        log.debug(String.valueOf(message));
     }
 
+    @Override
     public void debug(Object message, Throwable throwable) {
-        log.debug(message, throwable);
+        log.debug(String.valueOf(message), throwable);
     }
 
+    @Override
     public void info(Object message) {
-        log.info(message);
+        log.info(String.valueOf(message));
     }
 
+    @Override
     public void info(Object message, Throwable throwable) {
-        log.info(message, throwable);
+        log.info(String.valueOf(message), throwable);
     }
 
+    @Override
     public void warn(Object message) {
-        log.warn(message);
+        log.warn(String.valueOf(message));
     }
 
+    @Override
     public void warn(Object message, Throwable throwable) {
-        log.warn(message, throwable);
+        log.warn(String.valueOf(message), throwable);
     }
 
+    @Override
     public void error(Object message) {
-        log.error(message);
+        log.error(String.valueOf(message));
     }
 
+    @Override
     public void error(Object message, Throwable throwable) {
-        log.error(message, throwable);
+        log.error(String.valueOf(message), throwable);
     }
 
+    @Override
     public void fatal(Object message) {
-        log.fatal(message);
+        log.error(String.valueOf(message));
     }
 
+    @Override
     public void fatal(Object message, Throwable throwable) {
-        log.fatal(message, throwable);
+        log.error(String.valueOf(message), throwable);
     }
 
+    @Override
     public boolean isDebugEnabled() {
         return log.isDebugEnabled();
     }
 
+    @Override
     public boolean isInfoEnabled() {
         return log.isInfoEnabled();
     }
 
+    @Override
     public boolean isWarnEnabled() {
-        return (Level.WARN.equals(log.getLevel()));
+        return log.isWarnEnabled();
     }
 
-    public boolean isFatalEnabled() {
-        return (Level.FATAL.equals(log.getLevel()));
-    }
-
+    @Override
     public boolean isErrorEnabled() {
-        return (Level.ERROR.equals(log.getLevel()));
+        return log.isErrorEnabled();
     }
 
-    public void setLevel(int newLevel) {
+    @Override
+    public boolean isFatalEnabled() {
+        return log.isErrorEnabled();
+    }
 
+    @Override
+    public void setLevel(int newLevel) {
+        log.setLevel(toLogbackLevel(newLevel));
+    }
+
+    @Override
+    public int getLevel() {
+        return fromLogbackLevel(log.getLevel());
+    }
+
+    private static Level toLogbackLevel(int newLevel) {
         switch (newLevel) {
             case OFF:
-                log.setLevel(Level.OFF);
-                break;
-
+                return Level.OFF;
             case DEBUG:
-                log.setLevel(Level.DEBUG);
-                break;
-
+                return Level.DEBUG;
             case INFO:
-                log.setLevel(Level.INFO);
-                break;
-
+                return Level.INFO;
             case WARN:
-                log.setLevel(Level.WARN);
-                break;
-
+                return Level.WARN;
             case ERROR:
-                log.setLevel(Level.ERROR);
-                break;
-
             case FATAL:
-                log.setLevel(Level.FATAL);
-                break;
+                return Level.ERROR;
+            default:
+                return Level.WARN;
         }
-
     }
 
-    public int getLevel() {
-
-        switch (log.getLevel().toInt()) {
-
-            case (org.apache.log4j.Level.DEBUG_INT):
+    private static int fromLogbackLevel(Level level) {
+        if (level == null) {
+            return WARN;
+        }
+        switch (level.toInt()) {
+            case Level.OFF_INT:
+                return OFF;
+            case Level.DEBUG_INT:
                 return DEBUG;
-
-            case (org.apache.log4j.Level.INFO_INT):
+            case Level.INFO_INT:
                 return INFO;
-
-            case (org.apache.log4j.Level.WARN_INT):
+            case Level.WARN_INT:
                 return WARN;
-
-            case (org.apache.log4j.Level.ERROR_INT):
+            case Level.ERROR_INT:
                 return ERROR;
-
-            case (org.apache.log4j.Level.FATAL_INT):
-                return FATAL;
             default:
                 return WARN;
         }
-
     }
 }

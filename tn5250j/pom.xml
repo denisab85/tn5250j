@@ -30,8 +30,12 @@
 
     <!-- Declared here so shade profiles can include/exclude optional desktop features. -->
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
     </dependency>
     <dependency>
       <groupId>net.sf.jt400</groupId>

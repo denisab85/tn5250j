@@ -1158,7 +1158,7 @@ public class ConnectDialog extends JDialog implements ActionListener, ChangeList
     }
 
     private void intOFF_itemStateChanged(ItemEvent e) {
-        if (!intOFF.isSelected() && TN5250jLogFactory.isLog4j()) {
+        if (!intOFF.isSelected() && TN5250jLogFactory.isSlf4j()) {
             intConsole.setEnabled(true);
             intFile.setEnabled(true);
             intBoth.setEnabled(true);

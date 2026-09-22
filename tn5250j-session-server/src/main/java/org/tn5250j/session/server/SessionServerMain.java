@@ -3,6 +3,8 @@ package org.tn5250j.session.server;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
 import org.tn5250j.tools.logging.SessionDebugLog;
+import org.tn5250j.tools.logging.TN5250jLogFactory;
+import org.tn5250j.tools.logging.TN5250jLogger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -10,6 +12,8 @@ import picocli.CommandLine.Model.OptionSpec;
 
 @Command(name = "tn5250j-session-server", description = "Host TN5250 sessions over WebSocket.")
 public final class SessionServerMain implements Callable<Integer> {
+    private static final TN5250jLogger log = TN5250jLogFactory.getLogger(SessionServerMain.class);
+
     @Mixin
     private ServerOptions options = new ServerOptions();
 
@@ -45,7 +49,7 @@ public final class SessionServerMain implements Callable<Integer> {
         WebSocketSessionServer server = new WebSocketSessionServer(
                 new InetSocketAddress(options.bind, options.port), options.token);
         server.start();
-        System.out.println("tn5250j session server listening on ws://" + options.bind + ":" + options.port);
+        log.info("tn5250j session server listening on ws://" + options.bind + ":" + options.port);
         Thread.currentThread().join();
     }
 }
