@@ -115,8 +115,22 @@ final class ScreenFrameBuffer {
         char[] source = planeData(plane);
         int index = 0;
         for (int row = startRow; row <= endRow; row++) {
-            int startPos = getPos(row, startCol);
-            int length = endCol - startCol + 1;
+            if (row < 0 || row >= rows) {
+                continue;
+            }
+            int rowStartCol = Math.max(0, startCol);
+            int rowEndCol = Math.min(endCol, cols - 1);
+            if (rowStartCol > rowEndCol) {
+                continue;
+            }
+            int startPos = getPos(row, rowStartCol);
+            int length = rowEndCol - rowStartCol + 1;
+            if (startPos + length > source.length) {
+                length = source.length - startPos;
+            }
+            if (length <= 0) {
+                continue;
+            }
             if (index + length > bufferLength) {
                 length = bufferLength - index;
             }
@@ -171,8 +185,9 @@ final class ScreenFrameBuffer {
         }
         char[] decoded = ScreenPlaneCodec.decode(planes.get(key));
         if (startRow == 0 && startCol == 0 && endRow == rows - 1 && endCol == cols - 1) {
-            if (decoded.length == target.length) {
-                System.arraycopy(decoded, 0, target, 0, decoded.length);
+            int copyLen = Math.min(decoded.length, target.length);
+            if (copyLen > 0) {
+                System.arraycopy(decoded, 0, target, 0, copyLen);
             }
             return;
         }

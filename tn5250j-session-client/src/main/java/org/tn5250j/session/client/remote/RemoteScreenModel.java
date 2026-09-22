@@ -33,6 +33,7 @@ final class RemoteScreenModel implements ScreenModel {
         buffer.applySnapshot(snapshot);
         oiaModel.apply(snapshot.getOia());
         notifyFullScreen(1);
+        repaintFn.run();
     }
 
     void setRepaintFn(Runnable repaintFn) {
@@ -56,6 +57,7 @@ final class RemoteScreenModel implements ScreenModel {
         for (ScreenListener listener : new ArrayList<>(listeners)) {
             listener.onScreenChanged(inUpdate, startRow, startCol, endRow, endCol);
         }
+        repaintFn.run();
     }
 
     void applySize(int rows, int cols) {
@@ -155,7 +157,7 @@ final class RemoteScreenModel implements ScreenModel {
 
     @Override
     public void setCursor(int row, int col) {
-        moveCursorFn.accept(getPos(row, col));
+        moveCursorFn.accept(getPos(row - 1, col - 1));
     }
 
     @Override
@@ -191,7 +193,9 @@ final class RemoteScreenModel implements ScreenModel {
     @Override
     public int GetScreenRect(char[] bufferArr, int bufferLength, int startRow, int startCol,
                              int endRow, int endCol, int plane) {
-        return buffer.getScreenRect(bufferArr, bufferLength, startRow, startCol, endRow, endCol, plane);
+        // ScreenModel.GetScreenRect uses 1-based row/col (same as Screen5250); buffer is 0-based.
+        return buffer.getScreenRect(bufferArr, bufferLength, startRow - 1, startCol - 1,
+                endRow - 1, endCol - 1, plane);
     }
 
     @Override
