@@ -1,11 +1,71 @@
 package org.tn5250j.cli;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Quote-aware split/join for persisted session argument strings. */
 public final class StoredArguments {
+    private static final Map<String, String> LEGACY_FLAGS = legacyFlags();
+
     private StoredArguments() { }
+
+    private static Map<String, String> legacyFlags() {
+        Map<String, String> flags = new LinkedHashMap<>();
+        flags.put("-server", "--server");
+        flags.put("-remote", "--remote");
+        flags.put("-remoteToken", "--remote-token");
+        flags.put("-nc", "--new-instance");
+        flags.put("-width", "--width");
+        flags.put("-height", "--height");
+        flags.put("-cp", "--code-page");
+        flags.put("-132", "--wide");
+        flags.put("-usp", "--proxy");
+        flags.put("-sph", "--proxy-host");
+        flags.put("-spp", "--proxy-port");
+        flags.put("-sslType", "--ssl-type");
+        flags.put("-dn=hostname", "--device-name-from-hostname");
+        flags.put("-dn", "--device-name");
+        flags.put("-hb", "--heartbeat");
+        flags.put("-noembed", "--new-window");
+        return flags;
+    }
+
+    /** Rewrites pre-POSIX flags found in saved session files before picocli parsing. */
+    public static String[] normalizeLegacy(String[] args) {
+        if (args == null || args.length == 0) return new String[0];
+        List<String> normalized = new ArrayList<>();
+        for (String arg : args) {
+            if (arg == null) continue;
+            if (!arg.startsWith("-") || arg.startsWith("--")) {
+                normalized.add(arg);
+                continue;
+            }
+            if ("-dn=hostname".equals(arg)) {
+                normalized.add("--device-name-from-hostname");
+                continue;
+            }
+            boolean matched = false;
+            for (Map.Entry<String, String> entry : LEGACY_FLAGS.entrySet()) {
+                String legacy = entry.getKey();
+                if ("-dn=hostname".equals(legacy)) continue;
+                if (arg.equals(legacy)) {
+                    normalized.add(entry.getValue());
+                    matched = true;
+                    break;
+                }
+                if (arg.startsWith(legacy) && arg.length() > legacy.length()) {
+                    normalized.add(entry.getValue());
+                    normalized.add(arg.substring(legacy.length()));
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) normalized.add(arg);
+        }
+        return normalized.toArray(new String[0]);
+    }
 
     public static String[] split(String text) {
         List<String> args = new ArrayList<>();
@@ -42,7 +102,15 @@ public final class StoredArguments {
     }
 
     public static String quote(String value) {
-        if (!value.isEmpty() && !value.matches(".*[\\s\"'].*")) return value;
-        return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+        if (value.isEmpty()) {
+            return "\"\"";
+        }
+        for (int i = 0; i < value.length(); i++) {
+            char ch = value.charAt(i);
+            if (Character.isWhitespace(ch) || ch == '"' || ch == '\'') {
+                return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+            }
+        }
+        return value;
     }
 }

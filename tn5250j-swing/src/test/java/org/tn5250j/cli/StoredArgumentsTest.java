@@ -22,4 +22,22 @@ public class StoredArgumentsTest {
     public void rejectsUnclosedQuotes() {
         StoredArguments.split("ibmi --config \"unfinished");
     }
+
+    @Test
+    public void quoteAvoidsRegexAndEscapesWhenNeeded() {
+        assertEquals("simple", StoredArguments.quote("simple"));
+        assertEquals("\"needs quotes\"", StoredArguments.quote("needs quotes"));
+        assertEquals("\"tab\there\"", StoredArguments.quote("tab\there"));
+        assertEquals("\"\"", StoredArguments.quote(""));
+    }
+
+    @Test
+    public void normalizesLegacySavedSessionFlags() {
+        assertArrayEquals(new String[]{"CDKDEV", "-p", "23", "-e", "-t", "--proxy-port", "1080", "-d"},
+                StoredArguments.normalizeLegacy(StoredArguments.split("CDKDEV -p 23 -e -t -spp 1080 -d")));
+        assertArrayEquals(new String[]{"ibmi", "--code-page", "37", "--proxy", "--proxy-host", "proxy", "--proxy-port", "1080"},
+                StoredArguments.normalizeLegacy(new String[]{"ibmi", "-cp37", "-usp", "-sph", "proxy", "-spp1080"}));
+        assertArrayEquals(new String[]{"ibmi", "--device-name-from-hostname", "--wide", "--new-instance"},
+                StoredArguments.normalizeLegacy(new String[]{"ibmi", "-dn=hostname", "-132", "-nc"}));
+    }
 }

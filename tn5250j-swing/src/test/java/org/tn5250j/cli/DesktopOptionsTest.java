@@ -96,6 +96,16 @@ public class DesktopOptionsTest {
     }
 
     @Test
+    public void legacySavedSessionArgumentsParseCorrectly() {
+        DesktopOptions options = DesktopOptions.parse(StoredArguments.split("CDKDEV -p 23 -e -t -spp 1080 -d"));
+        assertEquals("CDKDEV", options.session.host);
+        assertEquals(Integer.valueOf(23), options.session.port);
+        assertTrue(options.session.enhanced && options.session.nameFromSystem);
+        assertEquals(Integer.valueOf(1080), options.session.proxyPort);
+        assertTrue(options.daemon);
+    }
+
+    @Test
     public void rejectsMalformedAndConflictingArguments() {
         for (String[] args : new String[][] {
                 {"--unknown"}, {"--remote"}, {"-s"}, {"-s", "-s", "other"},

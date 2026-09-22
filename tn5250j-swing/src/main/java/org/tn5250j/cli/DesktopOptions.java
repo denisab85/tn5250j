@@ -49,7 +49,7 @@ public final class DesktopOptions {
 
     public static DesktopOptions parse(String... args) {
         DesktopOptions options = new DesktopOptions();
-        options.commandLine().parseArgs(nonNullArguments(args));
+        options.commandLine().parseArgs(StoredArguments.normalizeLegacy(nonNullArguments(args)));
         options.validate();
         return options;
     }
