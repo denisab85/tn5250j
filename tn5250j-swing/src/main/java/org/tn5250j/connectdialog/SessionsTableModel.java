@@ -22,7 +22,9 @@
  */
 package org.tn5250j.connectdialog;
 
-import org.tn5250j.TN5250jConstants;
+import org.tn5250j.cli.DesktopOptions;
+import org.tn5250j.cli.StoredArguments;
+
 import org.tn5250j.gui.SortTableModel;
 import org.tn5250j.tools.LangTool;
 
@@ -59,10 +61,9 @@ class SessionsTableModel extends AbstractTableModel implements SortTableModel {
             ses = (String) e.nextElement();
 
             if (!ses.startsWith("emul.")) {
-                String[] args = new String[TN5250jConstants.NUM_PARMS];
-                Configure.parseArgs(properties.getProperty(ses), args);
+                DesktopOptions parsed = DesktopOptions.parse(StoredArguments.split(properties.getProperty(ses)));
                 boolean deflt = ses.equals(properties.getProperty("emul.default", ""));
-                sortedItems.add(new SessionsDataModel(ses, args[0], deflt));
+                sortedItems.add(new SessionsDataModel(ses, parsed.session.host == null ? "" : parsed.session.host, deflt));
             }
         }
 

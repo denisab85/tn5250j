@@ -25,13 +25,17 @@
  */
 package org.tn5250j.connectdialog;
 
+import java.net.URI;
+import org.tn5250j.cli.DesktopOptions;
+import org.tn5250j.cli.SessionOptions;
+import org.tn5250j.cli.StoredArguments;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.util.Properties;
-import java.util.StringTokenizer;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -81,6 +85,8 @@ class Configure {
     private static JCheckBox newJVM = null;
     private static JComboBox sslType = null;
     private static JCheckBox heartBeat = null;
+    private static URI remoteEndpoint = null;
+    private static String remoteAuthToken = null;
 
     private static JTabbedPane confTabs;
     private static JDialog dialog = null;
@@ -123,6 +129,8 @@ class Configure {
         }
 
         if (propKey == null) {
+            remoteEndpoint = null;
+            remoteAuthToken = null;
             systemName = new JTextField(20);
             systemId = new JTextField(20);
             port = new JTextField("23", 5);
@@ -144,34 +152,36 @@ class Configure {
             systemName.setDocument(new SomethingEnteredDocument());
         } else {
 
-            String[] args = new String[20];
-            parseArgs((String) props.get(propKey), args);
+            DesktopOptions parsed = DesktopOptions.parse(StoredArguments.split((String) props.get(propKey)));
+            SessionOptions session = parsed.session;
+            remoteEndpoint = parsed.remote;
+            remoteAuthToken = parsed.remoteToken;
             systemName = new JTextField(propKey, 20);
             systemName.setEditable(false);
             systemName.setEnabled(false);
 
-            systemId = new JTextField(args[0], 20);
+            systemId = new JTextField(session.host, 20);
 
-            if (isSpecified("-p", args)) {
-                port = new JTextField(getParm("-p", args), 5);
+            if (session.port != null) {
+                port = new JTextField(session.port.toString(), 5);
             } else {
                 port = new JTextField("23", 5);
             }
 
-            if (isSpecified("-sslType", args))
-                sslType.setSelectedItem(getParm("-sslType", args));
+            if (session.sslType != null)
+                sslType.setSelectedItem(session.sslType);
 
-            if (isSpecified("-sph", args))
-                proxyHost = new JTextField(getParm("-sph", args), 20);
+            if (session.proxyHost != null)
+                proxyHost = new JTextField(session.proxyHost, 20);
             else
                 proxyHost = new JTextField(20);
 
-            if (isSpecified("-f", args))
-                fpn = new JTextField(getParm("-f", args), 20);
+            if (session.config != null)
+                fpn = new JTextField(session.config, 20);
             else
                 fpn = new JTextField(20);
-            if (isSpecified("-cp", args)) {
-                String codepage = getParm("-cp", args);
+            if (session.codePage != null) {
+                String codepage = session.codePage;
                 String[] acps = CharMappings.getAvailableCodePages();
                 jtb.setSelected(true);
                 for (String acp : acps) {
@@ -181,26 +191,26 @@ class Configure {
 
             }
 
-            if (isSpecified("-e", args))
+            if (session.enhanced)
                 ec.setSelected(true);
             else
                 ec.setSelected(false);
-            if (isSpecified("-t", args))
+            if (session.nameFromSystem)
                 tc.setSelected(true);
             else
                 tc.setSelected(false);
 
-            if (isSpecified("-132", args))
+            if (session.wide)
                 sdBig.setSelected(true);
             else
                 sdNormal.setSelected(true);
 
-            if (isSpecified("-dn", args))
-                deviceName = new JTextField(getParm("-dn", args), 20);
+            if (session.deviceName != null)
+                deviceName = new JTextField(session.deviceName, 20);
             else
                 deviceName = new JTextField(20);
 
-            if (isSpecified("-dn=hostname", args)) {
+            if (session.deviceNameFromHostname) {
                 sdn.setSelected(true);
                 deviceName.setEnabled(false);
             } else {
@@ -208,38 +218,38 @@ class Configure {
                 deviceName.setEnabled(true);
             }
 
-            if (isSpecified("-spp", args)) {
-                proxyPort = new JTextField(getParm("-spp", args), 5);
+            if (session.proxyPort != null) {
+                proxyPort = new JTextField(session.proxyPort.toString(), 5);
             } else {
                 proxyPort = new JTextField("1080", 5);
             }
 
-            if (isSpecified("-usp", args))
+            if (session.proxy || session.proxyHost != null || session.proxyPort != null)
                 useProxy.setSelected(true);
             else
                 useProxy.setSelected(false);
 
-            if (isSpecified("-noembed", args))
+            if (session.newWindow)
                 noEmbed.setSelected(true);
             else
                 noEmbed.setSelected(false);
 
-            if (isSpecified("-d", args))
+            if (parsed.daemon)
                 deamon.setSelected(true);
             else
                 deamon.setSelected(false);
 
-            if (isSpecified("-nc", args))
+            if (parsed.newInstance)
                 newJVM.setSelected(true);
             else
                 newJVM.setSelected(false);
 
-            if (isSpecified("-hb", args))
+            if (session.heartbeat)
                 heartBeat.setSelected(true);
             else
                 heartBeat.setSelected(false);
 
-            if (isSpecified("-hb", args))
+            if (session.heartbeat)
                 heartBeat.setSelected(true);
             else
                 heartBeat.setSelected(false);
@@ -540,28 +550,6 @@ class Configure {
 
     }
 
-    private static String getParm(String parm, String[] args) {
-
-        for (int x = 0; x < args.length; x++) {
-
-            if (args[x].equals(parm))
-                return args[x + 1];
-
-        }
-        return null;
-    }
-
-    private static boolean isSpecified(String parm, String[] args) {
-
-        for (String arg : args) {
-
-            if (arg != null && arg.equals(parm))
-                return true;
-
-        }
-        return false;
-    }
-
     private static void doSomethingEntered() {
 
         confTabs.setEnabledAt(1, true);
@@ -588,74 +576,71 @@ class Configure {
     private static String toArgString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append(systemId.getText());
+        sb.append(StoredArguments.quote(systemId.getText()));
 
         // port
         if (port.getText() != null)
             if (!port.getText().trim().isEmpty())
-                sb.append(" -p " + port.getText().trim());
+                sb.append(" --host-port " + port.getText().trim());
 
         if (fpn.getText() != null)
             if (!fpn.getText().isEmpty())
-                sb.append(" -f " + fpn.getText());
+                sb.append(" --config " + StoredArguments.quote(fpn.getText()));
         if (!LangTool.getString("conf.labelDefault").equals(
                 cpb.getSelectedItem()))
-            sb.append(" -cp " + (String) cpb.getSelectedItem());
+            sb.append(" --code-page " + StoredArguments.quote((String) cpb.getSelectedItem()));
 
         if (!TN5250jConstants.SSL_TYPE_NONE.equals(sslType.getSelectedItem()))
-            sb.append(" -sslType " + (String) sslType.getSelectedItem());
+            sb.append(" --ssl-type " + (String) sslType.getSelectedItem());
 
         if (ec.isSelected())
-            sb.append(" -e");
+            sb.append(" --enhanced");
 
         if (tc.isSelected())
-            sb.append(" -t");
+            sb.append(" --name-from-system");
 
         if (!sdNormal.isSelected())
-            sb.append(" -132");
+            sb.append(" --wide");
 
         if (deviceName.getText() != null && !sdn.isSelected())
             if (!deviceName.getText().trim().isEmpty())
                 if (deviceName.getText().trim().length() > 10)
-                    sb.append(" -dn " + deviceName.getText().trim().substring(0, 10).toUpperCase());
+                    sb.append(" --device-name " + deviceName.getText().trim().substring(0, 10).toUpperCase());
                 else
-                    sb.append(" -dn " + deviceName.getText().trim().toUpperCase());
+                    sb.append(" --device-name " + deviceName.getText().trim().toUpperCase());
 
         if (sdn.isSelected())
-            sb.append(" -dn=hostname");
+            sb.append(" --device-name-from-hostname");
 
         if (useProxy.isSelected())
-            sb.append(" -usp");
+            sb.append(" --proxy");
 
         if (proxyHost.getText() != null)
             if (!proxyHost.getText().isEmpty())
-                sb.append(" -sph " + proxyHost.getText());
+                sb.append(" --proxy-host " + StoredArguments.quote(proxyHost.getText()));
 
         if (proxyPort.getText() != null)
             if (!proxyPort.getText().isEmpty())
-                sb.append(" -spp " + proxyPort.getText());
+                sb.append(" --proxy-port " + proxyPort.getText());
 
         if (noEmbed.isSelected())
-            sb.append(" -noembed ");
+            sb.append(" --new-window ");
 
         if (deamon.isSelected())
-            sb.append(" -d ");
+            sb.append(" --daemon ");
 
         if (newJVM.isSelected())
-            sb.append(" -nc ");
+            sb.append(" --new-instance ");
 
         if (heartBeat.isSelected())
-            sb.append(" -hb ");
+            sb.append(" --heartbeat ");
+
+        if (remoteEndpoint != null)
+            sb.append(" --remote ").append(remoteEndpoint);
+        if (remoteAuthToken != null)
+            sb.append(" --remote-token ").append(StoredArguments.quote(remoteAuthToken));
 
         return sb.toString();
-    }
-
-    static void parseArgs(String theStringList, String[] s) {
-        int x = 0;
-        StringTokenizer tokenizer = new StringTokenizer(theStringList, " ");
-        while (tokenizer.hasMoreTokens()) {
-            s[x++] = tokenizer.nextToken();
-        }
     }
 
     private static class SomethingEnteredDocument extends PlainDocument {

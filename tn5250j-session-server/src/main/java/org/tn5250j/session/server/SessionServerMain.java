@@ -1,27 +1,45 @@
 package org.tn5250j.session.server;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.Callable;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
+import picocli.CommandLine.Model.OptionSpec;
 
-public final class SessionServerMain {
+@Command(name = "tn5250j-session-server", description = "Host TN5250 sessions over WebSocket.")
+public final class SessionServerMain implements Callable<Integer> {
+    @Mixin
+    private ServerOptions options = new ServerOptions();
 
-    public static void main(String[] args) throws Exception {
-        String bind = "127.0.0.1";
-        int port = 5250;
-        String token = "";
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true,
+            description = "Show this help and exit.")
+    private boolean help;
 
-        for (int i = 0; i < args.length; i++) {
-            if ("--bind".equals(args[i]) && i + 1 < args.length) {
-                bind = args[++i];
-            } else if ("--port".equals(args[i]) && i + 1 < args.length) {
-                port = Integer.parseInt(args[++i]);
-            } else if ("--token".equals(args[i]) && i + 1 < args.length) {
-                token = args[++i];
-            }
-        }
+    public static CommandLine commandLine() {
+        CommandLine command = new CommandLine(new SessionServerMain()).setExpandAtFiles(false);
+        // The desktop reserves -p for IBM i; standalone mode can also use it for the listener.
+        OptionSpec port = command.getCommandSpec().findOption("--port");
+        command.getCommandSpec().remove(port);
+        command.getCommandSpec().addOption(OptionSpec.builder(port).names("-p", "-P", "--port").build());
+        return command;
+    }
 
-        WebSocketSessionServer server = new WebSocketSessionServer(new InetSocketAddress(bind, port), token);
+    public static void main(String[] args) {
+        System.exit(commandLine().execute(args));
+    }
+
+    @Override
+    public Integer call() throws Exception {
+        run(options);
+        return 0;
+    }
+
+    public static void run(ServerOptions options) throws Exception {
+        WebSocketSessionServer server = new WebSocketSessionServer(
+                new InetSocketAddress(options.bind, options.port), options.token);
         server.start();
-        System.out.println("tn5250j session server listening on ws://" + bind + ":" + port);
+        System.out.println("tn5250j session server listening on ws://" + options.bind + ":" + options.port);
         Thread.currentThread().join();
     }
 }

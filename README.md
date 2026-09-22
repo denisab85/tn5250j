@@ -68,8 +68,8 @@ flowchart TB
 
 | Mode | Description | Entry point |
 |------|-------------|-------------|
-| In-process (default) | Core and Swing in one JVM; zero wire overhead | `java -jar tn5250j-*.jar` |
-| Local daemon | Core on one process, UI on another (same PC) | `-server` then `-remote ws://127.0.0.1:PORT` |
+| In-process (default) | Core and Swing in one JVM; zero wire overhead | `java -jar tn5250j-0-SNAPSHOT.jar` |
+| Local daemon | Core on one process, UI on another (same PC) | `--server` then `--remote ws://127.0.0.1:PORT` |
 | Network gateway | Core near IBM i; UI remote over TLS | `SessionServerMain --bind 0.0.0.0` + `wss://` client |
 
 See [tn5250j-session-api/README.md](tn5250j-session-api/README.md) for the v1 JSON/WebSocket protocol and [tn5250j-session-client/README.md](tn5250j-session-client/README.md) for client usage.
@@ -92,14 +92,14 @@ Lean fat JAR (core deps only — no Jython, iText, BouncyCastle, Kunststoff):
 
 ```bash
 mvn -Pshaded package
-java -jar tn5250j/target/tn5250j-*.jar
+java -jar tn5250j/target/tn5250j-0-SNAPSHOT.jar
 ```
 
 Full fat JAR (includes optional features):
 
 ```bash
 mvn -Pshaded-full package
-java -jar tn5250j/target/tn5250j-*.jar
+java -jar tn5250j/target/tn5250j-0-SNAPSHOT.jar
 ```
 
 Maven Central release (`-Prelease`) publishes the lean shaded JAR. See [tn5250j/README.md](tn5250j/README.md) for artifact details.
@@ -116,22 +116,63 @@ Add these only when you need the feature (also bundled in `-Pshaded-full`):
 
 ## Running
 
+Build with `mvn -Pshaded package` first. Examples use the default `0-SNAPSHOT`
+version; substitute your release version when needed. See the [CLI reference](docs/CLI.md)
+for all short/long options and saved-session syntax.
+
+### Option migration
+
+Historical single-dash multi-letter spellings (such as `-cp`, `-server`, or
+`-132`) are no longer accepted. Use the POSIX forms below:
+
+| Former | New POSIX form |
+|--------|----------------|
+| `-server` | `--server` / `-S` |
+| `-remote` | `--remote` / `-r` |
+| `-remoteToken` | `--remote-token` / `-T` |
+| `-nc` | `--new-instance` / `-n` |
+| `-width` | `--width` / `-W` |
+| `-height` | `--height` / `-H` |
+| `-cp` | `--code-page` / `-c` |
+| `-gui` | `--gui` / `-g` |
+| `-132` | `--wide` / `-w` |
+| `-usp` | `--proxy` / `-u` |
+| `-sph` | `--proxy-host` |
+| `-spp` | `--proxy-port` |
+| `-sslType` | `--ssl-type` |
+| `-dn` | `--device-name` / `-N` |
+| `-dn=hostname` | `--device-name-from-hostname` |
+| `-hb` | `--heartbeat` / `-B` |
+| `-noembed` | `--new-window` / `-o` |
+| `-e` | `--enhanced` / `-e` |
+| `-p` | `--host-port` / `-p` |
+| `-f` | `--config` / `-f` |
+| `-t` | `--name-from-system` / `-t` |
+| `-s` | `--session` / `-s` |
+| `-d` | `--daemon` / `-d` |
+| `-L` | `--locale` / `-L` |
+| `host` (applet param) | `HOST` (positional argument) |
+
+```bash
+java -jar tn5250j/target/tn5250j-0-SNAPSHOT.jar --help
+```
+
 ### Default desktop
 
 ```bash
-java -jar tn5250j/target/tn5250j-*.jar
+java -jar tn5250j/target/tn5250j-0-SNAPSHOT.jar
 ```
 
 Opens the Swing UI with sessions running in-process (same behavior as before the session-layer split).
 
 ### Session server
 
-From the shaded JAR or `tn5250j-session-server` module:
+From the shaded product JAR, using either entry point:
 
 ```bash
-java -jar tn5250j-*.jar -server --port 5250 --bind 127.0.0.1
+java -jar tn5250j/target/tn5250j-0-SNAPSHOT.jar --server --port 5250 --bind 127.0.0.1
 # or
-java -cp tn5250j-session-server/target/tn5250j-session-server-*.jar \
+java -cp tn5250j/target/tn5250j-0-SNAPSHOT.jar \
   org.tn5250j.session.server.SessionServerMain --port 5250
 ```
 
@@ -142,7 +183,7 @@ Options: `--bind`, `--port` (default 5250), `--token` (optional bearer token).
 Connect the desktop client to a running session server:
 
 ```bash
-java -jar tn5250j-*.jar -remote ws://127.0.0.1:5250 -remoteToken YOUR_TOKEN
+java -jar tn5250j/target/tn5250j-0-SNAPSHOT.jar --remote ws://127.0.0.1:5250 --remote-token YOUR_TOKEN
 ```
 
 IBM i credentials and session properties are sent in the `SessionOpen` wire message; the server owns the TN5250 socket in gateway mode. See [tn5250j-session-server/README.md](tn5250j-session-server/README.md).
@@ -175,3 +216,5 @@ Core test utilities are published as `tn5250j-core` test-jar for reuse in swing 
 ## History
 
 Created to provide a Linux-capable 5250 emulator with continued-edit fields, GUI windows, and cursor-progression fields. Originally hosted on SourceForge; migrated to GitHub in 2016. Java was chosen for cross-platform portability (the “J” in TN5250J).
+
+Command-line options and local setup: [CLI reference](docs/CLI.md).

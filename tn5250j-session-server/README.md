@@ -4,7 +4,7 @@ Session host service and WebSocket gateway that bridges [tn5250j-core](../tn5250
 
 **Parent:** [tn5250j-parent](../README.md)  
 **Depends on:** [tn5250j-session-api](../tn5250j-session-api/README.md), [tn5250j-core](../tn5250j-core/README.md)  
-**Used by:** [tn5250j-swing](../tn5250j-swing/README.md) (embedded `-server` mode), [tn5250j](../tn5250j/README.md) (shaded JAR)
+**Used by:** [tn5250j-swing](../tn5250j-swing/README.md) (embedded `--server` mode), [tn5250j](../tn5250j/README.md) (shaded JAR)
 
 ## Purpose
 
@@ -32,16 +32,32 @@ Standalone JAR manifest entry point: `org.tn5250j.session.server.SessionServerMa
 ### From shaded product JAR
 
 ```bash
-java -jar tn5250j/target/tn5250j-*.jar -server --port 5250 --bind 127.0.0.1
+java -jar tn5250j/target/tn5250j-0-SNAPSHOT.jar --server --port 5250 --bind 127.0.0.1
 ```
 
-### From module JAR
+### Standalone entry point
+
+The module JAR is thin and requires its runtime dependencies. The shaded product
+JAR supplies them; build from the repository root, then invoke the server class:
 
 ```bash
-mvn -pl tn5250j-session-server package
-java -jar tn5250j-session-server/target/tn5250j-session-server-*.jar \
+mvn -Pshaded package
+java -cp tn5250j/target/tn5250j-0-SNAPSHOT.jar \
+  org.tn5250j.session.server.SessionServerMain \
   --port 5250 --bind 127.0.0.1 --token my-secret
 ```
+
+Use `--help`/`-h` for generated usage. Short options are `-b` (bind),
+`-P` (port), and `-k` (token); standalone mode also accepts `-p` for port.
+
+### Option migration
+
+| Former | New POSIX form |
+|--------|----------------|
+| `-server` | `--server` / `-S` (desktop launcher) |
+| *(listener)* | `--bind` / `-b`, `--port` / `-P`, `--token` / `-k` |
+
+Full desktop and session mapping: [CLI reference](../docs/CLI.md#option-migration).
 
 | Option | Default | Description |
 |--------|---------|-------------|
@@ -109,3 +125,5 @@ See security table in [tn5250j-session-api/README.md](../tn5250j-session-api/REA
 
 - Client: [tn5250j-session-client](../tn5250j-session-client/README.md)
 - Swing remote flag: [tn5250j-swing](../tn5250j-swing/README.md)
+
+Command-line options and local setup: [CLI reference](../docs/CLI.md).

@@ -22,23 +22,22 @@ package org.tn5250j.framework;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.swing.JFrame;
 
 import org.tn5250j.GlobalConfigure;
+import org.tn5250j.cli.DesktopOptions;
+import org.tn5250j.cli.StoredArguments;
 import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.Session5250;
 import org.tn5250j.SessionPanel;
@@ -250,8 +249,7 @@ public class Tn5250jController extends Thread {
 
     public Screen5250 startSession(String name) {
         JFrame frame = new JFrame();
-        String[] args = new String[15];
-        parseArgs((String) sesprops.get(name), args);
+        String[] args = StoredArguments.split((String) sesprops.get(name));
         Properties fin = convertToProps(args);
         Session5250 newses = manager.openSession(fin, null, name);
         SessionPanel newGui = new SessionPanel(newses);
@@ -278,112 +276,16 @@ public class Tn5250jController extends Thread {
         return list;
     }
 
-    protected void parseArgs(String theStringList, String[] s) {
-        int x = 0;
-        StringTokenizer tokenizer = new StringTokenizer(theStringList, " ");
-        while (tokenizer.hasMoreTokens()) {
-            s[x++] = tokenizer.nextToken();
-        }
+    /** Compatibility adapter for extensions using the old array-based API. */
+    protected void parseArgs(String text, String[] destination) {
+        String[] values = StoredArguments.split(text);
+        if (values.length > destination.length) throw new IllegalArgumentException("Argument array is too small");
+        java.util.Arrays.fill(destination, null);
+        System.arraycopy(values, 0, destination, 0, values.length);
     }
 
     protected Properties convertToProps(String[] args) {
-        Properties sesProps = new Properties();
-
-        String session = args[0];
-
-        // Start loading properties
-        sesProps.put(TN5250jConstants.SESSION_HOST, session);
-
-        if (isSpecified("-e", args))
-            sesProps.put(TN5250jConstants.SESSION_TN_ENHANCED, "1");
-
-        if (isSpecified("-p", args)) {
-            sesProps.put(TN5250jConstants.SESSION_HOST_PORT, getParm("-p", args));
-        }
-
-//		if (isSpecified("-f", args)) {
-//			String propFileName = getParm("-f", args);
-//		}
-
-        if (isSpecified("-cp", args))
-            sesProps.put(TN5250jConstants.SESSION_CODE_PAGE, getParm("-cp", args));
-
-        if (isSpecified("-gui", args))
-            sesProps.put(TN5250jConstants.SESSION_USE_GUI, "1");
-
-        if (isSpecified("-t", args))
-            sesProps.put(TN5250jConstants.SESSION_TERM_NAME_SYSTEM, "1");
-
-        if (isSpecified("-132", args))
-            sesProps.put(TN5250jConstants.SESSION_SCREEN_SIZE, TN5250jConstants.SCREEN_SIZE_27X132_STR);
-        else
-            sesProps.put(TN5250jConstants.SESSION_SCREEN_SIZE, TN5250jConstants.SCREEN_SIZE_24X80_STR);
-
-        // are we to use a socks proxy
-        if (isSpecified("-usp", args)) {
-
-            // socks proxy host argument
-            if (isSpecified("-sph", args)) {
-                sesProps.put(TN5250jConstants.SESSION_PROXY_HOST, getParm("-sph", args));
-            }
-
-            // socks proxy port argument
-            if (isSpecified("-spp", args))
-                sesProps.put(TN5250jConstants.SESSION_PROXY_PORT, getParm("-spp", args));
-        }
-
-        // are we to use a ssl and if we are what type
-        if (isSpecified("-sslType", args)) {
-
-            sesProps.put(TN5250jConstants.SSL_TYPE, getParm("-sslType", args));
-        }
-
-        // check if device name is specified
-        if (isSpecified("-dn=hostname", args)) {
-            String dnParam;
-
-            // use IP address as device name
-            try {
-                dnParam = InetAddress.getLocalHost().getHostName();
-            } catch (UnknownHostException uhe) {
-                dnParam = "UNKNOWN_HOST";
-            }
-
-            sesProps.put(TN5250jConstants.SESSION_DEVICE_NAME, dnParam);
-        } else if (isSpecified("-dn", args)) {
-
-            sesProps.put(TN5250jConstants.SESSION_DEVICE_NAME, getParm("-dn", args));
-        }
-
-        if (isSpecified("-hb", args))
-            sesProps.put(TN5250jConstants.SESSION_HEART_BEAT, "1");
-
-        return sesProps;
-    }
-
-    boolean isSpecified(String parm, String[] args) {
-
-        if (args == null)
-            return false;
-
-        for (String arg : args) {
-
-            if (arg != null && arg.equals(parm))
-                return true;
-
-        }
-        return false;
-    }
-
-    private String getParm(String parm, String[] args) {
-
-        for (int x = 0; x < args.length; x++) {
-
-            if (args[x].equals(parm))
-                return args[x + 1];
-
-        }
-        return null;
+        return DesktopOptions.parse().propertiesFor(DesktopOptions.parse(args));
     }
 
 }

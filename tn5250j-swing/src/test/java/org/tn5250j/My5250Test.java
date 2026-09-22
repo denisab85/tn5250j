@@ -13,9 +13,8 @@ public class My5250Test {
     public void loadLastSessionViewNamesFrom_loads_session_names_from_command_line() {
         String[] commandlineArgs = new String[]{
                 "-s", "foo 1",
-                "-h",
-                "-s", "-s",
-                "-s", "foobar"};
+                "--new-instance",
+                "--session=foobar"};
         List<String> sessionNames = My5250.loadLastSessionViewNamesFrom(commandlineArgs);
 
         String[] expected = new String[]{"foo 1", "foobar"};
@@ -25,7 +24,7 @@ public class My5250Test {
     @Test
     public void loadLastSessionViewNames_is_able_to_load_session_names_containing_blanks() {
         My5250.getSessions().setProperty("emul.startLastView", "");
-        My5250.getSessions().setProperty("emul.view", "-s foo 1  -s foo bar -s lastone ");
+        My5250.getSessions().setProperty("emul.view", "--session \"foo 1\" --session \"foo bar\" --session lastone");
 
         List<String> sessionNames = My5250.loadLastSessionViewNames();
 
@@ -36,7 +35,7 @@ public class My5250Test {
     @Test
     public void loadLastSessionViewNames_will_return_emptyList_if_option_startLastView_is_null() {
         My5250.getSessions().remove("emul.startLastView");
-        My5250.getSessions().setProperty("emul.view", "-s foo 1  -s foo bar -s lastone ");
+        My5250.getSessions().setProperty("emul.view", "--session \"foo 1\" --session \"foo bar\" --session lastone");
 
         List<String> sessionNames = My5250.loadLastSessionViewNames();
 

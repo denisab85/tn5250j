@@ -48,7 +48,7 @@ client.setUiHooks(new MyUiHooks());
 client.connect();
 ```
 
-Swing wiring: [My5250](../tn5250j-swing/src/main/java/org/tn5250j/My5250.java) (`-remote` flag) and [SessionPanel](../tn5250j-swing/src/main/java/org/tn5250j/SessionPanel.java).
+Swing wiring: [My5250](../tn5250j-swing/src/main/java/org/tn5250j/My5250.java) (`--remote` flag) and [SessionPanel](../tn5250j-swing/src/main/java/org/tn5250j/SessionPanel.java).
 
 ## Package layout
 
@@ -92,3 +92,16 @@ mvn -pl tn5250j-session-client test
 
 - Server counterpart: [tn5250j-session-server](../tn5250j-session-server/README.md)
 - Protocol DTOs: [tn5250j-session-api](../tn5250j-session-api/README.md)
+
+### Option migration
+
+Remote clients are launched from [tn5250j-swing](../tn5250j-swing/README.md) (`My5250`):
+
+| Former | New POSIX form |
+|--------|----------------|
+| `-remote` | `--remote` / `-r` |
+| `-remoteToken` | `--remote-token` / `-T` |
+
+Full desktop and session mapping: [CLI reference](../docs/CLI.md#option-migration).
+
+Command-line options and local setup: [CLI reference](../docs/CLI.md).

@@ -16,6 +16,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
+    </dependency>
+    <dependency>
       <groupId>ca.denisab85</groupId>
       <artifactId>tn5250j-session-api</artifactId>
     </dependency>

@@ -31,6 +31,43 @@ java -cp tn5250j-swing-*.jar:tn5250j-core-*.jar:... org.tn5250j.My5250
 # Prefer the shaded JAR from tn5250j module instead
 ```
 
+CLI parsing is implemented in [`org.tn5250j.cli`](src/main/java/org/tn5250j/cli/) (`DesktopOptions`, `SessionOptions`).
+
+### Option migration
+
+Historical single-dash multi-letter spellings (such as `-cp`, `-server`, or
+`-132`) are no longer accepted. Use the POSIX forms below:
+
+| Former | New POSIX form |
+|--------|----------------|
+| `-server` | `--server` / `-S` |
+| `-remote` | `--remote` / `-r` |
+| `-remoteToken` | `--remote-token` / `-T` |
+| `-nc` | `--new-instance` / `-n` |
+| `-width` | `--width` / `-W` |
+| `-height` | `--height` / `-H` |
+| `-cp` | `--code-page` / `-c` |
+| `-gui` | `--gui` / `-g` |
+| `-132` | `--wide` / `-w` |
+| `-usp` | `--proxy` / `-u` |
+| `-sph` | `--proxy-host` |
+| `-spp` | `--proxy-port` |
+| `-sslType` | `--ssl-type` |
+| `-dn` | `--device-name` / `-N` |
+| `-dn=hostname` | `--device-name-from-hostname` |
+| `-hb` | `--heartbeat` / `-B` |
+| `-noembed` | `--new-window` / `-o` |
+| `-e` | `--enhanced` / `-e` |
+| `-p` | `--host-port` / `-p` |
+| `-f` | `--config` / `-f` |
+| `-t` | `--name-from-system` / `-t` |
+| `-s` | `--session` / `-s` |
+| `-d` | `--daemon` / `-d` |
+| `-L` | `--locale` / `-L` |
+| `host` (applet param) | `HOST` (positional argument) |
+
+Full reference: [CLI reference](../docs/CLI.md).
+
 ## Session integration
 
 ### SessionPanel
@@ -62,17 +99,17 @@ Key types used internally:
 | Flag | Effect |
 |------|--------|
 | *(none)* | In-process session via `SessionClientFactory.wrapLocal()` |
-| `-server [--bind] [--port] [--token]` | Launch [session server](../tn5250j-session-server/README.md) and exit |
-| `-remote URL [-remoteToken TOKEN]` | Open `SessionPanel` backed by `RemoteSessionClient` |
+| `--server [--bind] [--port] [--token]` | Run [session server](../tn5250j-session-server/README.md) without opening Swing |
+| `--remote URL [--remote-token TOKEN]` | Open `SessionPanel` backed by `RemoteSessionClient` |
 
 Example — split UI and core on one machine:
 
 ```bash
 # Terminal 1
-java -jar tn5250j-*.jar -server --port 5250
+java -jar tn5250j-0-SNAPSHOT.jar --server --port 5250
 
 # Terminal 2
-java -jar tn5250j-*.jar -remote ws://127.0.0.1:5250
+java -jar tn5250j-0-SNAPSHOT.jar --remote ws://127.0.0.1:5250
 ```
 
 ## Key packages
@@ -120,3 +157,5 @@ Uses `tn5250j-core` test-jar (`Tn5250TestHarness`).
 - Session API contracts: [tn5250j-session-api](../tn5250j-session-api/README.md)
 - Client implementations: [tn5250j-session-client](../tn5250j-session-client/README.md)
 - Runnable product JAR: [tn5250j](../tn5250j/README.md)
+
+Command-line options and local setup: [CLI reference](../docs/CLI.md).

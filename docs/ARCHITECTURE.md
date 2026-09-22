@@ -113,8 +113,8 @@ sequenceDiagram
 
 | Mode | Use case | How |
 |------|----------|-----|
-| In-process | Default desktop | `java -jar tn5250j-*.jar` |
-| Local daemon | UI/core split, same PC | `-server` then `-remote ws://127.0.0.1:PORT` |
+| In-process | Default desktop | `java -jar tn5250j-0-SNAPSHOT.jar` |
+| Local daemon | UI/core split, same PC | `--server` then `--remote ws://127.0.0.1:PORT` |
 | Network gateway | Core near IBM i | `SessionServerMain --bind 0.0.0.0` + `wss://` client |
 
 See [session-server](../tn5250j-session-server/README.md) for server CLI and [session-api](../tn5250j-session-api/README.md) for wire message types.
@@ -134,6 +134,8 @@ IBM i credentials are sent once in `SessionOpen` over an encrypted channel; the 
 | Phase | Status | Contents |
 |-------|--------|----------|
 | 1 — API + in-process | Done | `session-api`, `LocalSessionClient`, Swing refactor |
-| 2 — Wire + remote | Done | WebSocket protocol, server, `RemoteSessionClient`, `-server` / `-remote` |
+| 2 — Wire + remote | Done | WebSocket protocol, server, `RemoteSessionClient`, `--server` / `--remote` |
 | 3 — RPC extensions | Partial | `terminal.systemRequest`; spool/transfer pending |
 | 4 — Additional UIs | Future | Web terminal consuming `session-api` only |
+
+Command-line options and local setup: [CLI reference](CLI.md).
