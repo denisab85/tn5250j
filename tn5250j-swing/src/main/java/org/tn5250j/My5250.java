@@ -521,7 +521,7 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
             viewNamesForNextStartBuilder.append("--session ")
                     .append(StoredArguments.quote(sesspanel.getSessionName()))
                     .append(" ");
-            closeSessionInternal(sesspanel);
+            closeSessionInternal(sesspanel, true);
         }
 
         sessions.setProperty("emul.frame" + view.getFrameSequence(),
@@ -563,6 +563,10 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
      * @param sesspanel
      */
     protected void closeSessionInternal(SessionPanel sesspanel) {
+        closeSessionInternal(sesspanel, false);
+    }
+
+    private void closeSessionInternal(SessionPanel sesspanel, boolean fromClosingDown) {
         GUIViewInterface f = getParentView(sesspanel);
         if (f == null) {
             return;
@@ -572,7 +576,7 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
             f.removeSessionView(sesspanel);
             manager.closeSession(sesspanel.getSession());
         }
-        if (manager.getSessions().getCount() < 1) {
+        if (!fromClosingDown && manager.getSessions().getCount() < 1) {
             closingDown(f);
         }
     }
