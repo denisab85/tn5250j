@@ -571,12 +571,16 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
         if (f == null) {
             return;
         }
+        Session5250 session5250 = sesspanel.getSession();
         Sessions sessions = manager.getSessions();
-        if ((sessions.item(sesspanel.getSession())) != null) {
+        if (session5250 != null && sessions.item(session5250) != null) {
             f.removeSessionView(sesspanel);
-            manager.closeSession(sesspanel.getSession());
+            manager.closeSession(session5250);
+        } else if (session5250 == null) {
+            f.removeSessionView(sesspanel);
+            sesspanel.closeDown();
         }
-        if (!fromClosingDown && manager.getSessions().getCount() < 1) {
+        if (!fromClosingDown && f.getSessionViewCount() == 0) {
             closingDown(f);
         }
     }
