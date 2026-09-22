@@ -31,6 +31,7 @@ import org.tn5250j.SessionPanel;
 import org.tn5250j.keyboard.actions.*;
 import org.tn5250j.session.api.ScreenModel;
 import org.tn5250j.session.api.SessionClient;
+import org.tn5250j.tools.logging.SessionDebugLog;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -190,7 +191,7 @@ class DefaultKeyboardHandler extends KeyboardHandler {
     }
 
     private void processVTKeyPressed(KeyEvent e) {
-
+        SessionDebugLog.keyEvent("client", "pressed", e);
 
         keyProcessed = true;
         int keyCode = e.getKeyCode();
@@ -224,7 +225,7 @@ class DefaultKeyboardHandler extends KeyboardHandler {
         if (lastKeyStroke != null && !lastKeyStroke.equals("null")) {
 
             if (lastKeyStroke.startsWith("[") || lastKeyStroke.length() == 1) {
-
+                SessionDebugLog.keyStroke("client", "send", lastKeyStroke);
                 screen.sendKeys(lastKeyStroke);
                 if (recording)
                     recordBuffer.append(lastKeyStroke);
@@ -248,6 +249,7 @@ class DefaultKeyboardHandler extends KeyboardHandler {
     }
 
     private void processVTKeyTyped(KeyEvent e) {
+        SessionDebugLog.keyEvent("client", "typed", e);
 
         char kc = e.getKeyChar();
 //      displayInfo(e,"Typed processed " + keyProcessed);
@@ -271,6 +273,7 @@ class DefaultKeyboardHandler extends KeyboardHandler {
         }
         if (!isSessionConnected())
             return;
+        SessionDebugLog.keyStroke("client", "send", Character.toString(kc));
         screen.sendKeys(Character.toString(kc));
         if (recording)
             recordBuffer.append(kc);
@@ -279,7 +282,7 @@ class DefaultKeyboardHandler extends KeyboardHandler {
     }
 
     private void processVTKeyReleased(KeyEvent e) {
-
+        SessionDebugLog.keyEvent("client", "released", e);
 
         if (isLinux && e.getKeyCode() == KeyEvent.VK_ALT_GRAPH) {
 
@@ -294,6 +297,7 @@ class DefaultKeyboardHandler extends KeyboardHandler {
         if (s != null) {
 
             if (s.startsWith("[")) {
+                SessionDebugLog.keyStroke("client", "send", s);
                 screen.sendKeys(s);
                 if (recording)
                     recordBuffer.append(s);

@@ -3,6 +3,7 @@ package org.tn5250j.session.client.remote;
 import org.tn5250j.session.api.ScreenPlaneConstants;
 import org.tn5250j.session.wire.ScreenPlaneCodec;
 import org.tn5250j.session.wire.ScreenSnapshotDto;
+import org.tn5250j.tools.logging.SessionDebugLog;
 
 import java.util.Map;
 
@@ -33,9 +34,11 @@ final class ScreenFrameBuffer {
         applyPlanes(snapshot.getPlanes(), 0, 0, rows - 1, cols - 1);
     }
 
-    void applyRegion(int startRow, int startCol, int endRow, int endCol,
+    void applyRegion(int inUpdate, int startRow, int startCol, int endRow, int endCol,
                      int newCurrentRow, int newCurrentCol, boolean newCursorActive,
                      Map<String, String> planes) {
+        SessionDebugLog.screenPlanes("client", "buffer", inUpdate,
+                startRow, startCol, endRow, endCol, planes);
         currentRow = newCurrentRow;
         currentCol = newCurrentCol;
         cursorActive = newCursorActive;

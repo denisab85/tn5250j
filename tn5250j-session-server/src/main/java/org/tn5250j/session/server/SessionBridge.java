@@ -16,7 +16,9 @@ import org.tn5250j.session.wire.OiaStateDto;
 import org.tn5250j.session.wire.WsEnvelope;
 import org.tn5250j.session.wire.WsMessageCodec;
 import org.tn5250j.session.wire.WsMessageType;
+import org.tn5250j.tools.logging.SessionDebugLog;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -94,8 +96,13 @@ public final class SessionBridge implements SessionListener, ScreenListener, Scr
         payload.addProperty("currentRow", screen.getCurrentRow());
         payload.addProperty("currentCol", screen.getCurrentCol());
         payload.addProperty("cursorActive", screen.isCursorActive());
-        payload.add("planes", WsMessageCodec.gson().toJsonTree(
-                ScreenPlaneEncoder.encodeRegion(screen, startRow, startCol, endRow, endCol)));
+        Map<String, String> planes = ScreenPlaneEncoder.encodeRegion(
+                screen, startRow, startCol, endRow, endCol);
+        SessionDebugLog.screenPlanes("server", "send", inUpdate,
+                startRow, startCol, endRow, endCol, planes,
+                new SessionDebugLog.CursorSnapshot(
+                        screen.getCurrentRow(), screen.getCurrentCol(), screen.isCursorActive()));
+        payload.add("planes", WsMessageCodec.gson().toJsonTree(planes));
         sink.onMessage(WsEnvelope.event(WsMessageType.SCREEN_REGION_UPDATED, sessionId, payload));
     }
 

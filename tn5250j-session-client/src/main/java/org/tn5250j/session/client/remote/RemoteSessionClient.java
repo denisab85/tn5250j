@@ -17,6 +17,7 @@ import org.tn5250j.session.wire.ScreenSnapshotDto;
 import org.tn5250j.session.wire.WsEnvelope;
 import org.tn5250j.session.wire.WsMessageCodec;
 import org.tn5250j.session.wire.WsMessageType;
+import org.tn5250j.tools.logging.SessionDebugLog;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -157,12 +158,14 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
     }
 
     private void sendKeysCommand(String keys) {
+        SessionDebugLog.keyStroke("client", "wire", keys);
         JsonObject payload = new JsonObject();
         payload.addProperty("keys", keys);
         sendEnvelope(WsEnvelope.command(WsMessageType.SEND_KEYS, sessionId, payload));
     }
 
     private void sendMoveCursor(int pos) {
+        SessionDebugLog.mouse("client", "wire", "pos=" + pos);
         JsonObject payload = new JsonObject();
         payload.addProperty("pos", pos);
         sendEnvelope(WsEnvelope.command(WsMessageType.MOVE_CURSOR, sessionId, payload));
@@ -222,6 +225,17 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
             JsonObject payload = envelope.getPayload();
             Map<String, String> planes = WsMessageCodec.gson().fromJson(payload.get("planes"),
                     new TypeToken<Map<String, String>>() { }.getType());
+            SessionDebugLog.screenPlanes("client", "received",
+                    payload.get("inUpdate").getAsInt(),
+                    payload.get("startRow").getAsInt(),
+                    payload.get("startCol").getAsInt(),
+                    payload.get("endRow").getAsInt(),
+                    payload.get("endCol").getAsInt(),
+                    planes,
+                    new SessionDebugLog.CursorSnapshot(
+                            payload.get("currentRow").getAsInt(),
+                            payload.get("currentCol").getAsInt(),
+                            payload.get("cursorActive").getAsBoolean()));
             screenModel.applyRegion(
                     payload.get("inUpdate").getAsInt(),
                     payload.get("startRow").getAsInt(),

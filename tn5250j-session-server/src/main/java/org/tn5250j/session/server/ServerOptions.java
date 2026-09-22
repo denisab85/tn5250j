@@ -18,6 +18,14 @@ public final class ServerOptions {
             description = "Require this token from remote clients.")
     public String token = "";
 
+    @Option(names = {"--debug"},
+            description = "Log keystrokes, mouse actions, and screen plane updates.")
+    public boolean debug;
+
+    @Option(names = {"--debug-planes-full"},
+            description = "With --debug, also dump full decoded screen plane contents.")
+    public boolean debugPlanesFull;
+
     public static final class PortConverter implements ITypeConverter<Integer> {
         @Override
         public Integer convert(String value) {

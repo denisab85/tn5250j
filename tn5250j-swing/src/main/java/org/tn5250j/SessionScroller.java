@@ -26,6 +26,7 @@
 package org.tn5250j;
 
 import org.tn5250j.session.api.ScreenModel;
+import org.tn5250j.tools.logging.SessionDebugLog;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -56,8 +57,12 @@ public class SessionScroller implements MouseWheelListener {
         if (this.screen != null) {
             int notches = e.getWheelRotation();
             if (notches < 0) {
+                SessionDebugLog.mouse("client", "wheel",
+                        "rotation=" + notches + " send=" + PAGE_UP.mnemonic);
                 screen.sendKeys(PAGE_UP.mnemonic);
             } else {
+                SessionDebugLog.mouse("client", "wheel",
+                        "rotation=" + notches + " send=" + PAGE_DOWN.mnemonic);
                 screen.sendKeys(PAGE_DOWN.mnemonic);
             }
         }

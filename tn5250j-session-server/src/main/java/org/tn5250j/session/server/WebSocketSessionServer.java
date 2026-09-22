@@ -11,6 +11,7 @@ import org.tn5250j.session.rpc.RpcRegistry;
 import org.tn5250j.session.wire.WsEnvelope;
 import org.tn5250j.session.wire.WsMessageCodec;
 import org.tn5250j.session.wire.WsMessageType;
+import org.tn5250j.tools.logging.SessionDebugLog;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -142,29 +143,37 @@ public final class WebSocketSessionServer extends WebSocketServer {
                     requireBridge(envelope).disconnect();
                     send(conn, WsEnvelope.reply(envelope.getId(), new JsonObject()));
                     break;
-                case WsMessageType.SEND_KEYS:
-                    requireBridge(envelope).getSession().getScreen().sendKeys(
-                            envelope.getPayload().get("keys").getAsString());
+                case WsMessageType.SEND_KEYS: {
+                    String keys = envelope.getPayload().get("keys").getAsString();
+                    SessionDebugLog.keyStroke("server", "received", keys);
+                    requireBridge(envelope).getSession().getScreen().sendKeys(keys);
                     send(conn, WsEnvelope.reply(envelope.getId(), new JsonObject()));
                     break;
-                case WsMessageType.MOVE_CURSOR:
-                    boolean moved = requireBridge(envelope).getSession().getScreen().moveCursor(
-                            envelope.getPayload().get("pos").getAsInt());
+                }
+                case WsMessageType.MOVE_CURSOR: {
+                    int pos = envelope.getPayload().get("pos").getAsInt();
+                    SessionDebugLog.mouse("server", "received", "pos=" + pos);
+                    boolean moved = requireBridge(envelope).getSession().getScreen().moveCursor(pos);
                     JsonObject moveReply = new JsonObject();
                     moveReply.addProperty("moved", moved);
                     send(conn, WsEnvelope.reply(envelope.getId(), moveReply));
                     break;
-                case WsMessageType.SET_CURSOR:
-                    requireBridge(envelope).getSession().getScreen().setCursor(
-                            envelope.getPayload().get("row").getAsInt(),
-                            envelope.getPayload().get("col").getAsInt());
+                }
+                case WsMessageType.SET_CURSOR: {
+                    int row = envelope.getPayload().get("row").getAsInt();
+                    int col = envelope.getPayload().get("col").getAsInt();
+                    SessionDebugLog.mouse("server", "setCursor", "row=" + row + " col=" + col);
+                    requireBridge(envelope).getSession().getScreen().setCursor(row, col);
                     send(conn, WsEnvelope.reply(envelope.getId(), new JsonObject()));
                     break;
-                case WsMessageType.SEND_AID:
-                    requireBridge(envelope).getSession().getScreen().sendAid(
-                            envelope.getPayload().get("aidKey").getAsInt());
+                }
+                case WsMessageType.SEND_AID: {
+                    int aidKey = envelope.getPayload().get("aidKey").getAsInt();
+                    SessionDebugLog.keyStroke("server", "aid", "aidKey=" + aidKey);
+                    requireBridge(envelope).getSession().getScreen().sendAid(aidKey);
                     send(conn, WsEnvelope.reply(envelope.getId(), new JsonObject()));
                     break;
+                }
                 case WsMessageType.GET_SNAPSHOT:
                     send(conn, requireBridge(envelope).snapshotReply(envelope.getId()));
                     break;

@@ -79,9 +79,9 @@ public final class DesktopOptions {
             fail("--remote-token requires --remote.");
         if (server) {
             for (CommandLine.Model.OptionSpec option : spec.commandLine().getParseResult().matchedOptions()) {
-                if (!Arrays.asList("--server", "--bind", "--port", "--token").stream()
+                if (!Arrays.asList("--server", "--bind", "--port", "--token", "--debug", "--debug-planes-full").stream()
                         .anyMatch(name -> Arrays.asList(option.names()).contains(name)))
-                    fail("--server accepts only --bind, --port and --token.");
+                    fail("--server accepts only --bind, --port, --token, --debug and --debug-planes-full.");
             }
             if (session.host != null) fail("--server does not accept an IBM i host.");
         } else if (spec.commandLine().getParseResult().hasMatchedOption("--bind")

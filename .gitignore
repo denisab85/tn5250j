@@ -11,3 +11,4 @@ target/
 **/.flattened-pom.xml
 dependency-reduced-pom.xml
 **/dependency-reduced-pom.xml
+*.log

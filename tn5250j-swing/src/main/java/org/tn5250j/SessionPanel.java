@@ -60,6 +60,7 @@ import org.tn5250j.mailtools.SendEMailDialog;
 import org.tn5250j.sessionsettings.SessionSettings;
 import org.tn5250j.tools.LangTool;
 import org.tn5250j.tools.Macronizer;
+import org.tn5250j.tools.logging.SessionDebugLog;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
 
@@ -197,6 +198,8 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF,
                 //	            if (e.isPopupTrigger()) {
                 // using SwingUtilities because popuptrigger does not work on linux
                 if (SwingUtilities.isRightMouseButton(e)) {
+                    SessionDebugLog.mouse("client", "pressed",
+                            "button=right x=" + e.getX() + " y=" + e.getY());
                     actionPopup(e);
                 }
 
@@ -210,16 +213,19 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF,
                 }
 
                 if (e.getClickCount() == 2 & doubleClick) {
+                    SessionDebugLog.mouse("client", "doubleClick", "send=[enter]");
                     screen.sendKeys(ENTER.mnemonic);
                 } else {
                     int pos = guiGraBuf.getPosFromView(e.getX(), e.getY());
-                    if (log.isDebugEnabled()) {
-                        log.debug((screen.getRow(pos)) + "," + (screen.getCol(pos)));
-                        log.debug(e.getX() + "," + e.getY() + "," + guiGraBuf.columnWidth + ","
-                                + guiGraBuf.rowHeight);
-                    }
+                    int row = screen.getRow(pos);
+                    int col = screen.getCol(pos);
+                    SessionDebugLog.mouse("client", "click",
+                            "button=" + e.getButton() + " clicks=" + e.getClickCount()
+                                    + " view=(" + e.getX() + "," + e.getY() + ")"
+                                    + " cell=(" + row + "," + col + ") pos=" + pos);
 
                     boolean moved = screen.moveCursor(pos);
+                    SessionDebugLog.mouse("client", "moveCursor", "pos=" + pos + " moved=" + moved);
                     // this is a note to not execute this code here when we
                     // implement the remain after edit function option.
                     if (moved) {
@@ -242,7 +248,9 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF,
         Macronizer.init();
 
         keypadPanel.addActionListener(e -> {
-            screen.sendKeys(((JButton) e.getSource()).getActionCommand());
+            String keys = ((JButton) e.getSource()).getActionCommand();
+            SessionDebugLog.keyStroke("client", "keypad", keys);
+            screen.sendKeys(keys);
             getFocusForMe();
         });
         keypadPanel.setVisible(sesConfig.getConfig().isKeypadEnabled());

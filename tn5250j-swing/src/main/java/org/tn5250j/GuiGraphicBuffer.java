@@ -55,8 +55,11 @@ import org.tn5250j.session.api.OiaModelListener;
 import org.tn5250j.session.api.ScreenModel;
 import org.tn5250j.sessionsettings.ColumnSeparator;
 import org.tn5250j.tools.GUIGraphicsUtils;
+import org.tn5250j.tools.logging.SessionDebugLog;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
+
+import java.util.Map;
 
 public class GuiGraphicBuffer implements OiaModelListener,
         ScreenListener,
@@ -1775,6 +1778,9 @@ public class GuiGraphicBuffer implements OiaModelListener,
     }
 
     public void onScreenChanged(int which, int sr, int sc, int er, int ec) {
+        SessionDebugLog.screenPlanes("client", "paint", which, sr, sc, er, ec, null,
+                new SessionDebugLog.CursorSnapshot(
+                        screen.getCurrentRow(), screen.getCurrentCol(), screen.isCursorActive()));
         if (!SwingUtilities.isEventDispatchThread()) {
             final int update = which;
             final int startRow = sr;

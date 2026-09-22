@@ -37,8 +37,12 @@ import org.tn5250j.TN5250jConstants;
 import org.tn5250j.event.ScreenListener;
 import org.tn5250j.keyboard.KeyMnemonic;
 import org.tn5250j.keyboard.KeyMnemonicResolver;
+import org.tn5250j.tools.logging.SessionDebugLog;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
 import org.tn5250j.tools.logging.TN5250jLogger;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class Screen5250 {
 
@@ -415,6 +419,8 @@ public class Screen5250 {
      * @param pos
      */
     public boolean moveCursor(int pos) {
+        SessionDebugLog.mouse("session", "moveCursor", "pos=" + pos
+                + " locked=" + oia.isKeyBoardLocked());
 
         if (!oia.isKeyBoardLocked()) {
 
@@ -613,6 +619,8 @@ public class Screen5250 {
      * @see #sendAid
      */
     public synchronized void sendKeys(String text) {
+        SessionDebugLog.keyStroke("session", "sendKeys",
+                text + " locked=" + oia.isKeyBoardLocked());
 
         this.keybuf.append(text);
 
@@ -3310,6 +3318,10 @@ public class Screen5250 {
      */
     private void fireScreenChanged(int which, int startRow, int startCol,
                                    int endRow, int endCol) {
+        SessionDebugLog.screenPlanesDecoded("session", "changed", which,
+                startRow, startCol, endRow, endCol,
+                readScreenRegion(startRow, startCol, endRow, endCol),
+                new SessionDebugLog.CursorSnapshot(getCurrentRow(), getCurrentCol(), isCursorActive()));
         if (screenListeners != null) {
             // Patch below contributed by Mitch Blevins
             //int size = listeners.size();
@@ -3344,9 +3356,33 @@ public class Screen5250 {
      * Notify all registered listeners of the onScreenChanged event.
      *
      */
+    private Map<String, char[]> readScreenRegion(int startRow, int startCol, int endRow, int endCol) {
+        int size = (endRow - startRow + 1) * (endCol - startCol + 1);
+        Map<String, char[]> planes = new LinkedHashMap<>();
+        planes.put("text", readScreenPlane(size, startRow, startCol, endRow, endCol, PLANE_TEXT));
+        planes.put("attr", readScreenPlane(size, startRow, startCol, endRow, endCol, PLANE_ATTR));
+        planes.put("isAttr", readScreenPlane(size, startRow, startCol, endRow, endCol, PLANE_IS_ATTR_PLACE));
+        planes.put("color", readScreenPlane(size, startRow, startCol, endRow, endCol, PLANE_COLOR));
+        planes.put("extended", readScreenPlane(size, startRow, startCol, endRow, endCol, PLANE_EXTENDED));
+        planes.put("graphic", readScreenPlane(size, startRow, startCol, endRow, endCol, PLANE_EXTENDED_GRAPHIC));
+        planes.put("field", readScreenPlane(size, startRow, startCol, endRow, endCol, PLANE_FIELD));
+        return planes;
+    }
+
+    private char[] readScreenPlane(int size, int startRow, int startCol, int endRow, int endCol, int plane) {
+        char[] buffer = new char[size];
+        GetScreenRect(buffer, size, startRow + 1, startCol + 1, endRow + 1, endCol + 1, plane);
+        return buffer;
+    }
+
     private synchronized void fireCursorChanged(int update) {
         int startRow = getRow(lastPos);
         int startCol = getCol(lastPos);
+
+        SessionDebugLog.screenPlanesDecoded("session", "cursor", update,
+                startRow, startCol, startRow, startCol,
+                readScreenRegion(startRow, startCol, startRow, startCol),
+                new SessionDebugLog.CursorSnapshot(getCurrentRow(), getCurrentCol(), isCursorActive()));
 
         if (screenListeners != null) {
             Vector<ScreenListener> lc = new Vector<>(screenListeners);

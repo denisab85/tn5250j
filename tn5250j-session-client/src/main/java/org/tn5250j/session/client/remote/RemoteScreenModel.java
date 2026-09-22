@@ -53,7 +53,8 @@ final class RemoteScreenModel implements ScreenModel {
 
     void applyRegion(int inUpdate, int startRow, int startCol, int endRow, int endCol,
                        int currentRow, int currentCol, boolean cursorActive, Map<String, String> planes) {
-        buffer.applyRegion(startRow, startCol, endRow, endCol, currentRow, currentCol, cursorActive, planes);
+        buffer.applyRegion(inUpdate, startRow, startCol, endRow, endCol,
+                currentRow, currentCol, cursorActive, planes);
         for (ScreenListener listener : new ArrayList<>(listeners)) {
             listener.onScreenChanged(inUpdate, startRow, startCol, endRow, endCol);
         }

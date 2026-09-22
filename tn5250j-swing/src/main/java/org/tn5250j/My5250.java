@@ -188,6 +188,11 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
         command.setExecutionStrategy(result -> {
             options.validate();
             if (CommandLine.printHelpIfRequested(result)) return 0;
+            if (options.listener.debugPlanesFull) {
+                org.tn5250j.tools.logging.SessionDebugLog.enableFullPlaneLogging();
+            } else if (options.listener.debug) {
+                org.tn5250j.tools.logging.SessionDebugLog.enableDebugLogging();
+            }
             if (options.server) {
                 try {
                     SessionServerMain.run(options.listener);

@@ -2,6 +2,7 @@ package org.tn5250j.session.server;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Callable;
+import org.tn5250j.tools.logging.SessionDebugLog;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -36,6 +37,11 @@ public final class SessionServerMain implements Callable<Integer> {
     }
 
     public static void run(ServerOptions options) throws Exception {
+        if (options.debugPlanesFull) {
+            SessionDebugLog.enableFullPlaneLogging();
+        } else if (options.debug) {
+            SessionDebugLog.enableDebugLogging();
+        }
         WebSocketSessionServer server = new WebSocketSessionServer(
                 new InetSocketAddress(options.bind, options.port), options.token);
         server.start();
