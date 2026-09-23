@@ -30,7 +30,11 @@ final class RemoteScreenModel implements ScreenModel {
     }
 
     void applySnapshot(ScreenSnapshotDto snapshot) {
+        boolean keepCursorActive = buffer.isCursorActive() && !snapshot.isCursorActive();
         buffer.applySnapshot(snapshot);
+        if (keepCursorActive) {
+            buffer.setCursorActive(true);
+        }
         oiaModel.apply(snapshot.getOia());
         notifyFullScreen(1);
         repaintFn.run();
@@ -53,12 +57,48 @@ final class RemoteScreenModel implements ScreenModel {
 
     void applyRegion(int inUpdate, int startRow, int startCol, int endRow, int endCol,
                        int currentRow, int currentCol, boolean cursorActive, Map<String, String> planes) {
+        int prevRow = buffer.getCurrentRow();
+        int prevCol = buffer.getCurrentCol();
+        boolean prevActive = buffer.isCursorActive();
         buffer.applyRegion(inUpdate, startRow, startCol, endRow, endCol,
                 currentRow, currentCol, cursorActive, planes);
         for (ScreenListener listener : new ArrayList<>(listeners)) {
             listener.onScreenChanged(inUpdate, startRow, startCol, endRow, endCol);
         }
+        if (inUpdate != 3 && inUpdate != 4) {
+            relayCursorEventsIfNeeded(prevRow, prevCol, prevActive);
+        }
         repaintFn.run();
+    }
+
+    /**
+     * Region updates carry cursor metadata but not {@code inUpdate=3} paint events.
+     * Mirror {@code Screen5250.goto_XY()} by relaying cursor events at the old and new
+     * cells when position changes, so {@code GuiGraphicBuffer} can XOR-clear the prior cell.
+     */
+    private void relayCursorEventsIfNeeded(int prevRow, int prevCol, boolean prevActive) {
+        int newRow = buffer.getCurrentRow();
+        int newCol = buffer.getCurrentCol();
+        boolean newActive = buffer.isCursorActive();
+        if (!newActive && prevActive) {
+            fireCursorEvent(prevRow - 1, prevCol - 1);
+            return;
+        }
+        if (!newActive) {
+            return;
+        }
+        if (prevActive && (prevRow != newRow || prevCol != newCol)) {
+            fireCursorEvent(prevRow - 1, prevCol - 1);
+        }
+        if (!prevActive || prevRow != newRow || prevCol != newCol) {
+            fireCursorEvent(newRow - 1, newCol - 1);
+        }
+    }
+
+    private void fireCursorEvent(int row, int col) {
+        for (ScreenListener listener : new ArrayList<>(listeners)) {
+            listener.onScreenChanged(3, row, col, row, col);
+        }
     }
 
     void applySize(int rows, int cols) {

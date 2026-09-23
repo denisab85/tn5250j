@@ -36,6 +36,7 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
     private String sessionId;
     private SessionUiHooks uiHooks = HeadlessSessionUiHooks.INSTANCE;
     private boolean connected;
+    private boolean liveScreenUpdatesReceived;
 
     public RemoteSessionClient(ConnectionProfile profile) {
         this.profile = profile;
@@ -222,6 +223,7 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
     public void onMessage(WsEnvelope envelope) {
         String type = envelope.getType();
         if (WsMessageType.SCREEN_REGION_UPDATED.equals(type)) {
+            liveScreenUpdatesReceived = true;
             JsonObject payload = envelope.getPayload();
             Map<String, String> planes = WsMessageCodec.gson().fromJson(payload.get("planes"),
                     new TypeToken<Map<String, String>>() { }.getType());
@@ -256,7 +258,7 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
             screenModel.getRemoteOiaModel().fireChanged(payload.get("change").getAsInt());
         } else if (WsMessageType.SESSION_STATE_CHANGED.equals(type)) {
             int state = envelope.getPayload().get("state").getAsInt();
-            if (state == SessionStateConstants.STATE_CONNECTED) {
+            if (state == SessionStateConstants.STATE_CONNECTED && !liveScreenUpdatesReceived) {
                 refreshSnapshot();
             }
             org.tn5250j.session.api.SessionChangeEvent event =

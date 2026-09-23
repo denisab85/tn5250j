@@ -1099,13 +1099,21 @@ public class GuiGraphicBuffer implements OiaModelListener,
     }
 
     private void handleCursorUpdate(int row, int col) {
+        if (!screen.isCursorActive()) {
+            if (cursorShownOnBuffer) {
+                paintCursorXor(cursorPaintedRow, cursorPaintedCol);
+                clearCursorBufferState();
+            }
+            return;
+        }
         if (cursorShownOnBuffer && cursorPaintedRow == row && cursorPaintedCol == col) {
             paintCursorXor(row, col);
             clearCursorBufferState();
             return;
         }
-        if (!screen.isCursorActive()) {
-            return;
+        if (cursorShownOnBuffer) {
+            paintCursorXor(cursorPaintedRow, cursorPaintedCol);
+            clearCursorBufferState();
         }
         paintCursorXor(row, col);
         cursorShownOnBuffer = true;
