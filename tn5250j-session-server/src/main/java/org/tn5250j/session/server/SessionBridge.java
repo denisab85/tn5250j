@@ -62,7 +62,7 @@ public final class SessionBridge implements SessionListener, ScreenListener, Scr
 
     public WsEnvelope snapshotReply(String correlationId) {
         JsonObject payload = WsMessageCodec.gson().toJsonTree(
-                ScreenSnapshotBuilder.build(session.getScreen())).getAsJsonObject();
+                ScreenSnapshotBuilder.build(session)).getAsJsonObject();
         WsEnvelope reply = WsEnvelope.reply(correlationId, payload);
         reply.setSessionId(sessionId);
         return reply;
@@ -77,6 +77,10 @@ public final class SessionBridge implements SessionListener, ScreenListener, Scr
         payload.addProperty("state", changeEvent.getState());
         if (changeEvent.getMessage() != null) {
             payload.addProperty("message", changeEvent.getMessage());
+        }
+        String allocatedDeviceName = session.getAllocatedDeviceName();
+        if (allocatedDeviceName != null) {
+            payload.addProperty("allocatedDeviceName", allocatedDeviceName);
         }
         sink.onMessage(WsEnvelope.event(WsMessageType.SESSION_STATE_CHANGED, sessionId, payload));
     }

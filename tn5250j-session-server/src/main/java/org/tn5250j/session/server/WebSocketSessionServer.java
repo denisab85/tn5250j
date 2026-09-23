@@ -91,6 +91,30 @@ public final class WebSocketSessionServer extends WebSocketServer {
         rpcRegistry.register("screen.setBackspaceError", context ->
                 applyScreenOption(context, screen -> screen.setBackspaceError(
                         context.getArgs().get("value").getAsBoolean())));
+        rpcRegistry.register("screen.checkHotSpots", context -> {
+            SessionBridge bridge = hostService.getBridge(context.getSessionId());
+            JsonObject result = new JsonObject();
+            if (bridge == null) {
+                result.addProperty("error", "Unknown session");
+                return result;
+            }
+            boolean found = bridge.getSession().getScreen().checkHotSpots();
+            result.addProperty("found", found);
+            result.addProperty("ok", true);
+            return result;
+        });
+        rpcRegistry.register("screen.copyTextField", context -> {
+            SessionBridge bridge = hostService.getBridge(context.getSessionId());
+            JsonObject result = new JsonObject();
+            if (bridge == null) {
+                result.addProperty("error", "Unknown session");
+                return result;
+            }
+            int position = context.getArgs().get("position").getAsInt();
+            result.addProperty("text", bridge.getSession().getScreen().copyTextField(position));
+            result.addProperty("ok", true);
+            return result;
+        });
     }
 
     private JsonObject applyScreenOption(RpcContext context, Consumer<Screen5250> action) {
@@ -186,6 +210,15 @@ public final class WebSocketSessionServer extends WebSocketServer {
                     SessionDebugLog.keyStroke("server", "received", keys);
                     requireBridge(envelope).getSession().getScreen().sendKeys(keys);
                     send(conn, WsEnvelope.reply(envelope.getId(), new JsonObject()));
+                    break;
+                }
+                case WsMessageType.PASTE_TEXT: {
+                    JsonObject pastePayload = envelope.getPayload();
+                    String content = pastePayload.get("content").getAsString();
+                    boolean special = pastePayload.get("special").getAsBoolean();
+                    SessionDebugLog.keyStroke("server", "paste", "special=" + special + " len=" + content.length());
+                    requireBridge(envelope).getSession().getScreen().pasteText(content, special);
+                    send(conn, requireBridge(envelope).snapshotReply(envelope.getId()));
                     break;
                 }
                 case WsMessageType.MOVE_CURSOR: {

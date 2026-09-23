@@ -32,11 +32,11 @@ public final class Tn5250TestHarness {
         attachStructuredFieldParser();
     }
 
-    static Tn5250TestHarness create() {
+    public static Tn5250TestHarness create() {
         return new Tn5250TestHarness();
     }
 
-    Screen5250 screen() {
+    public Screen5250 screen() {
         return screen;
     }
 
@@ -64,11 +64,11 @@ public final class Tn5250TestHarness {
         return outboundBytes()[offset] & 0xff;
     }
 
-    void unlockKeyboard() {
+    public void unlockKeyboard() {
         screen.getOIA().setKeyBoardLocked(false);
     }
 
-    void markConnected() {
+    public void markConnected() {
         try {
             Field connected = tnvt.class.getDeclaredField("connected");
             connected.setAccessible(true);
@@ -78,7 +78,7 @@ public final class Tn5250TestHarness {
         }
     }
 
-    void process(byte[] dataStream) {
+    public void process(byte[] dataStream) {
         vt.processDataStream(dataStream);
     }
 
@@ -105,7 +105,7 @@ public final class Tn5250TestHarness {
         return stream.toByteArray();
     }
 
-    byte[] outputOnly(byte... commands) {
+    public byte[] outputOnly(byte... commands) {
         return gds(2, commands);
     }
 
@@ -121,7 +121,7 @@ public final class Tn5250TestHarness {
         return gds(11);
     }
 
-    byte[] wtdText(int row, int col, String text) {
+    public byte[] wtdText(int row, int col, String text) {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         data.write(TN5250jConstants.CMD_WRITE_TO_DISPLAY);
         data.write(0);
@@ -135,7 +135,7 @@ public final class Tn5250TestHarness {
         return data.toByteArray();
     }
 
-    byte[] wtdInputField(int row, int col, int length) {
+    public byte[] wtdInputField(int row, int col, int length) {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         data.write(TN5250jConstants.CMD_WRITE_TO_DISPLAY);
         data.write(0);
@@ -190,7 +190,7 @@ public final class Tn5250TestHarness {
         return screen.planes.getWhichGUI(screen.getPos(row - 1, col - 1));
     }
 
-    byte[] concat(byte[]... chunks) {
+    public byte[] concat(byte[]... chunks) {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         for (byte[] chunk : chunks) {
             data.write(chunk, 0, chunk.length);
@@ -198,7 +198,7 @@ public final class Tn5250TestHarness {
         return data.toByteArray();
     }
 
-    String screenTextAt(int row, int col, int length) {
+    public String screenTextAt(int row, int col, int length) {
         int start = screen.getPos(row - 1, col - 1);
         return new String(screen.getScreenAsChars(), start, length);
     }

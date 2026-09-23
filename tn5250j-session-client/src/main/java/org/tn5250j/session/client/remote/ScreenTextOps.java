@@ -88,6 +88,13 @@ final class ScreenTextOps {
         return field != 0 && field != ' ';
     }
 
+    static boolean isAttributePlace(ScreenFrameBuffer buffer, int pos) {
+        if (pos < 0 || pos >= buffer.getScreenLength()) {
+            return false;
+        }
+        return charAt(buffer, ScreenPlaneConstants.PLANE_IS_ATTR_PLACE, pos) == 1;
+    }
+
     private static char charAt(ScreenFrameBuffer buffer, int plane, int pos) {
         char[] scratch = new char[buffer.getScreenLength()];
         buffer.getScreen(scratch, scratch.length, plane);

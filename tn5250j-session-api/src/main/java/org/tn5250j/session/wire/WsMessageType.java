@@ -10,6 +10,7 @@ public final class WsMessageType {
     public static final String CONNECT = "Connect";
     public static final String DISCONNECT = "Disconnect";
     public static final String SEND_KEYS = "SendKeys";
+    public static final String PASTE_TEXT = "PasteText";
     public static final String MOVE_CURSOR = "MoveCursor";
     public static final String SET_CURSOR = "SetCursor";
     public static final String SEND_AID = "SendAid";

@@ -106,6 +106,25 @@ final class ScreenFrameBuffer {
         return pos % cols;
     }
 
+    char getTextChar(int pos) {
+        return pos >= 0 && pos < text.length ? text[pos] : 0;
+    }
+
+    char getExtendedChar(int pos) {
+        return pos >= 0 && pos < extended.length ? extended[pos] : 0;
+    }
+
+    void setTextChar(int pos, char c) {
+        if (pos >= 0 && pos < text.length) {
+            text[pos] = c;
+        }
+    }
+
+    void setCurrentPosition(int row, int col) {
+        currentRow = row;
+        currentCol = col;
+    }
+
     int getScreen(char[] buffer, int bufferLength, int plane) {
         char[] source = planeData(plane);
         int len = Math.min(bufferLength, source.length);

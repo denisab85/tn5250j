@@ -38,6 +38,7 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
     private SessionUiHooks uiHooks = HeadlessSessionUiHooks.INSTANCE;
     private boolean connected;
     private boolean liveScreenUpdatesReceived;
+    private String allocatedDeviceName;
     private final Map<String, Boolean> pendingScreenOptions = new LinkedHashMap<>();
 
     public RemoteSessionClient(ConnectionProfile profile) {
@@ -48,7 +49,10 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
                 this::sendMoveCursor,
                 this::sendAidCommand,
                 () -> { },
-                this::sendScreenOption);
+                this::sendScreenOption,
+                this::sendPasteText,
+                this::sendCopyTextFieldRpc,
+                this::sendCheckHotSpotsRpc);
         this.terminalOps = new RemoteTerminalOps(null, this::sendEnvelope);
     }
 
@@ -82,6 +86,9 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
 
     private void applySnapshot(JsonObject payload) {
         ScreenSnapshotDto snapshot = WsMessageCodec.gson().fromJson(payload, ScreenSnapshotDto.class);
+        if (snapshot.getAllocatedDeviceName() != null) {
+            allocatedDeviceName = snapshot.getAllocatedDeviceName();
+        }
         screenModel.applySnapshot(snapshot);
     }
 
@@ -137,7 +144,7 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
 
     @Override
     public String getAllocatedDeviceName() {
-        return null;
+        return allocatedDeviceName;
     }
 
     @Override
@@ -195,6 +202,58 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
         args.addProperty("value", value);
         payload.add("args", args);
         sendEnvelope(WsEnvelope.command(WsMessageType.RPC, sessionId, payload));
+    }
+
+    private void sendPasteText(String content, boolean special) {
+        if (sessionId == null) {
+            throw new IllegalStateException("Remote pasteText before session attach");
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("content", content);
+        payload.addProperty("special", special);
+        try {
+            WsEnvelope reply = transport.send(
+                    WsEnvelope.command(WsMessageType.PASTE_TEXT, sessionId, payload)).get();
+            if (reply.getPayload() != null) {
+                applySnapshot(reply.getPayload());
+            }
+        } catch (Exception ex) {
+            throw new IllegalStateException("Remote pasteText failed", ex);
+        }
+    }
+
+    private String sendCopyTextFieldRpc(int position) {
+        JsonObject result = invokeScreenRpc("screen.copyTextField", args -> args.addProperty("position", position));
+        return result.get("text").getAsString();
+    }
+
+    private boolean sendCheckHotSpotsRpc() {
+        JsonObject result = invokeScreenRpc("screen.checkHotSpots", args -> { });
+        return result.get("found").getAsBoolean();
+    }
+
+    private JsonObject invokeScreenRpc(String method, java.util.function.Consumer<JsonObject> argsConfigurer) {
+        if (sessionId == null) {
+            throw new IllegalStateException("Remote RPC before session attach: " + method);
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", method);
+        JsonObject args = new JsonObject();
+        argsConfigurer.accept(args);
+        payload.add("args", args);
+        try {
+            WsEnvelope reply = transport.send(
+                    WsEnvelope.command(WsMessageType.RPC, sessionId, payload)).get();
+            JsonObject result = reply.getPayload();
+            if (result != null && result.has("error")) {
+                throw new IllegalStateException(result.get("error").getAsString());
+            }
+            return result == null ? new JsonObject() : result;
+        } catch (RuntimeException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new IllegalStateException("Remote RPC failed: " + method, ex);
+        }
     }
 
     private void sendMoveCursor(int pos) {
@@ -289,7 +348,11 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
             screenModel.getRemoteOiaModel().apply(oia);
             screenModel.getRemoteOiaModel().fireChanged(payload.get("change").getAsInt());
         } else if (WsMessageType.SESSION_STATE_CHANGED.equals(type)) {
-            int state = envelope.getPayload().get("state").getAsInt();
+            JsonObject statePayload = envelope.getPayload();
+            int state = statePayload.get("state").getAsInt();
+            if (statePayload.has("allocatedDeviceName")) {
+                allocatedDeviceName = statePayload.get("allocatedDeviceName").getAsString();
+            }
             if (state == SessionStateConstants.STATE_CONNECTED && !liveScreenUpdatesReceived) {
                 refreshSnapshot();
             }

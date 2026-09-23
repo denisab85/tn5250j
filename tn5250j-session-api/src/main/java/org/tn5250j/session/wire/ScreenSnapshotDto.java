@@ -10,6 +10,7 @@ public final class ScreenSnapshotDto {
     private int currentCol;
     private boolean cursorActive;
     private boolean usingGuiInterface;
+    private String allocatedDeviceName;
     private OiaStateDto oia;
     private Map<String, String> planes;
 
@@ -59,6 +60,14 @@ public final class ScreenSnapshotDto {
 
     public void setUsingGuiInterface(boolean usingGuiInterface) {
         this.usingGuiInterface = usingGuiInterface;
+    }
+
+    public String getAllocatedDeviceName() {
+        return allocatedDeviceName;
+    }
+
+    public void setAllocatedDeviceName(String allocatedDeviceName) {
+        this.allocatedDeviceName = allocatedDeviceName;
     }
 
     public OiaStateDto getOia() {

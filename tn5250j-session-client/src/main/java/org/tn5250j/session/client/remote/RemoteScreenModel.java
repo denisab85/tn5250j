@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 
 final class RemoteScreenModel implements ScreenModel {
 
@@ -21,21 +23,36 @@ final class RemoteScreenModel implements ScreenModel {
     private final Consumer<Integer> moveCursorFn;
     private final Consumer<Integer> sendAidFn;
     private final BiConsumer<String, Boolean> screenOptionFn;
+    private final BiConsumer<String, Boolean> pasteTextFn;
+    private final IntFunction<String> copyTextFieldFn;
+    private final BooleanSupplier checkHotSpotsFn;
     private Runnable repaintFn;
 
     RemoteScreenModel(Consumer<String> sendKeysFn, Consumer<Integer> moveCursorFn,
                       Consumer<Integer> sendAidFn, Runnable repaintFn) {
-        this(sendKeysFn, moveCursorFn, sendAidFn, repaintFn, null);
+        this(sendKeysFn, moveCursorFn, sendAidFn, repaintFn, null, null, null, null);
     }
 
     RemoteScreenModel(Consumer<String> sendKeysFn, Consumer<Integer> moveCursorFn,
                       Consumer<Integer> sendAidFn, Runnable repaintFn,
                       BiConsumer<String, Boolean> screenOptionFn) {
+        this(sendKeysFn, moveCursorFn, sendAidFn, repaintFn, screenOptionFn, null, null, null);
+    }
+
+    RemoteScreenModel(Consumer<String> sendKeysFn, Consumer<Integer> moveCursorFn,
+                      Consumer<Integer> sendAidFn, Runnable repaintFn,
+                      BiConsumer<String, Boolean> screenOptionFn,
+                      BiConsumer<String, Boolean> pasteTextFn,
+                      IntFunction<String> copyTextFieldFn,
+                      BooleanSupplier checkHotSpotsFn) {
         this.sendKeysFn = sendKeysFn;
         this.moveCursorFn = moveCursorFn;
         this.sendAidFn = sendAidFn;
         this.repaintFn = repaintFn;
         this.screenOptionFn = screenOptionFn;
+        this.pasteTextFn = pasteTextFn;
+        this.copyTextFieldFn = copyTextFieldFn;
+        this.checkHotSpotsFn = checkHotSpotsFn;
     }
 
     void applySnapshot(ScreenSnapshotDto snapshot) {
@@ -219,6 +236,7 @@ final class RemoteScreenModel implements ScreenModel {
 
     @Override
     public void setCursor(int row, int col) {
+        buffer.setCurrentPosition(row, col);
         moveCursorFn.accept(getPos(row - 1, col - 1));
     }
 
@@ -229,7 +247,12 @@ final class RemoteScreenModel implements ScreenModel {
 
     @Override
     public void pasteText(String content, boolean special) {
-        sendKeysFn.accept(content);
+        if (pasteTextFn != null) {
+            pasteTextFn.accept(content, special);
+            return;
+        }
+        ScreenBufferOps.pasteText(buffer, content, special);
+        repaintFn.run();
     }
 
     @Override
@@ -244,7 +267,10 @@ final class RemoteScreenModel implements ScreenModel {
 
     @Override
     public boolean checkHotSpots() {
-        return false;
+        if (checkHotSpotsFn != null) {
+            return checkHotSpotsFn.getAsBoolean();
+        }
+        return ScreenBufferOps.checkHotSpots(buffer);
     }
 
     @Override
@@ -291,7 +317,10 @@ final class RemoteScreenModel implements ScreenModel {
 
     @Override
     public String copyTextField(int position) {
-        return "";
+        if (copyTextFieldFn != null) {
+            return copyTextFieldFn.apply(position);
+        }
+        return ScreenBufferOps.copyTextField(buffer, position);
     }
 
     @Override

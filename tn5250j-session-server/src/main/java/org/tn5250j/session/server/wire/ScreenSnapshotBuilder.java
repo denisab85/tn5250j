@@ -1,5 +1,6 @@
 package org.tn5250j.session.server.wire;
 
+import org.tn5250j.Session5250;
 import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.framework.tn5250.ScreenOIA;
 import org.tn5250j.session.wire.OiaStateDto;
@@ -10,7 +11,8 @@ public final class ScreenSnapshotBuilder {
     private ScreenSnapshotBuilder() {
     }
 
-    public static ScreenSnapshotDto build(Screen5250 screen) {
+    public static ScreenSnapshotDto build(Session5250 session) {
+        Screen5250 screen = session.getScreen();
         ScreenSnapshotDto dto = new ScreenSnapshotDto();
         dto.setRows(screen.getRows());
         dto.setCols(screen.getColumns());
@@ -18,6 +20,7 @@ public final class ScreenSnapshotBuilder {
         dto.setCurrentCol(screen.getCurrentCol());
         dto.setCursorActive(screen.isCursorActive());
         dto.setUsingGuiInterface(screen.isUsingGuiInterface());
+        dto.setAllocatedDeviceName(session.getAllocatedDeviceName());
         dto.setOia(buildOia(screen.getOIA()));
         dto.setPlanes(ScreenPlaneEncoder.encodeAllPlanes(screen));
         return dto;
