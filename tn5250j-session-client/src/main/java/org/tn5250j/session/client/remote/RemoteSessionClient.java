@@ -21,6 +21,7 @@ import org.tn5250j.tools.logging.SessionDebugLog;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -37,6 +38,7 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
     private SessionUiHooks uiHooks = HeadlessSessionUiHooks.INSTANCE;
     private boolean connected;
     private boolean liveScreenUpdatesReceived;
+    private final Map<String, Boolean> pendingScreenOptions = new LinkedHashMap<>();
 
     public RemoteSessionClient(ConnectionProfile profile) {
         this.profile = profile;
@@ -45,7 +47,8 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
                 this::sendKeysCommand,
                 this::sendMoveCursor,
                 this::sendAidCommand,
-                () -> { });
+                () -> { },
+                this::sendScreenOption);
         this.terminalOps = new RemoteTerminalOps(null, this::sendEnvelope);
     }
 
@@ -71,6 +74,7 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
         terminalOps.setSessionId(sessionId);
 
         transport.send(WsEnvelope.command(WsMessageType.SESSION_ATTACH, sessionId, new JsonObject())).get();
+        flushPendingScreenOptions();
         WsEnvelope snapshotReply = transport.send(
                 WsEnvelope.command(WsMessageType.GET_SNAPSHOT, sessionId, new JsonObject())).get();
         applySnapshot(snapshotReply.getPayload());
@@ -163,6 +167,34 @@ public final class RemoteSessionClient implements SessionClient, SessionEventSin
         JsonObject payload = new JsonObject();
         payload.addProperty("keys", keys);
         sendEnvelope(WsEnvelope.command(WsMessageType.SEND_KEYS, sessionId, payload));
+    }
+
+    private void sendScreenOption(String option, boolean value) {
+        if (sessionId == null) {
+            pendingScreenOptions.put(option, value);
+            return;
+        }
+        sendScreenOptionRpc(option, value);
+    }
+
+    private void flushPendingScreenOptions() {
+        if (pendingScreenOptions.isEmpty()) {
+            return;
+        }
+        Map<String, Boolean> options = new LinkedHashMap<>(pendingScreenOptions);
+        pendingScreenOptions.clear();
+        for (Map.Entry<String, Boolean> entry : options.entrySet()) {
+            sendScreenOptionRpc(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void sendScreenOptionRpc(String option, boolean value) {
+        JsonObject payload = new JsonObject();
+        payload.addProperty("method", "screen." + option);
+        JsonObject args = new JsonObject();
+        args.addProperty("value", value);
+        payload.add("args", args);
+        sendEnvelope(WsEnvelope.command(WsMessageType.RPC, sessionId, payload));
     }
 
     private void sendMoveCursor(int pos) {

@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.tn5250j.framework.tn5250.Screen5250;
 import org.tn5250j.session.api.host.SessionOpenRequest;
 import org.tn5250j.session.api.transport.SessionEventSink;
 import org.tn5250j.session.rpc.RpcContext;
@@ -17,6 +18,7 @@ import org.tn5250j.tools.logging.TN5250jLogger;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -83,6 +85,24 @@ public final class WebSocketSessionServer extends WebSocketServer {
             }
             return result;
         });
+        rpcRegistry.register("screen.setResetRequired", context ->
+                applyScreenOption(context, screen -> screen.setResetRequired(
+                        context.getArgs().get("value").getAsBoolean())));
+        rpcRegistry.register("screen.setBackspaceError", context ->
+                applyScreenOption(context, screen -> screen.setBackspaceError(
+                        context.getArgs().get("value").getAsBoolean())));
+    }
+
+    private JsonObject applyScreenOption(RpcContext context, Consumer<Screen5250> action) {
+        SessionBridge bridge = hostService.getBridge(context.getSessionId());
+        JsonObject result = new JsonObject();
+        if (bridge == null) {
+            result.addProperty("error", "Unknown session");
+            return result;
+        }
+        action.accept(bridge.getSession().getScreen());
+        result.addProperty("ok", true);
+        return result;
     }
 
     @Override

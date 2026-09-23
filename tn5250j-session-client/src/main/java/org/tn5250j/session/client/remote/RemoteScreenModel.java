@@ -9,6 +9,7 @@ import org.tn5250j.session.wire.ScreenSnapshotDto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 final class RemoteScreenModel implements ScreenModel {
@@ -19,14 +20,22 @@ final class RemoteScreenModel implements ScreenModel {
     private final Consumer<String> sendKeysFn;
     private final Consumer<Integer> moveCursorFn;
     private final Consumer<Integer> sendAidFn;
+    private final BiConsumer<String, Boolean> screenOptionFn;
     private Runnable repaintFn;
 
     RemoteScreenModel(Consumer<String> sendKeysFn, Consumer<Integer> moveCursorFn,
                       Consumer<Integer> sendAidFn, Runnable repaintFn) {
+        this(sendKeysFn, moveCursorFn, sendAidFn, repaintFn, null);
+    }
+
+    RemoteScreenModel(Consumer<String> sendKeysFn, Consumer<Integer> moveCursorFn,
+                      Consumer<Integer> sendAidFn, Runnable repaintFn,
+                      BiConsumer<String, Boolean> screenOptionFn) {
         this.sendKeysFn = sendKeysFn;
         this.moveCursorFn = moveCursorFn;
         this.sendAidFn = sendAidFn;
         this.repaintFn = repaintFn;
+        this.screenOptionFn = screenOptionFn;
     }
 
     void applySnapshot(ScreenSnapshotDto snapshot) {
@@ -60,8 +69,12 @@ final class RemoteScreenModel implements ScreenModel {
         int prevRow = buffer.getCurrentRow();
         int prevCol = buffer.getCurrentCol();
         boolean prevActive = buffer.isCursorActive();
+        boolean keepCursorActive = prevActive && !cursorActive;
         buffer.applyRegion(inUpdate, startRow, startCol, endRow, endCol,
                 currentRow, currentCol, cursorActive, planes);
+        if (keepCursorActive) {
+            buffer.setCursorActive(true);
+        }
         for (ScreenListener listener : new ArrayList<>(listeners)) {
             listener.onScreenChanged(inUpdate, startRow, startCol, endRow, endCol);
         }
@@ -184,10 +197,18 @@ final class RemoteScreenModel implements ScreenModel {
 
     @Override
     public void setResetRequired(boolean reset) {
+        sendScreenOption("setResetRequired", reset);
     }
 
     @Override
     public void setBackspaceError(boolean onError) {
+        sendScreenOption("setBackspaceError", onError);
+    }
+
+    private void sendScreenOption(String option, boolean value) {
+        if (screenOptionFn != null) {
+            screenOptionFn.accept(option, value);
+        }
     }
 
     @Override

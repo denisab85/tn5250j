@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class RemoteScreenModelTest {
@@ -97,6 +98,36 @@ public class RemoteScreenModelTest {
 
         assertEquals(1, listener.updates.size());
         assertEquals(3, listener.updates.get(0)[0]);
+    }
+
+    @Test
+    public void setResetRequiredForwardsToScreenOptionFn() {
+        List<String> options = new ArrayList<>();
+        List<Boolean> values = new ArrayList<>();
+        RemoteScreenModel model = new RemoteScreenModel(
+                keys -> { }, pos -> { }, aid -> { }, () -> { },
+                (option, value) -> {
+                    options.add(option);
+                    values.add(value);
+                });
+        model.setResetRequired(false);
+        model.setBackspaceError(true);
+
+        assertEquals(2, options.size());
+        assertEquals("setResetRequired", options.get(0));
+        assertEquals("setBackspaceError", options.get(1));
+        assertFalse(values.get(0));
+        assertTrue(values.get(1));
+    }
+
+    @Test
+    public void applyRegionPreservesActiveCursorFromTransientServerUpdates() {
+        RemoteScreenModel model = new RemoteScreenModel(keys -> { }, pos -> { }, aid -> { }, () -> { });
+        model.applyRegion(3, 5, 52, 5, 52, 6, 53, true, new HashMap<String, String>());
+
+        model.applyRegion(1, 0, 0, 23, 79, 6, 53, false, new HashMap<String, String>());
+
+        assertTrue(model.isCursorActive());
     }
 
     @Test
