@@ -31,6 +31,10 @@
       <groupId>ca.denisab85</groupId>
       <artifactId>tn5250j-session-server</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.sun.mail</groupId>

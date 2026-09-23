@@ -139,3 +139,10 @@ IBM i credentials are sent once in `SessionOpen` over an encrypted channel; the 
 | 4 — Additional UIs | Future | Web terminal consuming `session-api` only |
 
 Command-line options and local setup: [CLI reference](CLI.md).
+
+## Swing debug interface
+
+For automation and diagnostics, the Swing desktop can expose a localhost HTTP API
+(`--debug-interface`) that returns the rendered screen as text and accepts
+keyboard/mouse input. This is independent of the WebSocket session-server protocol.
+See [DEBUG-INTERFACE.md](DEBUG-INTERFACE.md).

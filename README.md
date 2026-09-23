@@ -6,6 +6,8 @@ Legacy user documentation: [tn5250j.github.io](https://tn5250j.github.io/)
 
 Architecture (diagrams, deployment modes, protocol overview): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
+Swing debug API (screen snapshots and input for agents): [docs/DEBUG-INTERFACE.md](docs/DEBUG-INTERFACE.md)
+
 ## Module layout
 
 The repository is a Maven multi-module project. Dependencies flow in one direction:

@@ -62,6 +62,8 @@ import org.tn5250j.interfaces.GUIViewInterface;
 import org.tn5250j.session.api.ConnectionProfile;
 import org.tn5250j.session.api.SessionClient;
 import org.tn5250j.session.client.SessionClientFactory;
+import org.tn5250j.debug.DebugInterfaceOptions;
+import org.tn5250j.debug.SwingDebugServer;
 import org.tn5250j.session.server.SessionServerMain;
 import org.tn5250j.tools.LangTool;
 import org.tn5250j.tools.logging.TN5250jLogFactory;
@@ -76,6 +78,7 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
     private static BootStrapper strapper = null;
     private final SessionManager manager;
     private static List<GUIViewInterface> frames;
+    private static SwingDebugServer debugServer;
     private final TN5250jSplashScreen splash;
     private int step;
     private StringBuilder viewNamesForNextStartBuilder = null;
@@ -229,6 +232,7 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
 
         My5250 m = new My5250();
         m.launchOptions = options;
+        startDebugInterface(options.debugInterface);
 
         if (strapper != null)
             strapper.addBootListener(m);
@@ -697,6 +701,35 @@ public class My5250 implements BootListener, SessionListener, EmulatorActionList
 
     static Properties getSessions() {
         return sessions;
+    }
+
+    public static List<SessionPanel> allSessionPanels() {
+        List<SessionPanel> result = new ArrayList<>();
+        if (frames == null) {
+            return result;
+        }
+        for (GUIViewInterface frame : frames) {
+            for (int index = 0; index < frame.getSessionViewCount(); index++) {
+                SessionPanel panel = frame.getSessionAt(index);
+                if (panel != null) {
+                    result.add(panel);
+                }
+            }
+        }
+        return result;
+    }
+
+    private static void startDebugInterface(DebugInterfaceOptions options) {
+        if (options == null || !options.enabled || debugServer != null) {
+            return;
+        }
+        try {
+            debugServer = new SwingDebugServer(options);
+            debugServer.start(options);
+        } catch (IOException ex) {
+            TN5250jLogFactory.getLogger(My5250.class)
+                    .warn("Failed to start swing debug interface: " + ex.getMessage());
+        }
     }
 
 }

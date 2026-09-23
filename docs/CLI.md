@@ -165,6 +165,25 @@ The standalone server also accepts `-p` for its listen port. In the desktop
 launcher `-p` always means IBM i port, and is rejected with `--server`; use `-P`
 or `--port` instead. Desktop/session options cannot be combined with `--server`.
 
+## Debug interface options
+
+Enable a localhost HTTP API on the **Swing desktop** for screen snapshots and input
+(for humans and automation agents). Full API reference: [DEBUG-INTERFACE.md](DEBUG-INTERFACE.md).
+
+| Long option | Short | Default | Purpose |
+|---|---|---|---|
+| `--debug-interface` | `-A` | off | Enable the debug HTTP API |
+| `--debug-bind ADDRESS` | | `127.0.0.1` | Debug API listen address |
+| `--debug-port PORT` | | `5036` | Debug API listen port |
+| `--debug-token TOKEN` | | Empty | Require token on debug API requests |
+
+Cannot be combined with `--server`. Example:
+
+```bash
+java -jar tn5250j/target/tn5250j-0-SNAPSHOT.jar \
+  --debug-interface --debug-token agent-secret --session "Production"
+```
+
 ## Syntax
 
 Options follow the usual GNU/POSIX conventions: long options use two dashes

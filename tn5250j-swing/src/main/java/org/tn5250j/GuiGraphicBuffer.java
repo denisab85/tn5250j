@@ -732,6 +732,14 @@ public class GuiGraphicBuffer implements OiaModelListener,
      * @param y
      * @return
      */
+    public int getColumnWidth() {
+        return columnWidth;
+    }
+
+    public int getRowHeight() {
+        return rowHeight;
+    }
+
     public int getPosFromView(int x, int y) {
 
         // we have to translate the point into a an upper left 0,0 based format

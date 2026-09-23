@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Properties;
 import org.tn5250j.TN5250jConstants;
 import org.tn5250j.session.api.ConnectionProfile;
+import org.tn5250j.debug.DebugInterfaceOptions;
 import org.tn5250j.session.server.ServerOptions;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -22,6 +23,7 @@ public final class DesktopOptions {
     @Spec private CommandSpec spec;
     @Mixin public SessionOptions session = new SessionOptions();
     @Mixin public ServerOptions listener = new ServerOptions();
+    @Mixin public DebugInterfaceOptions debugInterface = new DebugInterfaceOptions();
     @Option(names = {"-h", "--help"}, usageHelp = true, description = "Show this help and exit.")
     public boolean help;
     @Option(names = {"-S", "--server"}, description = "Run the session server without Swing.")
@@ -88,6 +90,9 @@ public final class DesktopOptions {
                 || spec.commandLine().getParseResult().hasMatchedOption("--port")
                 || spec.commandLine().getParseResult().hasMatchedOption("--token")) {
             fail("--bind, --port and --token require --server; use --host-port for IBM i.");
+        }
+        if (server && debugInterface.enabled) {
+            fail("--debug-interface cannot be combined with --server.");
         }
     }
 

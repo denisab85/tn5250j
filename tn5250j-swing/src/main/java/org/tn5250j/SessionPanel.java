@@ -1052,6 +1052,26 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF,
         return screen;
     }
 
+    /** Sends key mnemonics through the same path as the keypad (for debug agents). */
+    public void debugSendKeys(String keys) {
+        SessionDebugLog.keyStroke("debug", "keys", keys);
+        screen.sendKeys(keys);
+        getFocusForMe();
+    }
+
+    /** Types literal text into the current field (for debug agents). */
+    public void debugSendText(String text) {
+        SessionDebugLog.keyStroke("debug", "text", text);
+        screen.pasteText(text, false);
+        getFocusForMe();
+    }
+
+    /** Resolves a 1-based screen cell to a view coordinate suitable for mouse events. */
+    public void debugViewPointForCell(int row, int col, Point point) {
+        guiGraBuf.getPointFromRowCol(row - 1, col - 1, point);
+        point.translate(guiGraBuf.getColumnWidth() / 2, guiGraBuf.getRowHeight() / 2);
+    }
+
     public Screen5250 getScreen5250() {
         return session != null ? session.getScreen() : null;
     }

@@ -101,6 +101,7 @@ Key types used internally:
 | *(none)* | In-process session via `SessionClientFactory.wrapLocal()` |
 | `--server [--bind] [--port] [--token]` | Run [session server](../tn5250j-session-server/README.md) without opening Swing |
 | `--remote URL [--remote-token TOKEN]` | Open `SessionPanel` backed by `RemoteSessionClient` |
+| `--debug-interface [-A] [--debug-bind] [--debug-port] [--debug-token]` | Localhost HTTP API for screen state and input |
 
 Example — split UI and core on one machine:
 
@@ -112,11 +113,21 @@ java -jar tn5250j-0-SNAPSHOT.jar --server --port 5250
 java -jar tn5250j-0-SNAPSHOT.jar --remote ws://127.0.0.1:5250
 ```
 
+## Debug interface (agents)
+
+With `--debug-interface`, the desktop exposes a JSON HTTP API on localhost for:
+
+- Reading the rendered screen as plain text (plus cursor position)
+- Sending key mnemonics, literal text, and mouse clicks
+
+Default port: **5036**. See [DEBUG-INTERFACE.md](../docs/DEBUG-INTERFACE.md) for the full API and agent workflow.
+
 ## Key packages
 
 | Package | Role |
 |---------|------|
 | `org.tn5250j` | `My5250`, `SessionPanel`, `GuiGraphicBuffer`, main frame |
+| `org.tn5250j.debug` | Swing debug HTTP API (`SwingDebugServer`, `SwingRenderedScreen`) |
 | `org.tn5250j.gui` | Dialogs, UI hooks, settings |
 | `org.tn5250j.keyboard` | Key maps, actions, `KeyboardHandler` |
 | `org.tn5250j.spoolfile` | Spool export (requires local `tnvt`) |

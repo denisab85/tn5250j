@@ -87,6 +87,15 @@ public class DesktopOptionsTest {
     }
 
     @Test
+    public void debugInterfaceOptionsParseCorrectly() {
+        DesktopOptions options = DesktopOptions.parse("-A", "--debug-bind=127.0.0.1", "--debug-port=5040", "--debug-token", "agent");
+        assertTrue(options.debugInterface.enabled);
+        assertEquals("127.0.0.1", options.debugInterface.bind);
+        assertEquals(5040, options.debugInterface.port);
+        assertEquals("agent", options.debugInterface.token);
+    }
+
+    @Test
     public void serverOptionsAreDistinctFromHostOptions() {
         DesktopOptions options = DesktopOptions.parse("-S", "-b127.0.0.1", "-P5251", "-k", "secret");
         assertTrue(options.server);
