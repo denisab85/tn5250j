@@ -23,17 +23,30 @@ public class SwingRenderedScreenTest {
     }
 
     @Test
-    public void renderCellMaps5250UnderlineAttributeToUnderscore() {
+    public void renderCellKeepsUnderlinedCharactersVisible() {
         char underline = (char) TN5250jConstants.EXTENDED_5250_UNDERLINE;
-        assertEquals("_", SwingRenderedScreen.renderCell(' ', (char) 0, (char) 0, underline, (char) 0));
-        assertEquals("_", SwingRenderedScreen.renderCell('T', (char) 0, (char) 0, underline, (char) 0));
-        assertEquals("_", SwingRenderedScreen.renderCell((char) 0, (char) 0, (char) 0, underline, (char) 0));
+        assertEquals(" ", SwingRenderedScreen.renderCell(' ', (char) 0, (char) 0, underline, (char) 0));
+        assertEquals("T", SwingRenderedScreen.renderCell('T', (char) 0, (char) 0, underline, (char) 0));
+        assertEquals("E", SwingRenderedScreen.renderCell('E', (char) 0, (char) 36, (char) 0, (char) 0));
         assertEquals(" ", SwingRenderedScreen.renderCell('T', (char) 1, (char) 0, underline, (char) 0));
     }
 
     @Test
-    public void renderCellUsesAttrPlaneWhenExtendedUnderlineMissing() {
-        assertEquals("_", SwingRenderedScreen.renderCell('T', (char) 0, (char) 36, (char) 0, (char) 0));
-        assertEquals("_", SwingRenderedScreen.renderCell('E', (char) 0, (char) 37, (char) 0, (char) 0));
+    public void formatBooleanGridUsesOnesAndZerosWithNewlinesBetweenRows() {
+        assertEquals("1100001", SwingRenderedScreen.formatBooleanGrid(
+                new boolean[] {true, true, false, false, false, false, true}, 1, 7));
+        assertEquals("10\n01", SwingRenderedScreen.formatBooleanGrid(
+                new boolean[] {true, false, false, true}, 2, 2));
+    }
+
+    @Test
+    public void xorCursorColorMatchesSwingLineCursor() {
+        SwingCursorPresentation presentation = new SwingCursorPresentation(
+                "line",
+                java.awt.Color.WHITE,
+                java.awt.Color.BLACK);
+        assertEquals("white", presentation.color);
+        assertEquals("black", presentation.xorBase);
+        assertEquals("white", presentation.effectiveColor);
     }
 }

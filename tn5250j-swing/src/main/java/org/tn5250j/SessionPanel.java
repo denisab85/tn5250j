@@ -43,6 +43,7 @@ import org.tn5250j.event.SessionJumpListener;
 import org.tn5250j.event.SessionListener;
 import org.tn5250j.framework.tn5250.Rect;
 import org.tn5250j.framework.tn5250.tnvt;
+import org.tn5250j.debug.SwingCursorPresentation;
 import org.tn5250j.gui.ConfirmTabCloseDialog;
 import org.tn5250j.gui.SwingApiUiHooks;
 import org.tn5250j.interfaces.SessionView;
@@ -1070,6 +1071,21 @@ public class SessionPanel extends JPanel implements RubberBandCanvasIF,
     public void debugViewPointForCell(int row, int col, Point point) {
         guiGraBuf.getPointFromRowCol(row - 1, col - 1, point);
         point.translate(guiGraBuf.getColumnWidth() / 2, guiGraBuf.getRowHeight() / 2);
+    }
+
+    /** Returns how Swing paints the cursor (XOR line/block). */
+    public SwingCursorPresentation debugCursorPresentation() {
+        ensureGuiGraphicBufferInitialized();
+        return new SwingCursorPresentation(
+                SwingCursorPresentation.cursorStyle(guiGraBuf.getCursorSizeSetting()),
+                guiGraBuf.getCursorColor(),
+                guiGraBuf.getScreenBackgroundColor());
+    }
+
+    /** Returns the off-screen paint buffer for the session (debug API). */
+    public GuiGraphicBuffer debugGraphicBuffer() {
+        ensureGuiGraphicBufferInitialized();
+        return guiGraBuf;
     }
 
     public Screen5250 getScreen5250() {

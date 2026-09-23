@@ -103,11 +103,22 @@ List open Swing session tabs, in display order.
 
 ### `GET /v1/sessions/{id}/screen`
 
-Returns the current screen as **plain text**, using the same visibility rules as the Swing renderer (`GuiGraphicBuffer`):
+Returns the current screen with both a **rendered text snapshot** and **per-cell presentation metadata** derived from the same 5250 planes Swing reads when painting (`GuiGraphicBuffer`).
+
+**Query parameters:**
+
+| Parameter | Example | Purpose |
+|-----------|---------|---------|
+| `include` | `planes` | Add raw base64-encoded plane buffers (`text`, `attr`, `isAttr`, `color`, `extended`, `graphic`, `field`) |
+
+Example: `GET /v1/sessions/0/screen?include=planes`
+
+**Visible text rules (`text`):**
 
 - Non-display and attribute positions appear as spaces
 - Duplicate characters (`0x1C`) appear as `*`
 - GUI border cells are mapped to ASCII (`+`, `-`, `|`)
+- Underlined cells appear as `_`
 - Other non-printable characters appear as `.`
 
 **Response `200`:**
@@ -121,9 +132,47 @@ Returns the current screen as **plain text**, using the same visibility rules as
   "cursorCol": 5,
   "cursorVisible": true,
   "guiMode": false,
-  "text": "Sign On\nSystem  . . . . . . :   CDKDEV\n..."
+  "text": "Sign On\nPassword  . . . . .   \n...",
+  "rawText": "Sign On\nPassword  . . . . .   ****\n...",
+  "cursor": {
+    "row": 6,
+    "col": 57,
+    "visible": true,
+    "style": "line",
+    "color": "white",
+    "xorBase": "black",
+    "effectiveColor": "white"
+  },
+  "render": {
+    "foreground": ["green", "green", "..."],
+    "background": ["black", "black", "..."],
+    "hidden": "00...1...\n",
+    "underline": "00...\n",
+    "columnSeparator": "00...\n",
+    "attributePosition": "00...\n",
+    "reverseVideo": "00...\n",
+    "cursor": "00...1...\n",
+    "attr": [32, 32, 39, "..."],
+    "gui": [0, 0, "..."],
+    "field": [0, 0, "..."]
+  },
+  "painted": {
+    "text": "Sign On\nPassword  . . . . .   \n...",
+    "foreground": ["green", "green", "..."],
+    "background": ["black", "black", "..."],
+    "cursor": "00...101...\n",
+    "differsFromRender": "00...100...\n"
+  }
 }
 ```
+
+Query parameters:
+
+| Parameter | Meaning |
+|-----------|---------|
+| `?include=planes` | Include base64 5250 plane buffers |
+| `?include=raster` | Include `painted.raster` (base64 PNG of the off-screen text-area buffer) |
+| `?include=no-painted` | Omit the `painted` section (included by default) |
 
 | Field | Meaning |
 |-------|---------|
@@ -131,7 +180,25 @@ Returns the current screen as **plain text**, using the same visibility rules as
 | `cursorRow`, `cursorCol` | Cursor position (**1-based**, IBM i convention) |
 | `cursorVisible` | Whether the cursor is currently shown |
 | `guiMode` | Whether GUI enhancements are active |
-| `text` | Full screen, newline-separated rows |
+| `text` | Screen as the user sees it, newline-separated rows |
+| `rawText` | Text plane content with no hidden/non-display masking (use with `render.hidden` for password fields) |
+| `cursor` | Swing cursor position and XOR paint info (`color` XOR `xorBase` = `effectiveColor`; default white line on black) |
+| `render` | Logical per-cell presentation derived from 5250 planes (same source `GuiGraphicBuffer` reads when painting) |
+| `render.foreground`, `render.background` | Named 5250 colors used by Swing |
+| `render.hidden` | Non-display (password/hidden) cells — `1` = true, `0` = false, rows separated by `\n` |
+| `render.underline`, `render.columnSeparator` | Extended presentation flags (`1`/`0` grid) |
+| `render.attributePosition` | Cells that hold a 5250 attribute byte instead of text (`1`/`0` grid) |
+| `render.reverseVideo` | Reverse-video attribute byte (odd 5250 attr codes 33–63; `1`/`0` grid) |
+| `render.cursor` | Logical cursor cell when visible (`1`/`0` grid; from screen model, not pixels) |
+| `render.attr` | Raw 5250 attribute byte per cell |
+| `render.gui` | GUI overlay type per cell (`TN5250jConstants` graphic codes; `0` = none) |
+| `render.field` | Field plane byte per cell |
+| `painted` | Actual Swing paint layer sampled from the off-screen raster (`GuiGraphicBuffer.bi`); catches XOR ghost cursors and other rendering artifacts |
+| `painted.foreground`, `painted.background` | Per-cell colors sampled from painted pixels |
+| `painted.cursor` | Cursor line detected in the raster (`1`/`0` grid); may differ from `render.cursor` when a ghost cursor remains |
+| `painted.differsFromRender` | Cells where `painted.cursor` differs from `render.cursor` (ghost/stale XOR cursors) |
+| `painted.raster` | Present with `?include=raster`; base64 PNG of the text-area buffer |
+| `planes` | Present only when `?include=planes`; base64 plane buffers matching the session wire format |
 
 ### `POST /v1/sessions/{id}/input/keys`
 

@@ -1,0 +1,394 @@
+{
+  "info": {
+    "name": "tn5250j Swing Debug API",
+    "description": "Localhost HTTP API exposed by the tn5250j Swing desktop when launched with `--debug-interface` (`-A`).\n\n**Prerequisites**\n```bash\nmvn -Pshaded package\n\njava -jar tn5250j/target/tn5250j-0-SNAPSHOT.jar \\\n  --debug-interface \\\n  --debug-bind 127.0.0.1 \\\n  --debug-port 5036 \\\n  --debug-token agent-secret \\\n  --session \"Production\"\n```\n\n**Security**\n- Binds to `127.0.0.1` by default — do not expose on a network interface.\n- Set `--debug-token` in shared environments. Without a token, any local process can control open sessions.\n- Auth: `Authorization: Bearer <token>` or `X-Debug-Token: <token>`.\n\n**Agent workflow**\n1. `GET /v1/sessions` — pick target session id\n2. `GET /v1/sessions/{id}/screen` — read screen snapshot\n3. `POST .../input/text` or `POST .../input/keys` — enter data or press keys\n4. `POST .../input/mouse` — focus a field by position when needed\n5. Repeat from step 2\n\nSee [DEBUG-INTERFACE.md](../DEBUG-INTERFACE.md) for full documentation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:5036",
+      "type": "string"
+    },
+    {
+      "key": "debugToken",
+      "value": "agent-secret",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "0",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{debugToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Discovery",
+      "item": [
+        {
+          "name": "Service discovery",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Returns service metadata and endpoint paths.\n\n**Response `200`:**\n```json\n{\n  \"name\": \"tn5250j-swing-debug\",\n  \"version\": 1,\n  \"health\": \"/health\",\n  \"sessions\": \"/v1/sessions\"\n}\n```"
+          },
+          "response": []
+        },
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Liveness check.\n\n**Response `200`:**\n```json\n{\"ok\": true}\n```"
+          },
+          "response": []
+        }
+      ],
+      "description": "Service discovery and liveness endpoints."
+    },
+    {
+      "name": "Sessions",
+      "item": [
+        {
+          "name": "List sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/sessions",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "sessions"]
+            },
+            "description": "List open Swing session tabs in display order.\n\n**Response `200`:**\n```json\n[\n  {\"id\": 0, \"name\": \"Production\", \"connected\": true},\n  {\"id\": 1, \"name\": \"Test\", \"connected\": false}\n]\n```\n\n| Field | Meaning |\n|-------|---------|\n| `id` | Session index used by other endpoints |\n| `name` | Session name / tab label |\n| `connected` | Whether the session is connected to IBM i |"
+          },
+          "response": []
+        },
+        {
+          "name": "Get screen snapshot",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/screen",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "sessions", "{{sessionId}}", "screen"]
+            },
+            "description": "Returns logical screen state (`render`) plus the painted Swing raster layer (`painted`) sampled from the off-screen buffer.\n\n**Response `200`:**\n```json\n{\n  \"id\": 0,\n  \"rows\": 24,\n  \"cols\": 80,\n  \"cursorRow\": 6,\n  \"cursorCol\": 57,\n  \"cursorVisible\": true,\n  \"text\": \"Sign On\\n...\",\n  \"render\": { \"cursor\": \"000000001\", \"...\": \"...\" },\n  \"painted\": {\n    \"cursor\": \"000001001\",\n    \"differsFromRender\": \"000001000\",\n    \"foreground\": [\"green\"],\n    \"background\": [\"black\"]\n  }\n}\n```\n\n`painted.cursor` reflects XOR cursor lines actually in the raster (including ghost cursors). Use `?include=raster` for base64 PNG, `?include=planes` for 5250 planes, `?include=no-painted` to omit the paint layer."
+          },
+          "response": []
+        },
+        {
+          "name": "Get screen snapshot (with planes)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/screen?include=planes",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "sessions", "{{sessionId}}", "screen"],
+              "query": [
+                {
+                  "key": "include",
+                  "value": "planes"
+                }
+              ]
+            },
+            "description": "Same as **Get screen snapshot**, plus base64-encoded raw plane buffers (`text`, `attr`, `isAttr`, `color`, `extended`, `graphic`, `field`) for low-level debugging."
+          },
+          "response": []
+        }
+      ],
+      "description": "Session listing and screen state."
+    },
+    {
+      "name": "Input",
+      "item": [
+        {
+          "name": "Send keys",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"keys\": \"[enter]\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/input/keys",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "sessions", "{{sessionId}}", "input", "keys"]
+            },
+            "description": "Send key mnemonics through the same path as the on-screen keypad.\n\n**Examples:** `[enter]`, `[tab]`, `[pf3]`, `[pf12]`, `[help]`, `[roll up]`\n\n**Response `200`:** `{\"ok\": true}`"
+          },
+          "response": []
+        },
+        {
+          "name": "Send text",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"USER01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/input/text",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "sessions", "{{sessionId}}", "input", "text"]
+            },
+            "description": "Type literal text into the current field (uses paste/field input, not individual key events).\n\n**Response `200`:** `{\"ok\": true}`"
+          },
+          "response": []
+        },
+        {
+          "name": "Mouse click (screen coordinates)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"row\": 12,\n  \"col\": 5,\n  \"clicks\": 1,\n  \"button\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/input/mouse",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "sessions", "{{sessionId}}", "input", "mouse"]
+            },
+            "description": "Simulate a mouse click using **1-based** screen cell coordinates.\n\n| Field | Default | Meaning |\n|-------|---------|---------|\n| `row`, `col` | — | **1-based** screen cell |\n| `clicks` | `1` | Click count (`2` = double-click) |\n| `button` | `1` | `1` = left, `3` = right |\n\n**Response `200`:** `{\"ok\": true}`"
+          },
+          "response": []
+        },
+        {
+          "name": "Mouse click (pixel coordinates)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"x\": 120,\n  \"y\": 180,\n  \"clicks\": 1,\n  \"button\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/input/mouse",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "sessions", "{{sessionId}}", "input", "mouse"]
+            },
+            "description": "Simulate a mouse click using pixel coordinates within the session panel.\n\n| Field | Default | Meaning |\n|-------|---------|---------|\n| `x`, `y` | — | Pixel coordinates within the session panel |\n| `clicks` | `1` | Click count (`2` = double-click) |\n| `button` | `1` | `1` = left, `3` = right |\n\n**Response `200`:** `{\"ok\": true}`"
+          },
+          "response": []
+        }
+      ],
+      "description": "Keyboard and mouse input for a session."
+    },
+    {
+      "name": "Examples",
+      "item": [
+        {
+          "name": "Sign-on flow",
+          "item": [
+            {
+              "name": "1. Read screen",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/screen",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["v1", "sessions", "{{sessionId}}", "screen"]
+                },
+                "description": "Inspect the sign-on screen before entering credentials."
+              },
+              "response": []
+            },
+            {
+              "name": "2. Enter user",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"USER01\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/input/text",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["v1", "sessions", "{{sessionId}}", "input", "text"]
+                },
+                "description": "Type the user id into the current field."
+              },
+              "response": []
+            },
+            {
+              "name": "3. Tab to password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"keys\": \"[tab]\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/input/keys",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["v1", "sessions", "{{sessionId}}", "input", "keys"]
+                },
+                "description": "Move to the password field."
+              },
+              "response": []
+            },
+            {
+              "name": "4. Enter password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"SECRETPWD\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/input/text",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["v1", "sessions", "{{sessionId}}", "input", "text"]
+                },
+                "description": "Type the password into the current field."
+              },
+              "response": []
+            },
+            {
+              "name": "5. Submit",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"keys\": \"[enter]\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/input/keys",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["v1", "sessions", "{{sessionId}}", "input", "keys"]
+                },
+                "description": "Press Enter to submit sign-on."
+              },
+              "response": []
+            },
+            {
+              "name": "6. Read screen after sign-on",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/v1/sessions/{{sessionId}}/screen",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["v1", "sessions", "{{sessionId}}", "screen"]
+                },
+                "description": "Verify the post sign-on screen."
+              },
+              "response": []
+            }
+          ],
+          "description": "Example agent workflow for IBM i sign-on. Run requests in order after starting the desktop with `--debug-interface`."
+        }
+      ],
+      "description": "End-to-end example flows."
+    }
+  ]
+}

@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  * <ul>
  *   <li>{@code GET /health}</li>
  *   <li>{@code GET /v1/sessions}</li>
- *   <li>{@code GET /v1/sessions/{id}/screen}</li>
+ *   <li>{@code GET /v1/sessions/{id}/screen} — logical render + painted Swing raster; {@code ?include=planes,raster}</li>
  *   <li>{@code POST /v1/sessions/{id}/input/keys} body {@code {"keys":"[enter]"}}</li>
  *   <li>{@code POST /v1/sessions/{id}/input/text} body {@code {"text":"HELLO"}}</li>
  *   <li>{@code POST /v1/sessions/{id}/input/mouse} body {@code {"row":12,"col":5,"clicks":1}}</li>
@@ -151,7 +151,13 @@ public final class SwingDebugServer {
 
     private void handleScreen(HttpExchange exchange, int sessionId) throws IOException {
         try {
-            SwingRenderedScreen.Snapshot snapshot = service.captureScreen(sessionId);
+            String query = exchange.getRequestURI().getQuery();
+            boolean includePlanes = queryIncludes(query, "planes");
+            boolean includeRaster = queryIncludes(query, "raster");
+            boolean includePainted = !queryIncludes(query, "no-painted");
+            SwingDebugService.ScreenCapture capture = service.captureScreen(
+                    sessionId, includePlanes, includePainted, includeRaster);
+            SwingRenderedScreen.Snapshot snapshot = capture.logical;
             JsonObject payload = new JsonObject();
             payload.addProperty("id", sessionId);
             payload.addProperty("rows", snapshot.rows);
@@ -161,12 +167,63 @@ public final class SwingDebugServer {
             payload.addProperty("cursorVisible", snapshot.cursorVisible);
             payload.addProperty("guiMode", snapshot.guiMode);
             payload.addProperty("text", snapshot.text);
+            payload.addProperty("rawText", snapshot.rawText);
+            if (snapshot.cursorPresentation != null) {
+                JsonObject cursor = new JsonObject();
+                cursor.addProperty("row", snapshot.cursorRow);
+                cursor.addProperty("col", snapshot.cursorCol);
+                cursor.addProperty("visible", snapshot.cursorVisible);
+                cursor.addProperty("style", snapshot.cursorPresentation.style);
+                cursor.addProperty("color", snapshot.cursorPresentation.color);
+                cursor.addProperty("xorBase", snapshot.cursorPresentation.xorBase);
+                cursor.addProperty("effectiveColor", snapshot.cursorPresentation.effectiveColor);
+                payload.add("cursor", cursor);
+            }
+            payload.add("render", GSON.toJsonTree(snapshot.render));
+            if (capture.painted != null) {
+                JsonObject painted = new JsonObject();
+                painted.addProperty("text", capture.painted.text);
+                painted.add("foreground", GSON.toJsonTree(capture.painted.painted.foreground));
+                painted.add("background", GSON.toJsonTree(capture.painted.painted.background));
+                painted.addProperty("cursor", capture.painted.painted.cursor);
+                painted.addProperty("differsFromRender", capture.painted.painted.differsFromRender);
+                if (capture.painted.rasterBase64 != null) {
+                    painted.addProperty("raster", capture.painted.rasterBase64);
+                }
+                payload.add("painted", painted);
+            }
+            if (snapshot.planes != null) {
+                payload.add("planes", GSON.toJsonTree(snapshot.planes));
+            }
             sendJson(exchange, 200, payload);
         } catch (IllegalArgumentException ex) {
             sendJson(exchange, 404, error(ex.getMessage()));
         } catch (Exception ex) {
             sendJson(exchange, 500, error(ex.getMessage()));
         }
+    }
+
+    private static boolean queryIncludes(String query, String token) {
+        if (query == null || query.isEmpty() || token == null || token.isEmpty()) {
+            return false;
+        }
+        for (String part : query.split("&")) {
+            if (part.isEmpty()) {
+                continue;
+            }
+            int equals = part.indexOf('=');
+            String key = equals >= 0 ? part.substring(0, equals) : part;
+            String value = equals >= 0 ? part.substring(equals + 1) : "";
+            if (!"include".equals(key)) {
+                continue;
+            }
+            for (String item : value.split(",")) {
+                if (token.equals(item.trim())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void handleKeys(HttpExchange exchange, int sessionId) throws IOException {

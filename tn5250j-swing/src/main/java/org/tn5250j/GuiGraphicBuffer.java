@@ -1031,6 +1031,65 @@ public class GuiGraphicBuffer implements OiaModelListener,
     }
 
 
+    /** Cursor paint color before XOR (debug API). */
+    public Color getCursorColor() {
+        return colorCursor;
+    }
+
+    /** Screen background color used as XOR base for the cursor (debug API). */
+    public Color getScreenBackgroundColor() {
+        return colorBg;
+    }
+
+    /** Cursor size setting: 0=line, 1=half, 2=block (debug API). */
+    public int getCursorSizeSetting() {
+        return cursorSize;
+    }
+
+    /** Bottom offset used when painting the XOR cursor line (debug API). */
+    public int getCursorBottomOffset() {
+        return cursorBottOffset;
+    }
+
+    /**
+     * Returns a copy of the off-screen text-area raster (5250 rows only, no OIA row).
+     * Includes XOR cursor artifacts already baked into {@link #bi}.
+     */
+    public BufferedImage copyTextAreaImage() {
+        synchronized (lock) {
+            if (bi == null) {
+                return null;
+            }
+            int cols = screen.getColumns();
+            int rows = screen.getRows();
+            int width = columnWidth * cols;
+            int height = rowHeight * rows;
+            BufferedImage copy = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics = copy.createGraphics();
+            graphics.drawImage(bi, 0, 0, width, height, 0, 0, width, height, null);
+            graphics.dispose();
+            return copy;
+        }
+    }
+
+    /** Y coordinate (within {@link #copyTextAreaImage()}) used to sample a painted character. */
+    public int getCharacterSampleY(int row) {
+        return (int) (row * rowHeight + rowHeight - (lm.getDescent() + lm.getLeading()) - 2);
+    }
+
+    /** Y coordinate (within {@link #copyTextAreaImage()}) of the XOR cursor line for a 0-based row. */
+    public int getCursorLineY(int row) {
+        return (rowHeight * (row + 1)) - cursorBottOffset;
+    }
+
+    /** Session palette colors for mapping sampled pixels back to 5250 color names (debug API). */
+    public Color[] getPaletteColors() {
+        return new Color[] {
+                colorBg, colorWhite, colorGreen, colorBlue, colorRed,
+                colorYellow, colorTurq, colorPink, colorGUIField, colorSep, colorHexAttr
+        };
+    }
+
     public void drawCursor(int row, int col) {
 
         int botOffset = cursorBottOffset;

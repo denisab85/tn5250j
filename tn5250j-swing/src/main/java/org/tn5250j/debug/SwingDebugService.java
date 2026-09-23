@@ -1,5 +1,6 @@
 package org.tn5250j.debug;
 
+import org.tn5250j.GuiGraphicBuffer;
 import org.tn5250j.My5250;
 import org.tn5250j.SessionPanel;
 import javax.swing.SwingUtilities;
@@ -28,10 +29,24 @@ public final class SwingDebugService {
         });
     }
 
-    public SwingRenderedScreen.Snapshot captureScreen(int sessionId) throws Exception {
+    public ScreenCapture captureScreen(int sessionId, boolean includePlanes, boolean includePainted,
+                                       boolean includeRaster) throws Exception {
         return onEdt(() -> {
             SessionPanel panel = requireSession(sessionId);
-            return SwingRenderedScreen.capture(panel.getScreen());
+            SwingCursorPresentation presentation = panel.debugCursorPresentation();
+            SwingRenderedScreen.CursorState cursor = new SwingRenderedScreen.CursorState(
+                    panel.getScreen().getCurrentRow(),
+                    panel.getScreen().getCurrentCol(),
+                    panel.getScreen().isCursorActive(),
+                    presentation);
+            SwingRenderedScreen.Snapshot logical = SwingRenderedScreen.capture(
+                    panel.getScreen(), includePlanes, cursor);
+            SwingPaintedScreen.Snapshot painted = null;
+            if (includePainted || includeRaster) {
+                GuiGraphicBuffer buffer = panel.debugGraphicBuffer();
+                painted = SwingPaintedScreen.capture(buffer, logical, includeRaster);
+            }
+            return new ScreenCapture(logical, painted);
         });
     }
 
@@ -114,6 +129,16 @@ public final class SwingDebugService {
             throw error.get(0);
         }
         return result.isEmpty() ? null : result.get(0);
+    }
+
+    public static final class ScreenCapture {
+        public final SwingRenderedScreen.Snapshot logical;
+        public final SwingPaintedScreen.Snapshot painted;
+
+        public ScreenCapture(SwingRenderedScreen.Snapshot logical, SwingPaintedScreen.Snapshot painted) {
+            this.logical = logical;
+            this.painted = painted;
+        }
     }
 
     public static final class SessionSummary {
