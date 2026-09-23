@@ -123,6 +123,10 @@ public class GuiGraphicBuffer implements OiaModelListener,
     private boolean cfg_guiInterface = false;
     private boolean cfg_guiShowUnderline = true;
     private int cursorBottOffset;
+    /** Whether the XOR cursor is currently visible in {@link #bi}. */
+    private boolean cursorShownOnBuffer;
+    private int cursorPaintedRow = -1;
+    private int cursorPaintedCol = -1;
     private boolean rulerFixed;
     private javax.swing.Timer blinker;
     private ColumnSeparator colSepLine;
@@ -1091,6 +1095,57 @@ public class GuiGraphicBuffer implements OiaModelListener,
     }
 
     public void drawCursor(int row, int col) {
+        paintCursorXor(row, col);
+    }
+
+    private void handleCursorUpdate(int row, int col) {
+        if (cursorShownOnBuffer && cursorPaintedRow == row && cursorPaintedCol == col) {
+            paintCursorXor(row, col);
+            clearCursorBufferState();
+            return;
+        }
+        if (!screen.isCursorActive()) {
+            return;
+        }
+        paintCursorXor(row, col);
+        cursorShownOnBuffer = true;
+        cursorPaintedRow = row;
+        cursorPaintedCol = col;
+    }
+
+    private void restoreCursorAfterRegionPaint(int startRow, int startCol, int endRow, int endCol) {
+        if (!screen.isCursorActive()) {
+            clearCursorBufferState();
+            return;
+        }
+        int cursorRow = screen.getCurrentRow() - 1;
+        int cursorCol = screen.getCurrentCol() - 1;
+        if (!regionContainsCell(startRow, startCol, endRow, endCol, cursorRow, cursorCol)) {
+            return;
+        }
+        if (cursorShownOnBuffer && cursorPaintedRow == cursorRow && cursorPaintedCol == cursorCol) {
+            cursorShownOnBuffer = false;
+        }
+        if (!cursorShownOnBuffer) {
+            paintCursorXor(cursorRow, cursorCol);
+            cursorShownOnBuffer = true;
+            cursorPaintedRow = cursorRow;
+            cursorPaintedCol = cursorCol;
+        }
+    }
+
+    private void clearCursorBufferState() {
+        cursorShownOnBuffer = false;
+        cursorPaintedRow = -1;
+        cursorPaintedCol = -1;
+    }
+
+    static boolean regionContainsCell(int startRow, int startCol, int endRow, int endCol,
+                                    int row, int col) {
+        return row >= startRow && row <= endRow && col >= startCol && col <= endCol;
+    }
+
+    private void paintCursorXor(int row, int col) {
 
         int botOffset = cursorBottOffset;
         boolean insertMode = screen.getOia().isInsertMode();
@@ -1858,11 +1913,16 @@ public class GuiGraphicBuffer implements OiaModelListener,
             return;
         }
         if (which == 3 || which == 4) {
-            drawCursor(sr, sc);
+            handleCursorUpdate(sr, sc);
             return;
         }
 
         if (hotSpots) screen.checkHotSpots();
+
+        final int paintStartRow = sr;
+        final int paintStartCol = sc;
+        final int paintEndRow = er;
+        final int paintEndCol = ec;
 
         updateRect = new Data(sr, sc, er, ec);
 
@@ -1891,6 +1951,7 @@ public class GuiGraphicBuffer implements OiaModelListener,
             sr++;
         }
         updateImage(clipper);
+        restoreCursorAfterRegionPaint(paintStartRow, paintStartCol, paintEndRow, paintEndCol);
     }
 
     public void onOIAChanged(OiaModel changedOIA, int change) {
