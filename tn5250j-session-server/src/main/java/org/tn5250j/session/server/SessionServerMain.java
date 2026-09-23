@@ -1,10 +1,12 @@
 package org.tn5250j.session.server;
 
+import java.io.IOException;
+import java.net.BindException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import org.tn5250j.tools.logging.SessionDebugLog;
-import org.tn5250j.tools.logging.TN5250jLogFactory;
-import org.tn5250j.tools.logging.TN5250jLogger;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -12,7 +14,6 @@ import picocli.CommandLine.Model.OptionSpec;
 
 @Command(name = "tn5250j-session-server", description = "Host TN5250 sessions over WebSocket.")
 public final class SessionServerMain implements Callable<Integer> {
-    private static final TN5250jLogger log = TN5250jLogFactory.getLogger(SessionServerMain.class);
 
     @Mixin
     private ServerOptions options = new ServerOptions();
@@ -46,10 +47,38 @@ public final class SessionServerMain implements Callable<Integer> {
         } else if (options.debug) {
             SessionDebugLog.enableDebugLogging();
         }
-        WebSocketSessionServer server = new WebSocketSessionServer(
-                new InetSocketAddress(options.bind, options.port), options.token);
-        server.start();
-        log.info("tn5250j session server listening on ws://" + options.bind + ":" + options.port);
-        Thread.currentThread().join();
+        InetSocketAddress address = new InetSocketAddress(options.bind, options.port);
+        ensurePortAvailable(address);
+        WebSocketSessionServer server = new WebSocketSessionServer(address, options.token);
+        Thread serverThread = new Thread(server, "tn5250j-session-server");
+        serverThread.setDaemon(false);
+        serverThread.start();
+        if (!server.awaitStartup(30, TimeUnit.SECONDS)) {
+            serverThread.join(1_000);
+            if (serverThread.isAlive()) {
+                server.stop();
+                serverThread.join(5_000);
+            }
+            throw bindFailure(address);
+        }
+        serverThread.join();
+    }
+
+    static void ensurePortAvailable(InetSocketAddress address) throws IOException {
+        try (ServerSocket probe = new ServerSocket()) {
+            probe.setReuseAddress(true);
+            probe.bind(address);
+        } catch (BindException ex) {
+            throw bindFailure(address);
+        }
+    }
+
+    private static BindException bindFailure(InetSocketAddress address) {
+        int port = address.getPort();
+        BindException failure = new BindException(
+                "Port " + port + " on " + address.getHostString() + " is already in use. "
+                        + "Stop the other listener (ss -tlnp | grep " + port
+                        + " or lsof -i :" + port + ") or choose another --port.");
+        return failure;
     }
 }

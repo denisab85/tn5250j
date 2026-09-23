@@ -12,24 +12,39 @@ import org.tn5250j.session.wire.WsEnvelope;
 import org.tn5250j.session.wire.WsMessageCodec;
 import org.tn5250j.session.wire.WsMessageType;
 import org.tn5250j.tools.logging.SessionDebugLog;
+import org.tn5250j.tools.logging.TN5250jLogFactory;
+import org.tn5250j.tools.logging.TN5250jLogger;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public final class WebSocketSessionServer extends WebSocketServer {
+
+    private static final TN5250jLogger LOG = TN5250jLogFactory.getLogger(WebSocketSessionServer.class);
 
     private final DefaultSessionHostService hostService = new DefaultSessionHostService();
     private final RpcRegistry rpcRegistry = new RpcRegistry();
     private final String authToken;
+    private final InetSocketAddress listenAddress;
+    private final CountDownLatch startupLatch = new CountDownLatch(1);
     private final Map<String, CompletableFuture<WsEnvelope>> pending = new ConcurrentHashMap<>();
     private final Map<WebSocket, ConnectionState> connections = new ConcurrentHashMap<>();
 
     public WebSocketSessionServer(InetSocketAddress address, String authToken) {
         super(address);
+        setReuseAddr(true);
+        this.listenAddress = address;
         this.authToken = authToken == null ? "" : authToken;
         registerRpcHandlers();
+    }
+
+    /** Blocks until {@link #onStart()} runs or the timeout elapses. */
+    public boolean awaitStartup(long timeout, TimeUnit unit) throws InterruptedException {
+        return startupLatch.await(timeout, unit);
     }
 
     public DefaultSessionHostService getHostService() {
@@ -72,6 +87,9 @@ public final class WebSocketSessionServer extends WebSocketServer {
 
     @Override
     public void onStart() {
+        LOG.info("tn5250j session server listening on ws://" + listenAddress.getHostString()
+                + ":" + listenAddress.getPort());
+        startupLatch.countDown();
     }
 
     @Override
